@@ -16,10 +16,23 @@ class F1Media {
     'norris': 'assets/images/NOR.png',
     'leclerc': 'assets/images/LEC.png',
     'piastri': 'assets/images/PIA.png',
-    'sainz': 'assets/images/SAI.png',
-    'alonso': 'assets/images/ALO.png',
     'lawson': 'assets/images/LAW.png',
-
+    'hadjar': 'assets/images/HAD.png',
+    'lindblad': 'assets/images/LIN.png',
+    'colapinto': 'assets/images/COL.png',
+    'gasly': 'assets/images/GAS.png',
+    'bearman': 'assets/images/BEA.png',
+    'hulkenberg': 'assets/images/HUL.png',
+    'bortoleto': 'assets/images/BOR.png',
+    'ocon': 'assets/images/OCO.png',
+    'alonso': 'assets/images/ALO.png',
+    'sainz': 'assets/images/SAI.png',
+    'albon': 'assets/images/ALB.png',
+    'tsunoda': 'assets/images/TSU.png',
+    'stroll': 'assets/images/STR.png',
+    'bottas': 'assets/images/BOT.png',
+    'perez': 'assets/images/PER.png',
+    'hirakawa': 'assets/images/HIR.png',
   };
 
   static String? getLocalAssetPath(String driverId) {
