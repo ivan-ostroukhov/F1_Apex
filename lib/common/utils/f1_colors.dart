@@ -30,7 +30,7 @@ class F1Colors {
     if (lower.contains('aston')) return const Color(0xFF229971);
     if (lower.contains('alpine')) return const Color(0xFFFF87BC);
     if (lower.contains('williams')) return const Color(0xFF64C4FF);
-    if (lower.contains('haas')) return const Color(0xFFB6BABD);
+    if (lower.contains('haas')) return const Color(0xFFFF2A2A);
     if (lower.contains('audi')) return const Color(0xFFE20613);
     if (lower.contains('cadillac')) return const Color(0xFFE8A838);
     if (lower.contains('rb') ||
@@ -55,7 +55,7 @@ class F1Colors {
       if (defaultLower.contains('aston')) return const Color(0xFF229971);
       if (defaultLower.contains('alpine')) return const Color(0xFFFF87BC);
       if (defaultLower.contains('williams')) return const Color(0xFF64C4FF);
-      if (defaultLower.contains('haas')) return const Color(0xFFB6BABD);
+      if (defaultLower.contains('haas')) return const Color(0xFFFF2B2B);
       if (defaultLower.contains('audi')) return const Color(0xFFE20613);
       if (defaultLower.contains('cadillac')) return const Color(0xFFE8A838);
       if (defaultLower.contains('racing bulls')) return const Color(0xFF6692FF);
