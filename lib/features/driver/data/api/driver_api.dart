@@ -32,21 +32,16 @@ class DriverApi {
     String season = 'current',
   }) async {
     try {
+      final path = season == 'career'
+          ? '/drivers/$driverId/results.json'
+          : '/$season/drivers/$driverId/results.json';
       final response = await _dio.get<Map<String, dynamic>>(
-        '/$season/drivers/$driverId/results.json',
+        path,
         queryParameters: {'limit': 30},
       );
       return response.data ?? <String, dynamic>{};
     } catch (_) {
-      try {
-        final fallback = await _dio.get<Map<String, dynamic>>(
-          '/drivers/$driverId/results.json',
-          queryParameters: {'limit': 30},
-        );
-        return fallback.data ?? <String, dynamic>{};
-      } catch (_) {
-        return <String, dynamic>{};
-      }
+      return <String, dynamic>{};
     }
   }
 

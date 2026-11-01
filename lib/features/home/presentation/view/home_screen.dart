@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/team_utils.dart';
 import '../../../../common/network/local_storage_service.dart';
 import '../../../driver/domain/i_driver_repository.dart';
 import '../../../driver/domain/driver_detail_model.dart';
@@ -110,33 +112,74 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
+  (String, String) _getDefaultDriverName(String driverId) {
+    final lower = driverId.toLowerCase().replaceAll('-', '_').trim();
+    if (lower.contains('verstappen')) return ('Max', 'Verstappen');
+    if (lower.contains('leclerc')) return ('Charles', 'Leclerc');
+    if (lower.contains('hamilton')) return ('Lewis', 'Hamilton');
+    if (lower.contains('norris')) return ('Lando', 'Norris');
+    if (lower.contains('piastri')) return ('Oscar', 'Piastri');
+    if (lower.contains('russell')) return ('George', 'Russell');
+    if (lower.contains('antonelli')) return ('Kimi', 'Antonelli');
+    if (lower.contains('alonso')) return ('Fernando', 'Alonso');
+    if (lower.contains('stroll')) return ('Lance', 'Stroll');
+    if (lower.contains('gasly')) return ('Pierre', 'Gasly');
+    if (lower.contains('colapinto')) return ('Franco', 'Colapinto');
+    if (lower.contains('albon')) return ('Alexander', 'Albon');
+    if (lower.contains('sainz')) return ('Carlos', 'Sainz');
+    if (lower.contains('tsunoda')) return ('Yuki', 'Tsunoda');
+    if (lower.contains('lawson')) return ('Liam', 'Lawson');
+    if (lower.contains('lindblad')) return ('Arvid', 'Lindblad');
+    if (lower.contains('bearman')) return ('Oliver', 'Bearman');
+    if (lower.contains('ocon')) return ('Esteban', 'Ocon');
+    if (lower.contains('hulkenberg')) return ('Nico', 'Hulkenberg');
+    if (lower.contains('bortoleto')) return ('Gabriel', 'Bortoleto');
+    if (lower.contains('hadjar')) return ('Isack', 'Hadjar');
+    if (lower.contains('bottas')) return ('Valtteri', 'Bottas');
+    if (lower.contains('perez')) return ('Sergio', 'Perez');
+    return (driverId.toUpperCase(), '');
+  }
+
   DriverDetailModel _fallbackDriverDetail(String id) {
+    final cached = LocalStorageService.getString('driver_detail_${id}_2026');
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        return DriverDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+      } catch (_) {}
+    }
+    final name = _getDefaultDriverName(id);
     return DriverDetailModel(
       id: id,
-      firstName: id.toUpperCase(),
-      lastName: '',
+      firstName: name.$1,
+      lastName: name.$2,
       code: id.length >= 3 ? id.substring(0, 3).toUpperCase() : id.toUpperCase(),
       permanentNumber: '1',
-      teamName: 'F1 Team',
-      position: '01',
-      points: '100',
-      wins: 1,
-      podiums: 3,
-      poles: 1,
+      teamName: TeamUtils.getDefaultTeamForDriver(id),
+      position: '0',
+      points: '0',
+      wins: 0,
+      podiums: 0,
+      poles: 0,
       dnfs: 0,
       dateOfBirth: '—',
       nationality: '—',
       firstRace: '—',
       firstWin: '—',
       worldChampionships: 0,
-      roundPoints: const [25, 18, 15, 25, 18],
+      roundPoints: const [],
     );
   }
 
   ConstructorDetailModel _fallbackTeamDetail(String id) {
+    final cached = LocalStorageService.getString('constructor_detail_${id}_2026');
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        return ConstructorDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+      } catch (_) {}
+    }
     return ConstructorDetailModel(
       id: id,
-      name: id.toUpperCase().replaceAll('_', ' '),
+      name: TeamUtils.cleanTeamName(id.toUpperCase().replaceAll('_', ' ')),
       chassis: 'F1 2026',
       engine: 'F1 Engine',
       teamPrincipal: 'Principal',
@@ -178,40 +221,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (index) {
       case 0:
+        final defaultTeam1 = TeamUtils.getDefaultTeamForDriver(_favDriver1);
+        final defaultName1 = _getDefaultDriverName(_favDriver1);
         return _buildDriverSlide(
           driverId: _favDriver1,
-          bgText: d1?.firstName.isNotEmpty == true ? d1!.firstName.toLowerCase() : _favDriver1,
-          firstName: d1?.firstName ?? 'Max',
-          lastName: d1?.lastName ?? 'Verstappen',
-          teamName: d1?.teamName.isNotEmpty == true ? d1!.teamName : 'Red Bull Racing',
-          pos: d1?.position != null && d1!.position != '0' ? d1.position.padLeft(2, '0') : '04',
-          wins: d1?.wins != null ? d1!.wins.toString().padLeft(2, '0') : '02',
-          pts: d1?.points ?? '236',
+          bgText: d1?.firstName.isNotEmpty == true ? d1!.firstName.toLowerCase() : defaultName1.$1.toLowerCase(),
+          firstName: d1?.firstName.isNotEmpty == true ? d1!.firstName : defaultName1.$1,
+          lastName: d1?.lastName.isNotEmpty == true ? d1!.lastName : defaultName1.$2,
+          teamName: d1?.teamName.isNotEmpty == true ? d1!.teamName : defaultTeam1,
+          pos: d1?.position != null && d1!.position != '0' ? d1.position.padLeft(2, '0') : '—',
+          wins: d1?.wins != null ? d1!.wins.toString().padLeft(2, '0') : '00',
+          pts: d1?.points != null && d1!.points != '0' ? d1.points : '0',
           chartPoints: d1?.roundPoints != null && d1!.roundPoints.isNotEmpty
               ? d1.roundPoints.map((p) => p ?? 0).toList()
-              : const [12, 18, 25, 15, 25, 18, 25, 12, 18, 25, 15, 25, 18],
+              : const [],
         );
       case 1:
+        final defaultTeam2 = TeamUtils.getDefaultTeamForDriver(_favDriver2);
+        final defaultName2 = _getDefaultDriverName(_favDriver2);
         return _buildDriverSlide(
           driverId: _favDriver2,
-          bgText: d2?.firstName.isNotEmpty == true ? d2!.firstName.toLowerCase() : _favDriver2,
-          firstName: d2?.firstName ?? 'Oscar',
-          lastName: d2?.lastName ?? 'Piastri',
-          teamName: d2?.teamName.isNotEmpty == true ? d2!.teamName : 'McLaren',
-          pos: d2?.position != null && d2!.position != '0' ? d2.position.padLeft(2, '0') : '07',
+          bgText: d2?.firstName.isNotEmpty == true ? d2!.firstName.toLowerCase() : defaultName2.$1.toLowerCase(),
+          firstName: d2?.firstName.isNotEmpty == true ? d2!.firstName : defaultName2.$1,
+          lastName: d2?.lastName.isNotEmpty == true ? d2!.lastName : defaultName2.$2,
+          teamName: d2?.teamName.isNotEmpty == true ? d2!.teamName : defaultTeam2,
+          pos: d2?.position != null && d2!.position != '0' ? d2.position.padLeft(2, '0') : '—',
           wins: d2?.wins != null ? d2!.wins.toString().padLeft(2, '0') : '00',
-          pts: d2?.points ?? '144',
+          pts: d2?.points != null && d2!.points != '0' ? d2.points : '0',
           chartPoints: d2?.roundPoints != null && d2!.roundPoints.isNotEmpty
               ? d2.roundPoints.map((p) => p ?? 0).toList()
-              : const [10, 12, 15, 18, 12, 25, 10, 15, 12, 15],
+              : const [],
         );
       case 2:
+        final defaultTeam = TeamUtils.cleanTeamName(_favTeam);
         return _buildTeamSlide(
-          teamName: tm?.name.isNotEmpty == true ? tm!.name : 'Red Bull Racing',
+          teamName: tm?.name.isNotEmpty == true ? tm!.name : defaultTeam,
           bgText: tm?.name.isNotEmpty == true ? tm!.name.toLowerCase() : _favTeam,
-          pos: tm?.position != null && tm!.position != '0' ? tm.position.padLeft(2, '0') : '03',
-          wins: tm?.wins != null ? tm!.wins.toString().padLeft(2, '0') : '02',
-          pts: tm?.points ?? '355',
+          pos: tm?.position != null && tm!.position != '0' ? tm.position.padLeft(2, '0') : '01',
+          wins: tm?.wins != null ? tm!.wins.toString().padLeft(2, '0') : '00',
+          pts: tm?.points ?? '0',
           carAssetPath: tm?.carAssetPath ?? 'assets/images/$_favTeam.png',
         );
       case 3:
@@ -612,7 +660,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String pts,
     required List<int> chartPoints,
   }) {
-    final teamColor = F1Colors.getTeamColor(teamName);
+    final teamColor = F1Colors.getTeamColor(teamName, driverId);
 
     return Stack(
       clipBehavior: Clip.none,

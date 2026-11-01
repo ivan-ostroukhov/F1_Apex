@@ -1,9 +1,11 @@
+import 'dart:convert';
 import '../domain/constructor_model.dart';
 import '../domain/constructor_detail_model.dart';
 import '../domain/constructor_repository.dart';
 import 'data_sources/constructor_data_source.dart';
 import 'dto/constructor_dto.dart';
 import 'mappers/constructor_mapper.dart';
+import '../../../../common/network/local_storage_service.dart';
 
 class TeamMetaData {
   final String chassis;
@@ -176,6 +178,35 @@ class ConstructorRepository implements IConstructorRepository {
     String? season,
   }) async {
     final querySeason = season ?? '2026';
+    final isPastSeason = querySeason != '2026' && querySeason != 'current';
+    final cacheKey = 'constructor_detail_${constructorId}_$querySeason';
+    final tsKey = 'constructor_detail_ts_${constructorId}_$querySeason';
+
+    // 1. Check local cache
+    ConstructorDetailModel? cachedModel;
+    final cachedStr = LocalStorageService.getString(cacheKey);
+    if (cachedStr != null && cachedStr.isNotEmpty) {
+      try {
+        cachedModel = ConstructorDetailModel.fromJson(
+          jsonDecode(cachedStr) as Map<String, dynamic>,
+        );
+      } catch (_) {}
+    }
+
+    if (isPastSeason && cachedModel != null) {
+      return cachedModel;
+    }
+
+    if (cachedModel != null) {
+      final tsStr = LocalStorageService.getString(tsKey);
+      final ts = int.tryParse(tsStr ?? '') ?? 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now - ts < const Duration(hours: 2).inMilliseconds) {
+        return cachedModel;
+      }
+    }
+
+    // 2. Fetch from network
     try {
       final seasonResultsFuture = _dataSource.getConstructorSeasonResults(
         constructorId,
@@ -260,7 +291,7 @@ class ConstructorRepository implements IConstructorRepository {
 
       final meta = _getMeta(constructorId, name);
 
-      return ConstructorDetailModel(
+      final model = ConstructorDetailModel(
         id: constructorId,
         name: name.isNotEmpty ? name : constructorId.toUpperCase(),
         chassis: meta.chassis,
@@ -280,7 +311,15 @@ class ConstructorRepository implements IConstructorRepository {
         carAssetPath: meta.carAssetPath,
         drivers: driversMap.values.toList(),
       );
+
+      LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
+      LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
+
+      return model;
     } catch (e) {
+      if (cachedModel != null) {
+        return cachedModel;
+      }
       final meta = _getMeta(constructorId, constructorId);
       return ConstructorDetailModel(
         id: constructorId,
@@ -307,10 +346,23 @@ class ConstructorRepository implements IConstructorRepository {
 
   @override
   Future<List<String>> getConstructorSeasons(String constructorId) async {
-    final seasons = await _dataSource.getConstructorSeasons(constructorId);
-    if (seasons.isEmpty) {
-      return ['2026', '2025', '2024', '2023'];
+    final cacheKey = 'constructor_seasons_$constructorId';
+    final cached = LocalStorageService.getString(cacheKey);
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        final list = (jsonDecode(cached) as List<dynamic>).map((e) => e.toString()).toList();
+        if (list.isNotEmpty) return list;
+      } catch (_) {}
     }
-    return seasons;
+
+    try {
+      final seasons = await _dataSource.getConstructorSeasons(constructorId);
+      if (seasons.isNotEmpty) {
+        LocalStorageService.setString(cacheKey, jsonEncode(seasons));
+        return seasons;
+      }
+    } catch (_) {}
+
+    return ['2026', '2025', '2024', '2023'];
   }
 }

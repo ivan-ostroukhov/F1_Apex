@@ -305,7 +305,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
           final dynamicTeamName = (detail != null && detail.teamName.isNotEmpty)
               ? detail.teamName
               : fallbackTeamName;
-          final displayTeamColor = F1Colors.getTeamColor(dynamicTeamName);
+          final displayTeamColor = F1Colors.getTeamColor(dynamicTeamName, widget.driverId);
 
           String displayPosition = fallbackPositionNumber;
           if (detail != null && detail.position != '0') {
