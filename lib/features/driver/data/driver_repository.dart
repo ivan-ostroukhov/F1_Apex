@@ -104,17 +104,28 @@ class DriverRepository implements IDriverRepository {
 
     // 1. Check local cache
     DriverDetailModel? cachedModel;
-    final cachedStr = LocalStorageService.getString(cacheKey);
+    var cachedStr = LocalStorageService.getString(cacheKey);
+    cachedStr ??= LocalStorageService.getString('driver_detail_${driverId}_$season');
+    cachedStr ??= LocalStorageService.getString('driver_detail_${normalizedId}_2026');
+    cachedStr ??= LocalStorageService.getString('driver_detail_${driverId}_2026');
     if (cachedStr != null && cachedStr.isNotEmpty) {
       try {
-        cachedModel = DriverDetailModel.fromJson(
+        final candidate = DriverDetailModel.fromJson(
           jsonDecode(cachedStr) as Map<String, dynamic>,
         );
+        if (candidate.points != '0' || candidate.roundPoints.isNotEmpty) {
+          cachedModel = candidate;
+        }
       } catch (_) {}
     }
 
     // Past seasons never change. Return immediately if cached!
     if (isPastSeason && cachedModel != null) {
+      return cachedModel;
+    }
+
+    // For 2026, return cached/bundled immediately if available!
+    if (season == '2026' && cachedModel != null) {
       return cachedModel;
     }
 
@@ -289,14 +300,29 @@ class DriverRepository implements IDriverRepository {
         season: season,
       );
 
-      // Save to cache
-      LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
-      LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
+      if ((model.points == '0' || model.roundPoints.isEmpty) && cachedModel != null) {
+        return cachedModel;
+      }
 
-      return model;
+      // Save to cache only if valid non-empty
+      if (model.points != '0' || model.roundPoints.isNotEmpty) {
+        LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
+        LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
+      }
+
+      return (model.points == '0' && model.roundPoints.isEmpty && cachedModel != null)
+          ? cachedModel
+          : model;
     } catch (e) {
       if (cachedModel != null) {
         return cachedModel;
+      }
+      final fallbackStr = LocalStorageService.getString('driver_detail_${driverId}_2026') ??
+          LocalStorageService.getString('driver_detail_${normalizedId}_2026');
+      if (fallbackStr != null) {
+        try {
+          return DriverDetailModel.fromJson(jsonDecode(fallbackStr) as Map<String, dynamic>);
+        } catch (_) {}
       }
       return DriverDetailModel(
         id: driverId,
@@ -304,7 +330,7 @@ class DriverRepository implements IDriverRepository {
         lastName: '',
         code: driverId.length >= 3 ? driverId.substring(0, 3).toUpperCase() : driverId.toUpperCase(),
         permanentNumber: '',
-        teamName: '',
+        teamName: TeamUtils.getDefaultTeamForDriver(driverId),
         position: '0',
         points: '0',
         wins: 0,

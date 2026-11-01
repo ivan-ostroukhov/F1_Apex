@@ -184,16 +184,20 @@ class ConstructorRepository implements IConstructorRepository {
 
     // 1. Check local cache
     ConstructorDetailModel? cachedModel;
-    final cachedStr = LocalStorageService.getString(cacheKey);
+    var cachedStr = LocalStorageService.getString(cacheKey);
+    cachedStr ??= LocalStorageService.getString('constructor_detail_${constructorId}_2026');
     if (cachedStr != null && cachedStr.isNotEmpty) {
       try {
-        cachedModel = ConstructorDetailModel.fromJson(
+        final candidate = ConstructorDetailModel.fromJson(
           jsonDecode(cachedStr) as Map<String, dynamic>,
         );
+        if (candidate.points != '0' || candidate.position != '0' || candidate.wins > 0) {
+          cachedModel = candidate;
+        }
       } catch (_) {}
     }
 
-    if (isPastSeason && cachedModel != null) {
+    if ((isPastSeason || querySeason == '2026') && cachedModel != null) {
       return cachedModel;
     }
 
@@ -312,13 +316,25 @@ class ConstructorRepository implements IConstructorRepository {
         drivers: driversMap.values.toList(),
       );
 
-      LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
-      LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
+      if ((model.points == '0' || model.position == '0') && cachedModel != null) {
+        return cachedModel;
+      }
 
-      return model;
+      if (model.points != '0' || model.position != '0' || model.wins > 0) {
+        LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
+        LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
+      }
+
+      return (model.points == '0' && cachedModel != null) ? cachedModel : model;
     } catch (e) {
       if (cachedModel != null) {
         return cachedModel;
+      }
+      final fallbackStr = LocalStorageService.getString('constructor_detail_${constructorId}_2026');
+      if (fallbackStr != null) {
+        try {
+          return ConstructorDetailModel.fromJson(jsonDecode(fallbackStr) as Map<String, dynamic>);
+        } catch (_) {}
       }
       final meta = _getMeta(constructorId, constructorId);
       return ConstructorDetailModel(

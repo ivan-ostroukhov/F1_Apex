@@ -86,10 +86,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final d2 = LocalStorageService.getString('fav_driver_2') ?? 'piastri';
     final tm = LocalStorageService.getString('fav_team') ?? 'red_bull';
 
+    final initialD1 = _fallbackDriverDetail(d1);
+    final initialD2 = _fallbackDriverDetail(d2);
+    final initialTm = _fallbackTeamDetail(tm);
+
     setState(() {
       _favDriver1 = d1;
       _favDriver2 = d2;
       _favTeam = tm;
+      _driver1Detail = initialD1;
+      _driver2Detail = initialD2;
+      _teamDetail = initialTm;
     });
 
     try {
@@ -97,16 +104,25 @@ class _HomeScreenState extends State<HomeScreen> {
       final teamRepo = context.read<IConstructorRepository>();
 
       final results = await Future.wait([
-        driverRepo.getDriverDetails(d1).catchError((_) => _fallbackDriverDetail(d1)),
-        driverRepo.getDriverDetails(d2).catchError((_) => _fallbackDriverDetail(d2)),
-        teamRepo.getConstructorDetails(tm).catchError((_) => _fallbackTeamDetail(tm)),
+        driverRepo.getDriverDetails(d1).catchError((_) => initialD1),
+        driverRepo.getDriverDetails(d2).catchError((_) => initialD2),
+        teamRepo.getConstructorDetails(tm).catchError((_) => initialTm),
       ]);
 
       if (mounted) {
         setState(() {
-          _driver1Detail = results[0] as DriverDetailModel;
-          _driver2Detail = results[1] as DriverDetailModel;
-          _teamDetail = results[2] as ConstructorDetailModel;
+          final res1 = results[0] as DriverDetailModel;
+          if (res1.points != '0' || res1.roundPoints.isNotEmpty) {
+            _driver1Detail = res1;
+          }
+          final res2 = results[1] as DriverDetailModel;
+          if (res2.points != '0' || res2.roundPoints.isNotEmpty) {
+            _driver2Detail = res2;
+          }
+          final resTeam = results[2] as ConstructorDetailModel;
+          if (resTeam.points != '0' || resTeam.position != '0' || resTeam.wins > 0) {
+            _teamDetail = resTeam;
+          }
         });
       }
     } catch (_) {}
@@ -141,10 +157,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   DriverDetailModel _fallbackDriverDetail(String id) {
-    final cached = LocalStorageService.getString('driver_detail_${id}_2026');
+    final normId = id == 'verstappen' ? 'max_verstappen' : id;
+    var cached = LocalStorageService.getString('driver_detail_${id}_2026');
+    cached ??= LocalStorageService.getString('driver_detail_${normId}_2026');
+    cached ??= LocalStorageService.getString('driver_detail_$id');
+    cached ??= LocalStorageService.getString('driver_detail_$normId');
+
     if (cached != null && cached.isNotEmpty) {
       try {
-        return DriverDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+        final model = DriverDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+        if (model.points != '0' || model.roundPoints.isNotEmpty) {
+          return model;
+        }
       } catch (_) {}
     }
     final name = _getDefaultDriverName(id);
@@ -171,10 +195,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   ConstructorDetailModel _fallbackTeamDetail(String id) {
-    final cached = LocalStorageService.getString('constructor_detail_${id}_2026');
+    var cached = LocalStorageService.getString('constructor_detail_${id}_2026');
+    cached ??= LocalStorageService.getString('constructor_detail_$id');
     if (cached != null && cached.isNotEmpty) {
       try {
-        return ConstructorDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+        final model = ConstructorDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+        if (model.points != '0' || model.position != '0' || model.wins > 0) {
+          return model;
+        }
       } catch (_) {}
     }
     return ConstructorDetailModel(
