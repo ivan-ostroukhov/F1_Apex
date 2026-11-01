@@ -28,6 +28,9 @@ class DriverListCubit extends Cubit<DriverListState> {
     } on LoadException {
       if (isClosed) return;
       emit(const DriverListError());
+    } catch (_) {
+      if (isClosed) return;
+      emit(const DriverListError());
     }
   }
 }

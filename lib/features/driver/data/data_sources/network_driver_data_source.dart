@@ -21,6 +21,8 @@ class NetworkDriverDataSource implements IDriverDataSource {
       return lists.first.driverStandings;
     } on DioException catch (e) {
       throw _mapDioException(e);
+    } catch (_) {
+      throw const NetworkLoadException();
     }
   }
 
@@ -35,6 +37,8 @@ class NetworkDriverDataSource implements IDriverDataSource {
       return lists.first.driverStandings.first;
     } on DioException catch (e) {
       throw _mapDioException(e);
+    } catch (_) {
+      throw const NotFoundLoadException();
     }
   }
 

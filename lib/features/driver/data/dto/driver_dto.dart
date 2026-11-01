@@ -1,59 +1,64 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'driver_dto.g.dart';
-
-@JsonSerializable(createToJson: false)
 class ErgastStandingsResponseDto {
-  @JsonKey(name: 'MRData')
   final MrDataDto mrData;
 
   const ErgastStandingsResponseDto({required this.mrData});
 
-  factory ErgastStandingsResponseDto.fromJson(Map<String, dynamic> json) =>
-      _$ErgastStandingsResponseDtoFromJson(json);
+  factory ErgastStandingsResponseDto.fromJson(Map<String, dynamic> json) {
+    return ErgastStandingsResponseDto(
+      mrData: MrDataDto.fromJson(json['MRData'] as Map<String, dynamic>? ?? {}),
+    );
+  }
 }
 
-@JsonSerializable(createToJson: false)
 class MrDataDto {
-  @JsonKey(name: 'StandingsTable')
   final StandingsTableDto standingsTable;
 
   const MrDataDto({required this.standingsTable});
 
-  factory MrDataDto.fromJson(Map<String, dynamic> json) =>
-      _$MrDataDtoFromJson(json);
+  factory MrDataDto.fromJson(Map<String, dynamic> json) {
+    return MrDataDto(
+      standingsTable: StandingsTableDto.fromJson(
+        json['StandingsTable'] as Map<String, dynamic>? ?? {},
+      ),
+    );
+  }
 }
 
-@JsonSerializable(createToJson: false)
 class StandingsTableDto {
-  @JsonKey(name: 'StandingsLists')
   final List<StandingsListDto> standingsLists;
 
   const StandingsTableDto({required this.standingsLists});
 
-  factory StandingsTableDto.fromJson(Map<String, dynamic> json) =>
-      _$StandingsTableDtoFromJson(json);
+  factory StandingsTableDto.fromJson(Map<String, dynamic> json) {
+    final lists = json['StandingsLists'] as List<dynamic>? ?? [];
+    return StandingsTableDto(
+      standingsLists: lists
+          .map((e) => StandingsListDto.fromJson(e as Map<String, dynamic>? ?? {}))
+          .toList(),
+    );
+  }
 }
 
-@JsonSerializable(createToJson: false)
 class StandingsListDto {
-  @JsonKey(name: 'DriverStandings')
   final List<DriverStandingDto> driverStandings;
 
   const StandingsListDto({required this.driverStandings});
 
-  factory StandingsListDto.fromJson(Map<String, dynamic> json) =>
-      _$StandingsListDtoFromJson(json);
+  factory StandingsListDto.fromJson(Map<String, dynamic> json) {
+    final standings = json['DriverStandings'] as List<dynamic>? ?? [];
+    return StandingsListDto(
+      driverStandings: standings
+          .map((e) => DriverStandingDto.fromJson(e as Map<String, dynamic>? ?? {}))
+          .toList(),
+    );
+  }
 }
 
-@JsonSerializable(createToJson: false)
 class DriverStandingDto {
   final String points;
   final String? position;
   final String? wins;
-  @JsonKey(name: 'Driver')
   final DriverInfoDto driver;
-  @JsonKey(name: 'Constructors')
   final List<ConstructorDto> constructors;
 
   const DriverStandingDto({
@@ -64,11 +69,20 @@ class DriverStandingDto {
     required this.constructors,
   });
 
-  factory DriverStandingDto.fromJson(Map<String, dynamic> json) =>
-      _$DriverStandingDtoFromJson(json);
+  factory DriverStandingDto.fromJson(Map<String, dynamic> json) {
+    final constructorsList = json['Constructors'] as List<dynamic>? ?? [];
+    return DriverStandingDto(
+      points: json['points'] as String? ?? '0',
+      position: json['position'] as String?,
+      wins: json['wins'] as String?,
+      driver: DriverInfoDto.fromJson(json['Driver'] as Map<String, dynamic>? ?? {}),
+      constructors: constructorsList
+          .map((e) => ConstructorDto.fromJson(e as Map<String, dynamic>? ?? {}))
+          .toList(),
+    );
+  }
 }
 
-@JsonSerializable(createToJson: false)
 class DriverInfoDto {
   final String driverId;
   final String? permanentNumber;
@@ -84,11 +98,17 @@ class DriverInfoDto {
     required this.nationality,
   });
 
-  factory DriverInfoDto.fromJson(Map<String, dynamic> json) =>
-      _$DriverInfoDtoFromJson(json);
+  factory DriverInfoDto.fromJson(Map<String, dynamic> json) {
+    return DriverInfoDto(
+      driverId: json['driverId'] as String? ?? '',
+      permanentNumber: json['permanentNumber'] as String?,
+      givenName: json['givenName'] as String? ?? '',
+      familyName: json['familyName'] as String? ?? '',
+      nationality: json['nationality'] as String? ?? '',
+    );
+  }
 }
 
-@JsonSerializable(createToJson: false)
 class ConstructorDto {
   final String constructorId;
   final String name;
@@ -98,6 +118,10 @@ class ConstructorDto {
     required this.name,
   });
 
-  factory ConstructorDto.fromJson(Map<String, dynamic> json) =>
-      _$ConstructorDtoFromJson(json);
+  factory ConstructorDto.fromJson(Map<String, dynamic> json) {
+    return ConstructorDto(
+      constructorId: json['constructorId'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+    );
+  }
 }
