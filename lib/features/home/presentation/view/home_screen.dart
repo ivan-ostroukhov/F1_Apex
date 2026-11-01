@@ -788,7 +788,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.bar_chart, size: 15, color: Colors.blueAccent),
+                  Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
                   Text(
                     '$pos ${l10n.driverPositionShort}',
@@ -799,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Icon(Icons.stars, size: 15, color: Colors.blueAccent),
+                  Icon(Icons.stars, size: 15, color: teamColor),
                   const SizedBox(width: 4),
                   Text(
                     '$wins ${l10n.winsLabel}',
@@ -940,7 +940,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.bar_chart, size: 15, color: Colors.blueAccent),
+                  Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
                   Text(
                     '$pos ${l10n.driverPositionShort}',
@@ -951,7 +951,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Icon(Icons.stars, size: 15, color: Colors.blueAccent),
+                  Icon(Icons.stars, size: 15, color: teamColor),
                   const SizedBox(width: 4),
                   Text(
                     '$wins ${l10n.winsLabel}',
