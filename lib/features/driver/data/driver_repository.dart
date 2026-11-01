@@ -16,8 +16,37 @@ class DriverRepository implements IDriverRepository {
 
   @override
   Future<List<DriverModel>> getDrivers({String? query}) async {
-    final dtos = await _dataSource.getDriverStandings();
-    final drivers = dtos.toDomainList();
+    List<DriverModel> drivers = [];
+
+    final cached = LocalStorageService.getString('driver_standings');
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        final list = (jsonDecode(cached) as List<dynamic>)
+            .map((e) => DriverModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        if (list.isNotEmpty) drivers = list;
+      } catch (_) {}
+    }
+
+    try {
+      final dtos = await _dataSource.getDriverStandings();
+      final liveList = dtos.toDomainList();
+      if (liveList.isNotEmpty) {
+        drivers = liveList;
+        LocalStorageService.setString(
+          'driver_standings',
+          jsonEncode(liveList.map((d) => d.toJson()).toList()),
+        );
+      }
+    } catch (_) {
+      if (drivers.isEmpty) {
+        drivers = _getFallbackDriverList();
+      }
+    }
+
+    if (drivers.isEmpty) {
+      drivers = _getFallbackDriverList();
+    }
 
     if (query == null || query.trim().isEmpty) {
       return drivers;
@@ -28,6 +57,32 @@ class DriverRepository implements IDriverRepository {
             d.name.toLowerCase().contains(q) ||
             d.teamName.toLowerCase().contains(q))
         .toList();
+  }
+
+  List<DriverModel> _getFallbackDriverList() {
+    return const [
+      DriverModel(id: 'verstappen', name: 'Max Verstappen', permanentNumber: 1, teamName: 'Red Bull', points: 437, teammateId: 'lawson', imageUrl: ''),
+      DriverModel(id: 'norris', name: 'Lando Norris', permanentNumber: 4, teamName: 'McLaren', points: 374, teammateId: 'piastri', imageUrl: ''),
+      DriverModel(id: 'leclerc', name: 'Charles Leclerc', permanentNumber: 16, teamName: 'Ferrari', points: 356, teammateId: 'hamilton', imageUrl: ''),
+      DriverModel(id: 'piastri', name: 'Oscar Piastri', permanentNumber: 81, teamName: 'McLaren', points: 292, teammateId: 'norris', imageUrl: ''),
+      DriverModel(id: 'sainz', name: 'Carlos Sainz', permanentNumber: 55, teamName: 'Williams', points: 290, teammateId: 'albon', imageUrl: ''),
+      DriverModel(id: 'russell', name: 'George Russell', permanentNumber: 63, teamName: 'Mercedes', points: 245, teammateId: 'antonelli', imageUrl: ''),
+      DriverModel(id: 'hamilton', name: 'Lewis Hamilton', permanentNumber: 44, teamName: 'Ferrari', points: 223, teammateId: 'leclerc', imageUrl: ''),
+      DriverModel(id: 'hadjar', name: 'Isack Hadjar', permanentNumber: 6, teamName: 'Red Bull', points: 180, teammateId: 'verstappen', imageUrl: ''),
+      DriverModel(id: 'lawson', name: 'Liam Lawson', permanentNumber: 30, teamName: 'Racing Bulls', points: 150, teammateId: 'tsunoda', imageUrl: ''),
+      DriverModel(id: 'gasly', name: 'Pierre Gasly', permanentNumber: 10, teamName: 'Alpine', points: 120, teammateId: 'colapinto', imageUrl: ''),
+      DriverModel(id: 'lindblad', name: 'Arvid Lindblad', permanentNumber: 41, teamName: 'Racing Bulls', points: 100, teammateId: 'tsunoda', imageUrl: ''),
+      DriverModel(id: 'colapinto', name: 'Franco Colapinto', permanentNumber: 43, teamName: 'Alpine', points: 80, teammateId: 'gasly', imageUrl: ''),
+      DriverModel(id: 'bearman', name: 'Oliver Bearman', permanentNumber: 38, teamName: 'Haas', points: 60, teammateId: 'ocon', imageUrl: ''),
+      DriverModel(id: 'hulkenberg', name: 'Nico Hülkenberg', permanentNumber: 27, teamName: 'Audi', points: 40, teammateId: 'bortoleto', imageUrl: ''),
+      DriverModel(id: 'albon', name: 'Alexander Albon', permanentNumber: 23, teamName: 'Williams', points: 35, teammateId: 'sainz', imageUrl: ''),
+      DriverModel(id: 'tsunoda', name: 'Yuki Tsunoda', permanentNumber: 22, teamName: 'Racing Bulls', points: 30, teammateId: 'lawson', imageUrl: ''),
+      DriverModel(id: 'stroll', name: 'Lance Stroll', permanentNumber: 18, teamName: 'Aston Martin', points: 24, teammateId: 'alonso', imageUrl: ''),
+      DriverModel(id: 'alonso', name: 'Fernando Alonso', permanentNumber: 14, teamName: 'Aston Martin', points: 20, teammateId: 'stroll', imageUrl: ''),
+      DriverModel(id: 'ocon', name: 'Esteban Ocon', permanentNumber: 31, teamName: 'Haas', points: 15, teammateId: 'bearman', imageUrl: ''),
+      DriverModel(id: 'bortoleto', name: 'Gabriel Bortoleto', permanentNumber: 5, teamName: 'Audi', points: 10, teammateId: 'hulkenberg', imageUrl: ''),
+      DriverModel(id: 'antonelli', name: 'Andrea Kimi Antonelli', permanentNumber: 12, teamName: 'Mercedes', points: 8, teammateId: 'russell', imageUrl: ''),
+    ];
   }
 
   @override
@@ -44,8 +99,7 @@ class DriverRepository implements IDriverRepository {
     final specificDto = results[1] as DriverStandingDto?;
 
     final domainList = standings.toDomainList();
-    final normalized = _normalizeDriverId(id);
-    final fromList = domainList.where((d) => d.id == id || d.id == normalized).firstOrNull;
+    final fromList = domainList.where((d) => d.id == id).firstOrNull;
 
     if (fromList != null) {
       return fromList;
@@ -60,8 +114,7 @@ class DriverRepository implements IDriverRepository {
 
   @override
   Future<List<String>> getDriverSeasons(String driverId) async {
-    final normalizedId = _normalizeDriverId(driverId);
-    final cacheKey = 'driver_seasons_$normalizedId';
+    final cacheKey = 'driver_seasons_$driverId';
     final cached = LocalStorageService.getString(cacheKey);
     if (cached != null && cached.isNotEmpty) {
       try {
@@ -71,7 +124,7 @@ class DriverRepository implements IDriverRepository {
     }
 
     try {
-      final seasons = await _dataSource.getDriverSeasons(normalizedId);
+      final seasons = await _dataSource.getDriverSeasons(driverId);
       if (seasons.isNotEmpty) {
         LocalStorageService.setString(cacheKey, jsonEncode(seasons));
         return seasons;
@@ -81,56 +134,32 @@ class DriverRepository implements IDriverRepository {
     return ['2026', '2025', '2024'];
   }
 
-  String _normalizeDriverId(String id) {
-    final lower = id.toLowerCase().trim();
-    if (lower == 'verstappen') return 'max_verstappen';
-    if (lower == 'lindblad') return 'arvid_lindblad';
-    if (lower == 'hirakawa') return 'ryo_hirakawa';
-    return lower;
-  }
-
   @override
   Future<DriverDetailModel> getDriverDetails(
     String driverId, {
     String season = '2026',
   }) async {
-    final normalizedId = _normalizeDriverId(driverId);
     final isCareer = season == 'career';
     final querySeason = isCareer ? 'current' : season;
     final isPastSeason = season != '2026' && season != 'current' && !isCareer;
-    final standingsSeason = isCareer || season == '2026' ? 'current' : season;
-    final cacheKey = 'driver_detail_${normalizedId}_$season';
-    final tsKey = 'driver_detail_ts_${normalizedId}_$season';
+    final cacheKey = 'driver_detail_${driverId}_$season';
+    final tsKey = 'driver_detail_ts_${driverId}_$season';
 
-    // 1. Check local cache
     DriverDetailModel? cachedModel;
-    var cachedStr = LocalStorageService.getString(cacheKey);
-    cachedStr ??= LocalStorageService.getString('driver_detail_${driverId}_$season');
-    cachedStr ??= LocalStorageService.getString('driver_detail_${normalizedId}_2026');
-    cachedStr ??= LocalStorageService.getString('driver_detail_${driverId}_2026');
+    final cachedStr = LocalStorageService.getString(cacheKey);
     if (cachedStr != null && cachedStr.isNotEmpty) {
       try {
-        final candidate = DriverDetailModel.fromJson(
+        cachedModel = DriverDetailModel.fromJson(
           jsonDecode(cachedStr) as Map<String, dynamic>,
         );
-        if (candidate.points != '0' || candidate.roundPoints.isNotEmpty) {
-          cachedModel = candidate;
-        }
       } catch (_) {}
     }
 
-    // Past seasons never change. Return immediately if cached!
     if (isPastSeason && cachedModel != null) {
       return cachedModel;
     }
 
-    // For 2026, return cached/bundled immediately if available!
-    if (season == '2026' && cachedModel != null) {
-      return cachedModel;
-    }
-
-    // For current season / career, if cache is fresh (< 2 hours), return immediately!
-    if (cachedModel != null) {
+    if (cachedModel != null && cachedModel.points != '0' && cachedModel.position != '0' && cachedModel.position != '21') {
       final tsStr = LocalStorageService.getString(tsKey);
       final ts = int.tryParse(tsStr ?? '') ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -139,9 +168,8 @@ class DriverRepository implements IDriverRepository {
       }
     }
 
-    // 2. Fetch from network, falling back to cachedModel on failure
     try {
-      final milestoneKey = 'driver_milestones_$normalizedId';
+      final milestoneKey = 'driver_milestones_$driverId';
       final cachedMilestonesStr = LocalStorageService.getString(milestoneKey);
       Map<String, dynamic>? milestones;
       if (cachedMilestonesStr != null && cachedMilestonesStr.isNotEmpty) {
@@ -150,14 +178,14 @@ class DriverRepository implements IDriverRepository {
         } catch (_) {}
       }
 
-      final seasonDataFuture = _dataSource.getDriverSeasonResults(normalizedId, season: querySeason);
+      final seasonDataFuture = _dataSource.getDriverSeasonResults(driverId, season: querySeason);
       final careerDataFuture = (milestones != null)
           ? Future.value(<String, dynamic>{})
-          : _dataSource.getDriverCareerMilestones(normalizedId);
+          : _dataSource.getDriverCareerMilestones(driverId);
       final standingFuture = isCareer
           ? Future.value(null)
           : _dataSource
-              .getDriverById(normalizedId, season: standingsSeason)
+              .getDriverById(driverId, season: querySeason)
               .then<DriverStandingDto?>((val) => val)
               .catchError((_) => null);
 
@@ -186,7 +214,7 @@ class DriverRepository implements IDriverRepository {
       String nationality = milestones?['nationality'] as String? ?? '';
       String givenName = milestones?['givenName'] as String? ?? '';
       String familyName = milestones?['familyName'] as String? ?? '';
-      String teamName = seasonStanding?.constructors.firstOrNull?.name ?? '';
+      String rawTeamName = seasonStanding?.constructors.firstOrNull?.name ?? '';
       String position = seasonStanding?.position ?? (isCareer ? '—' : '0');
       String pointsStr = seasonStanding?.points ?? (isCareer ? '—' : '0');
 
@@ -204,9 +232,9 @@ class DriverRepository implements IDriverRepository {
         givenName = driverObj['givenName'] as String? ?? givenName;
         familyName = driverObj['familyName'] as String? ?? familyName;
 
-        if (teamName.isEmpty) {
+        if (rawTeamName.isEmpty) {
           final constr = res['Constructor'] as Map<String, dynamic>? ?? {};
-          teamName = constr['name'] as String? ?? teamName;
+          rawTeamName = constr['name'] as String? ?? rawTeamName;
         }
 
         final pos = int.tryParse(res['position'] as String? ?? '') ?? 0;
@@ -224,10 +252,25 @@ class DriverRepository implements IDriverRepository {
         }
       }
 
-      if (pointsStr == '0' && roundPoints.isNotEmpty) {
+      if (season == '2026' || season == 'current') {
+        try {
+          final allDrivers = await getDrivers();
+          final matched = allDrivers.where((d) => d.id.toLowerCase() == driverId.toLowerCase()).firstOrNull;
+          if (matched != null) {
+            final idx = allDrivers.indexOf(matched);
+            position = (idx + 1).toString();
+            pointsStr = matched.points.toString();
+            rawTeamName = matched.teamName;
+          }
+        } catch (_) {}
+      }
+
+      if ((pointsStr == '0' || pointsStr == '—') && roundPoints.isNotEmpty) {
         final sum = roundPoints.fold<int>(0, (a, b) => a + (b ?? 0));
         if (sum > 0) pointsStr = sum.toString();
       }
+
+      final teamName = TeamUtils.cleanTeamName(rawTeamName, driverId);
 
       String firstRaceStr = milestones?['firstRace'] as String? ?? '';
       String firstWinStr = milestones?['firstWin'] as String? ?? '';
@@ -284,7 +327,7 @@ class DriverRepository implements IDriverRepository {
             ? code
             : (driverId.length >= 3 ? driverId.substring(0, 3).toUpperCase() : driverId.toUpperCase()),
         permanentNumber: permanentNumber,
-        teamName: TeamUtils.cleanTeamName(teamName),
+        teamName: teamName,
         position: position,
         points: pointsStr,
         wins: wins,
@@ -300,29 +343,13 @@ class DriverRepository implements IDriverRepository {
         season: season,
       );
 
-      if ((model.points == '0' || model.roundPoints.isEmpty) && cachedModel != null) {
-        return cachedModel;
-      }
+      LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
+      LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
 
-      // Save to cache only if valid non-empty
-      if (model.points != '0' || model.roundPoints.isNotEmpty) {
-        LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
-        LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
-      }
-
-      return (model.points == '0' && model.roundPoints.isEmpty && cachedModel != null)
-          ? cachedModel
-          : model;
+      return model;
     } catch (e) {
       if (cachedModel != null) {
         return cachedModel;
-      }
-      final fallbackStr = LocalStorageService.getString('driver_detail_${driverId}_2026') ??
-          LocalStorageService.getString('driver_detail_${normalizedId}_2026');
-      if (fallbackStr != null) {
-        try {
-          return DriverDetailModel.fromJson(jsonDecode(fallbackStr) as Map<String, dynamic>);
-        } catch (_) {}
       }
       return DriverDetailModel(
         id: driverId,
@@ -330,7 +357,7 @@ class DriverRepository implements IDriverRepository {
         lastName: '',
         code: driverId.length >= 3 ? driverId.substring(0, 3).toUpperCase() : driverId.toUpperCase(),
         permanentNumber: '',
-        teamName: TeamUtils.getDefaultTeamForDriver(driverId),
+        teamName: TeamUtils.getRealDriverTeam(driverId),
         position: '0',
         points: '0',
         wins: 0,

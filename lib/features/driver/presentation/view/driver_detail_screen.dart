@@ -307,14 +307,17 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
               : fallbackTeamName;
           final displayTeamColor = F1Colors.getTeamColor(dynamicTeamName, widget.driverId);
 
-          String displayPosition = fallbackPositionNumber;
-          if (detail != null && detail.position != '0') {
-            displayPosition = detail.position.padLeft(2, '0');
-          }
+          final displayPosition = isLoading
+              ? '..'
+              : (detail != null && detail.position.isNotEmpty && detail.position != '0'
+                  ? (detail.position != '—' ? detail.position.padLeft(2, '0') : '—')
+                  : (_selectedSeason == '2026' ? fallbackPositionNumber : '—'));
 
-          final displayPoints = (detail != null && detail.points != '0')
-              ? detail.points
-              : (isLoading ? '..' : fallbackPoints);
+          final displayPoints = isLoading
+              ? '..'
+              : (detail != null
+                  ? detail.points
+                  : (_selectedSeason == '2026' ? fallbackPoints : '0'));
 
           final winsStr = isLoading
               ? '..'
@@ -330,8 +333,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
               : (detail?.dnfs ?? 0).toString().padLeft(2, '0');
 
           final chartPoints = (detail?.roundPoints != null && detail!.roundPoints.isNotEmpty)
-              ? detail.roundPoints.map((p) => p ?? 0).toList()
-              : <int>[];
+              ? detail.roundPoints
+              : <int?>[];
 
           final driverCode = (detail != null && detail.code.isNotEmpty)
               ? detail.code

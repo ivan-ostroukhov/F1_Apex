@@ -67,6 +67,14 @@ class LocalStorageService {
         if ((pts == '0' || pts.isEmpty) && (pos == '0' || pos == '—') && rounds.isEmpty) {
           return true;
         }
+        final seasonMatch = RegExp(r'_(\d{4}|career)$').firstMatch(key);
+        if (seasonMatch != null) {
+          final expectedSeason = seasonMatch.group(1);
+          final actualSeason = map['season'] as String?;
+          if (actualSeason != null && actualSeason.isNotEmpty && actualSeason != expectedSeason) {
+            return true;
+          }
+        }
       } catch (_) {
         return true;
       }
@@ -78,6 +86,14 @@ class LocalStorageService {
         final wins = (map['wins'] as num?)?.toInt() ?? 0;
         if ((pts == '0' || pts.isEmpty) && (pos == '0' || pos == '—') && wins == 0) {
           return true;
+        }
+        final seasonMatch = RegExp(r'_(\d{4}|career)$').firstMatch(key);
+        if (seasonMatch != null) {
+          final expectedSeason = seasonMatch.group(1);
+          final actualSeason = map['season'] as String?;
+          if (actualSeason != null && actualSeason.isNotEmpty && actualSeason != expectedSeason) {
+            return true;
+          }
         }
       } catch (_) {
         return true;
@@ -176,44 +192,50 @@ class LocalStorageService {
     }
     if (key.startsWith('driver_detail_') && _bundledDriverDetails != null) {
       final detailKey = key.replaceAll('driver_detail_', '');
-      final with2026 = detailKey.endsWith('_2026') ? detailKey : '${detailKey}_2026';
-      if (_bundledDriverDetails!.containsKey(detailKey)) {
-        final encoded = jsonEncode(_bundledDriverDetails![detailKey]);
-        _box?.put(key, encoded);
-        return encoded;
-      }
-      if (_bundledDriverDetails!.containsKey(with2026)) {
-        final encoded = jsonEncode(_bundledDriverDetails![with2026]);
-        _box?.put(key, encoded);
-        return encoded;
-      }
-      final normalizedKey = detailKey.contains('max_verstappen')
-          ? detailKey.replaceAll('max_verstappen', 'verstappen')
-          : detailKey.replaceAll('verstappen', 'max_verstappen');
-      if (_bundledDriverDetails!.containsKey(normalizedKey)) {
-        final encoded = jsonEncode(_bundledDriverDetails![normalizedKey]);
-        _box?.put(key, encoded);
-        return encoded;
-      }
-      final normalizedWith2026 = normalizedKey.endsWith('_2026') ? normalizedKey : '${normalizedKey}_2026';
-      if (_bundledDriverDetails!.containsKey(normalizedWith2026)) {
-        final encoded = jsonEncode(_bundledDriverDetails![normalizedWith2026]);
-        _box?.put(key, encoded);
-        return encoded;
+      final isOtherSeason = RegExp(r'_(?!2026)\d{4}$|_career$').hasMatch(detailKey);
+      if (!isOtherSeason) {
+        final with2026 = detailKey.endsWith('_2026') ? detailKey : '${detailKey}_2026';
+        if (_bundledDriverDetails!.containsKey(detailKey)) {
+          final encoded = jsonEncode(_bundledDriverDetails![detailKey]);
+          _box?.put(key, encoded);
+          return encoded;
+        }
+        if (_bundledDriverDetails!.containsKey(with2026)) {
+          final encoded = jsonEncode(_bundledDriverDetails![with2026]);
+          _box?.put(key, encoded);
+          return encoded;
+        }
+        final normalizedKey = detailKey.contains('max_verstappen')
+            ? detailKey.replaceAll('max_verstappen', 'verstappen')
+            : detailKey.replaceAll('verstappen', 'max_verstappen');
+        if (_bundledDriverDetails!.containsKey(normalizedKey)) {
+          final encoded = jsonEncode(_bundledDriverDetails![normalizedKey]);
+          _box?.put(key, encoded);
+          return encoded;
+        }
+        final normalizedWith2026 = normalizedKey.endsWith('_2026') ? normalizedKey : '${normalizedKey}_2026';
+        if (_bundledDriverDetails!.containsKey(normalizedWith2026)) {
+          final encoded = jsonEncode(_bundledDriverDetails![normalizedWith2026]);
+          _box?.put(key, encoded);
+          return encoded;
+        }
       }
     }
     if (key.startsWith('constructor_detail_') && _bundledConstructorDetails != null) {
       final detailKey = key.replaceAll('constructor_detail_', '');
-      final with2026 = detailKey.endsWith('_2026') ? detailKey : '${detailKey}_2026';
-      if (_bundledConstructorDetails!.containsKey(detailKey)) {
-        final encoded = jsonEncode(_bundledConstructorDetails![detailKey]);
-        _box?.put(key, encoded);
-        return encoded;
-      }
-      if (_bundledConstructorDetails!.containsKey(with2026)) {
-        final encoded = jsonEncode(_bundledConstructorDetails![with2026]);
-        _box?.put(key, encoded);
-        return encoded;
+      final isOtherSeason = RegExp(r'_(?!2026)\d{4}$|_career$').hasMatch(detailKey);
+      if (!isOtherSeason) {
+        final with2026 = detailKey.endsWith('_2026') ? detailKey : '${detailKey}_2026';
+        if (_bundledConstructorDetails!.containsKey(detailKey)) {
+          final encoded = jsonEncode(_bundledConstructorDetails![detailKey]);
+          _box?.put(key, encoded);
+          return encoded;
+        }
+        if (_bundledConstructorDetails!.containsKey(with2026)) {
+          final encoded = jsonEncode(_bundledConstructorDetails![with2026]);
+          _box?.put(key, encoded);
+          return encoded;
+        }
       }
     }
     return null;

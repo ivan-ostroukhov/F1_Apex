@@ -185,13 +185,17 @@ class ConstructorRepository implements IConstructorRepository {
     // 1. Check local cache
     ConstructorDetailModel? cachedModel;
     var cachedStr = LocalStorageService.getString(cacheKey);
-    cachedStr ??= LocalStorageService.getString('constructor_detail_${constructorId}_2026');
+    if (querySeason == '2026' || querySeason == 'current') {
+      cachedStr ??= LocalStorageService.getString('constructor_detail_${constructorId}_2026');
+    }
     if (cachedStr != null && cachedStr.isNotEmpty) {
       try {
         final candidate = ConstructorDetailModel.fromJson(
           jsonDecode(cachedStr) as Map<String, dynamic>,
         );
-        if (candidate.points != '0' || candidate.position != '0' || candidate.wins > 0) {
+        final candidateSeason = candidate.season;
+        final matchesSeason = candidateSeason.isEmpty || candidateSeason == querySeason;
+        if (matchesSeason && (candidate.points != '0' || candidate.position != '0' || candidate.wins > 0)) {
           cachedModel = candidate;
         }
       } catch (_) {}
@@ -330,11 +334,13 @@ class ConstructorRepository implements IConstructorRepository {
       if (cachedModel != null) {
         return cachedModel;
       }
-      final fallbackStr = LocalStorageService.getString('constructor_detail_${constructorId}_2026');
-      if (fallbackStr != null) {
-        try {
-          return ConstructorDetailModel.fromJson(jsonDecode(fallbackStr) as Map<String, dynamic>);
-        } catch (_) {}
+      if (querySeason == '2026') {
+        final fallbackStr = LocalStorageService.getString('constructor_detail_${constructorId}_2026');
+        if (fallbackStr != null) {
+          try {
+            return ConstructorDetailModel.fromJson(jsonDecode(fallbackStr) as Map<String, dynamic>);
+          } catch (_) {}
+        }
       }
       final meta = _getMeta(constructorId, constructorId);
       return ConstructorDetailModel(

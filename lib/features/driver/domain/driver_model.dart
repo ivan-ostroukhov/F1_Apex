@@ -16,4 +16,24 @@ class DriverModel {
     required this.teammateId,
     required this.imageUrl,
   });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'permanentNumber': permanentNumber,
+        'teamName': teamName,
+        'points': points,
+        'teammateId': teammateId,
+        'imageUrl': imageUrl,
+      };
+
+  factory DriverModel.fromJson(Map<String, dynamic> json) => DriverModel(
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        permanentNumber: json['permanentNumber'] as int? ?? 0,
+        teamName: json['teamName'] as String? ?? '',
+        points: json['points'] as int? ?? 0,
+        teammateId: json['teammateId'] as String? ?? '',
+        imageUrl: json['imageUrl'] as String? ?? '',
+      );
 }
