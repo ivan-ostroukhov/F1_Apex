@@ -3,6 +3,7 @@ class HomeNewsModel {
   final String title;
   final String source;
   final String timeAgo;
+  final String? timeAgoEn;
   final String imageUrl;
   final String url;
 
@@ -11,6 +12,7 @@ class HomeNewsModel {
     required this.title,
     required this.source,
     required this.timeAgo,
+    this.timeAgoEn,
     required this.imageUrl,
     required this.url,
   });

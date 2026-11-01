@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/team_utils.dart';
 import '../../../../common/network/local_storage_service.dart';
+import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../driver/domain/i_driver_repository.dart';
 import '../../../driver/domain/driver_detail_model.dart';
 import '../../../constructor/domain/constructor_repository.dart';
@@ -243,6 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _getSlideWidget(int index) {
+    final l10n = AppLocalizations.of(context)!;
     final d1 = _driver1Detail;
     final d2 = _driver2Detail;
     final tm = _teamDetail;
@@ -252,6 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final defaultTeam1 = TeamUtils.getDefaultTeamForDriver(_favDriver1);
         final defaultName1 = _getDefaultDriverName(_favDriver1);
         return _buildDriverSlide(
+          l10n: l10n,
           driverId: _favDriver1,
           bgText: d1?.firstName.isNotEmpty == true ? d1!.firstName.toLowerCase() : defaultName1.$1.toLowerCase(),
           firstName: d1?.firstName.isNotEmpty == true ? d1!.firstName : defaultName1.$1,
@@ -268,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final defaultTeam2 = TeamUtils.getDefaultTeamForDriver(_favDriver2);
         final defaultName2 = _getDefaultDriverName(_favDriver2);
         return _buildDriverSlide(
+          l10n: l10n,
           driverId: _favDriver2,
           bgText: d2?.firstName.isNotEmpty == true ? d2!.firstName.toLowerCase() : defaultName2.$1.toLowerCase(),
           firstName: d2?.firstName.isNotEmpty == true ? d2!.firstName : defaultName2.$1,
@@ -283,6 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         final defaultTeam = TeamUtils.cleanTeamName(_favTeam);
         return _buildTeamSlide(
+          l10n: l10n,
           teamName: tm?.name.isNotEmpty == true ? tm!.name : defaultTeam,
           bgText: tm?.name.isNotEmpty == true ? tm!.name.toLowerCase() : _favTeam,
           pos: tm?.position != null && tm!.position != '0' ? tm.position.padLeft(2, '0') : '01',
@@ -295,9 +300,9 @@ class _HomeScreenState extends State<HomeScreen> {
         return _buildRaceSlide(
           bgText: 'mexico',
           locality: 'Mexico City',
-          dateRange: '31 Окт. - 02 Нояб.',
-          sessionTitle: 'Practice 1',
-          sessionDate: '31 СБ',
+          dateRange: l10n.mexicoDateRange,
+          sessionTitle: l10n.mexicoSessionTitle,
+          sessionDate: l10n.mexicoSessionDate,
           sessionTime: '00:30 - 01:30',
         );
     }
@@ -305,6 +310,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: CustomScrollView(
@@ -430,11 +438,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildProgressStat('18/23', 'Гран-при завершено'),
+                            _buildProgressStat('18/23', l10n.grandPrixCompleted),
                             const Divider(color: Colors.white12, height: 16),
-                            _buildProgressStat('5483.0 КМ', 'Пройдено'),
+                            _buildProgressStat(isEn ? '5483.0 KM' : '5483.0 КМ', l10n.distanceCovered),
                             const Divider(color: Colors.white12, height: 16),
-                            _buildProgressStat('1 082', 'Пройдено кругов'),
+                            _buildProgressStat('1 082', l10n.lapsCompleted),
                           ],
                         ),
                       ),
@@ -449,13 +457,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.bolt, color: Colors.white, size: 22),
-                          SizedBox(width: 6),
+                          const Icon(Icons.bolt, color: Colors.white, size: 22),
+                          const SizedBox(width: 6),
                           Text(
-                            'Срочные новости',
-                            style: TextStyle(
+                            l10n.breakingNews,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -465,9 +473,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       TextButton(
                         onPressed: () => _openNewsUrl('https://www.formula1.com/en/latest/all.html'),
-                        child: const Text(
-                          'Посмотреть все >',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.viewAllNews,
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
                           ),
@@ -579,7 +587,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ],
                                             ),
                                             Text(
-                                              news.timeAgo,
+                                              isEn && news.timeAgoEn != null ? news.timeAgoEn! : news.timeAgo,
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 color: Colors.white38,
@@ -607,9 +615,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'R19 Гран-при Мехико',
-                        style: TextStyle(
+                      Text(
+                        l10n.mexicoGrandPrixTitle,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
@@ -617,13 +625,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      _buildWhiteStagePill('71', 'Количество кругов', const Color(0xFFFFD600), Icons.repeat_rounded),
+                      _buildWhiteStagePill('71', l10n.lapsCount, const Color(0xFFFFD600), Icons.repeat_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill('356.9 км/ч', 'Максимальная скорость', const Color(0xFF00E676), Icons.speed_rounded),
+                      _buildWhiteStagePill(isEn ? '356.9 km/h' : '356.9 км/ч', l10n.maxSpeed, const Color(0xFF00E676), Icons.speed_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill('17', 'Количество поворотов', const Color(0xFF2979FF), Icons.alt_route_rounded),
+                      _buildWhiteStagePill('17', l10n.turnsCount, const Color(0xFF2979FF), Icons.alt_route_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill('2.67 м', 'Перепад высот', const Color(0xFFFF3D00), Icons.height_rounded),
+                      _buildWhiteStagePill(isEn ? '2.67 m' : '2.67 м', l10n.elevationChange, const Color(0xFFFF3D00), Icons.height_rounded),
                     ],
                   ),
                 ),
@@ -636,31 +644,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildRecordTile(
-                        'Самая успешная команда-конструктор',
-                        '04 ПОБЕДЫ',
+                        l10n.mostSuccessfulConstructor,
+                        l10n.recordWinsFormat('04'),
                         'Red Bull',
                       ),
                       Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
                       _buildRecordTile(
-                        'Самые успешные пилоты',
-                        '04 ПОБЕДЫ',
+                        l10n.mostSuccessfulDrivers,
+                        l10n.recordWinsFormat('04'),
                         'Max Verstappen',
                       ),
                       Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
                       _buildRecordTile(
-                        'Рекорд круга гонки',
+                        l10n.raceLapRecord,
                         '1:14.774',
                         'Valtteri Bottas',
                       ),
                       Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
                       _buildRecordTile(
-                        'Самый быстрый пит-стоп сезона',
-                        '1.80 с',
+                        l10n.fastestPitStop,
+                        isEn ? '1.80 s' : '1.80 с',
                         'McLaren (2023 Qatar GP)',
                       ),
                       Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
                       _buildRecordTile(
-                        'Самый быстрый круг сезона',
+                        l10n.fastestLapSeason,
                         '1:11.890',
                         'Lando Norris',
                       ),
@@ -678,6 +686,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDriverSlide({
+    required AppLocalizations l10n,
     required String driverId,
     required String bgText,
     required String firstName,
@@ -782,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.bar_chart, size: 15, color: Colors.blueAccent),
                   const SizedBox(width: 4),
                   Text(
-                    '$pos поз',
+                    '$pos ${l10n.driverPositionShort}',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -793,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.stars, size: 15, color: Colors.blueAccent),
                   const SizedBox(width: 4),
                   Text(
-                    '$wins Победы',
+                    '$wins ${l10n.winsLabel}',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -817,9 +826,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'блв',
-                    style: TextStyle(
+                  Text(
+                    l10n.driverPointsShort,
+                    style: const TextStyle(
                       fontSize: 15,
                       color: Colors.white70,
                       fontWeight: FontWeight.bold,
@@ -835,6 +844,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTeamSlide({
+    required AppLocalizations l10n,
     required String teamName,
     required String bgText,
     required String pos,
@@ -933,7 +943,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.bar_chart, size: 15, color: Colors.blueAccent),
                   const SizedBox(width: 4),
                   Text(
-                    '$pos поз',
+                    '$pos ${l10n.driverPositionShort}',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -944,7 +954,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.stars, size: 15, color: Colors.blueAccent),
                   const SizedBox(width: 4),
                   Text(
-                    '$wins Победы',
+                    '$wins ${l10n.winsLabel}',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -968,9 +978,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'блв',
-                    style: TextStyle(
+                  Text(
+                    l10n.driverPointsShort,
+                    style: const TextStyle(
                       fontSize: 15,
                       color: Colors.white70,
                       fontWeight: FontWeight.bold,

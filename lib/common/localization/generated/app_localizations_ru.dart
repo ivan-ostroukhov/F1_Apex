@@ -213,4 +213,63 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get metricUnits => 'Метрика';
+
+  @override
+  String get grandPrixCompleted => 'Гран-при завершено';
+
+  @override
+  String get distanceCovered => 'Пройдено';
+
+  @override
+  String get lapsCompleted => 'Пройдено кругов';
+
+  @override
+  String get breakingNews => 'Срочные новости';
+
+  @override
+  String get viewAllNews => 'Посмотреть все >';
+
+  @override
+  String get mexicoGrandPrixTitle => 'R19 Гран-при Мехико';
+
+  @override
+  String get lapsCount => 'Количество кругов';
+
+  @override
+  String get maxSpeed => 'Максимальная скорость';
+
+  @override
+  String get turnsCount => 'Количество поворотов';
+
+  @override
+  String get elevationChange => 'Перепад высот';
+
+  @override
+  String get mostSuccessfulConstructor => 'Самая успешная команда-конструктор';
+
+  @override
+  String recordWinsFormat(String count) {
+    return '$count ПОБЕДЫ';
+  }
+
+  @override
+  String get mostSuccessfulDrivers => 'Самые успешные пилоты';
+
+  @override
+  String get raceLapRecord => 'Рекорд круга гонки';
+
+  @override
+  String get fastestPitStop => 'Самый быстрый пит-стоп сезона';
+
+  @override
+  String get fastestLapSeason => 'Самый быстрый круг сезона';
+
+  @override
+  String get mexicoDateRange => '31 Окт. - 02 Нояб.';
+
+  @override
+  String get mexicoSessionDate => '31 СБ';
+
+  @override
+  String get mexicoSessionTitle => 'Practice 1';
 }

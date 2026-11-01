@@ -499,6 +499,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Metric'**
   String get metricUnits;
+
+  /// No description provided for @grandPrixCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Grand Prix completed'**
+  String get grandPrixCompleted;
+
+  /// No description provided for @distanceCovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance covered'**
+  String get distanceCovered;
+
+  /// No description provided for @lapsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Laps completed'**
+  String get lapsCompleted;
+
+  /// No description provided for @breakingNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking News'**
+  String get breakingNews;
+
+  /// No description provided for @viewAllNews.
+  ///
+  /// In en, this message translates to:
+  /// **'View all >'**
+  String get viewAllNews;
+
+  /// No description provided for @mexicoGrandPrixTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'R19 Mexico City Grand Prix'**
+  String get mexicoGrandPrixTitle;
+
+  /// No description provided for @lapsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of laps'**
+  String get lapsCount;
+
+  /// No description provided for @maxSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top speed'**
+  String get maxSpeed;
+
+  /// No description provided for @turnsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of turns'**
+  String get turnsCount;
+
+  /// No description provided for @elevationChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation change'**
+  String get elevationChange;
+
+  /// No description provided for @mostSuccessfulConstructor.
+  ///
+  /// In en, this message translates to:
+  /// **'Most successful constructor'**
+  String get mostSuccessfulConstructor;
+
+  /// No description provided for @recordWinsFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} WINS'**
+  String recordWinsFormat(String count);
+
+  /// No description provided for @mostSuccessfulDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Most successful drivers'**
+  String get mostSuccessfulDrivers;
+
+  /// No description provided for @raceLapRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Race lap record'**
+  String get raceLapRecord;
+
+  /// No description provided for @fastestPitStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest pit stop of the season'**
+  String get fastestPitStop;
+
+  /// No description provided for @fastestLapSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest lap of the season'**
+  String get fastestLapSeason;
+
+  /// No description provided for @mexicoDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct 31 - Nov 02'**
+  String get mexicoDateRange;
+
+  /// No description provided for @mexicoSessionDate.
+  ///
+  /// In en, this message translates to:
+  /// **'31 SAT'**
+  String get mexicoSessionDate;
+
+  /// No description provided for @mexicoSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice 1'**
+  String get mexicoSessionTitle;
 }
 
 class _AppLocalizationsDelegate

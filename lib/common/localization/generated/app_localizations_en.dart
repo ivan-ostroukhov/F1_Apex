@@ -213,4 +213,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricUnits => 'Metric';
+
+  @override
+  String get grandPrixCompleted => 'Grand Prix completed';
+
+  @override
+  String get distanceCovered => 'Distance covered';
+
+  @override
+  String get lapsCompleted => 'Laps completed';
+
+  @override
+  String get breakingNews => 'Breaking News';
+
+  @override
+  String get viewAllNews => 'View all >';
+
+  @override
+  String get mexicoGrandPrixTitle => 'R19 Mexico City Grand Prix';
+
+  @override
+  String get lapsCount => 'Number of laps';
+
+  @override
+  String get maxSpeed => 'Top speed';
+
+  @override
+  String get turnsCount => 'Number of turns';
+
+  @override
+  String get elevationChange => 'Elevation change';
+
+  @override
+  String get mostSuccessfulConstructor => 'Most successful constructor';
+
+  @override
+  String recordWinsFormat(String count) {
+    return '$count WINS';
+  }
+
+  @override
+  String get mostSuccessfulDrivers => 'Most successful drivers';
+
+  @override
+  String get raceLapRecord => 'Race lap record';
+
+  @override
+  String get fastestPitStop => 'Fastest pit stop of the season';
+
+  @override
+  String get fastestLapSeason => 'Fastest lap of the season';
+
+  @override
+  String get mexicoDateRange => 'Oct 31 - Nov 02';
+
+  @override
+  String get mexicoSessionDate => '31 SAT';
+
+  @override
+  String get mexicoSessionTitle => 'Practice 1';
 }
