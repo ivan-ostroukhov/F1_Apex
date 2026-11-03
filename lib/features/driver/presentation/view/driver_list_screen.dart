@@ -100,9 +100,6 @@ class _DriversContent extends StatelessWidget {
                   ),
                 ),
 
-
-
-
                 Positioned(
                   right: 12,
                   top: 30,
@@ -174,17 +171,18 @@ class _DriversContent extends StatelessWidget {
                       child: Row(
                         children: [
                           const SizedBox(
-                            width: 32,
+                            width: 38,
                             child: Text(
                               '01',
                               style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
                                 color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.5,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 14),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,20 +192,20 @@ class _DriversContent extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                     color: Colors.white,
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(height: 3),
+                                const SizedBox(height: 2),
                                 Text(
                                   leader.teamName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: leaderTeamColor,
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
+                                    color: leaderTeamColor,
                                   ),
                                 ),
                               ],
@@ -219,24 +217,26 @@ class _DriversContent extends StatelessWidget {
                               Text(
                                 '${leader.points}',
                                 style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
                               Text(
-                                'очк',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                l10n.driverPointsShort,
+                                style: const TextStyle(
                                   fontSize: 11,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(width: 8),
-                          Icon(
+                          const SizedBox(width: 10),
+                          const Icon(
                             Icons.chevron_right,
-                            color: Colors.white.withValues(alpha: 0.4),
+                            color: Colors.white38,
                             size: 20,
                           ),
                         ],
@@ -251,22 +251,16 @@ class _DriversContent extends StatelessWidget {
 
         SliverList(
           delegate: SliverChildBuilderDelegate(
-                (context, index) {
+            (context, index) {
               final driver = drivers[index + 1];
               final positionNumber = (index + 2).toString().padLeft(2, '0');
               final teamColor = F1Colors.getTeamColor(driver.teamName);
 
-              return Column(
-                children: [
-                  Divider(
-                    color: Colors.white.withValues(alpha: 0.07),
-                    height: 1,
-                    indent: 16,
-                    endIndent: 16,
-                  ),
-                  InkWell(
-                    onTap: () => context.push('/drivers/${driver.id}'),
-                    child: Padding(
+              return InkWell(
+                onTap: () => context.push('/drivers/${driver.id}'),
+                child: Column(
+                  children: [
+                    Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
@@ -274,17 +268,18 @@ class _DriversContent extends StatelessWidget {
                       child: Row(
                         children: [
                           SizedBox(
-                            width: 32,
+                            width: 38,
                             child: Text(
                               positionNumber,
                               style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
                                 color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.5,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 14),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,20 +289,20 @@ class _DriversContent extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                     color: Colors.white,
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(height: 3),
+                                const SizedBox(height: 2),
                                 Text(
                                   driver.teamName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: teamColor,
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
+                                    color: teamColor,
                                   ),
                                 ),
                               ],
@@ -319,31 +314,37 @@ class _DriversContent extends StatelessWidget {
                               Text(
                                 '${driver.points}',
                                 style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
                               Text(
-                                'очк',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                l10n.driverPointsShort,
+                                style: const TextStyle(
                                   fontSize: 11,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(width: 8),
-                          Icon(
+                          const SizedBox(width: 10),
+                          const Icon(
                             Icons.chevron_right,
-                            color: Colors.white.withValues(alpha: 0.4),
+                            color: Colors.white38,
                             size: 20,
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    Divider(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      height: 1,
+                    ),
+                  ],
+                ),
               );
             },
             childCount: drivers.length - 1,
