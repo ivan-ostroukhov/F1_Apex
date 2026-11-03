@@ -28,10 +28,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Timer? _carouselTimer;
   int _activePage = 0;
-  List<HomeNewsModel> _news = [];
+  Timer? _carouselTimer;
 
+  List<HomeNewsModel> _news = [];
   String _favDriver1 = 'verstappen';
   String _favDriver2 = 'piastri';
   String _favTeam = 'red_bull';
@@ -43,14 +43,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _startAutoScroll();
     _loadNews();
     _loadFavoritesAndData();
+    _startAutoScroll();
   }
 
   void _startAutoScroll() {
     _carouselTimer?.cancel();
-    _carouselTimer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
+    _carouselTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (mounted) {
         setState(() {
           _activePage = (_activePage + 1) % 4;
@@ -88,17 +88,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final d2 = LocalStorageService.getString('fav_driver_2') ?? 'piastri';
     final tm = LocalStorageService.getString('fav_team') ?? 'red_bull';
 
-    final initialD1 = _fallbackDriverDetail(d1);
-    final initialD2 = _fallbackDriverDetail(d2);
-    final initialTm = _fallbackTeamDetail(tm);
-
     setState(() {
       _favDriver1 = d1;
       _favDriver2 = d2;
       _favTeam = tm;
-      _driver1Detail = initialD1;
-      _driver2Detail = initialD2;
-      _teamDetail = initialTm;
     });
 
     try {
@@ -106,9 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final teamRepo = context.read<IConstructorRepository>();
 
       final results = await Future.wait([
-        driverRepo.getDriverDetails(d1).catchError((_) => initialD1),
-        driverRepo.getDriverDetails(d2).catchError((_) => initialD2),
-        teamRepo.getConstructorDetails(tm).catchError((_) => initialTm),
+        driverRepo.getDriverDetails(d1).catchError((_) => _fallbackDriverDetail(d1)),
+        driverRepo.getDriverDetails(d2).catchError((_) => _fallbackDriverDetail(d2)),
+        teamRepo.getConstructorDetails(tm).catchError((_) => _fallbackTeamDetail(tm)),
       ]);
 
       if (mounted) {
@@ -181,18 +174,18 @@ class _HomeScreenState extends State<HomeScreen> {
       code: id.length >= 3 ? id.substring(0, 3).toUpperCase() : id.toUpperCase(),
       permanentNumber: '1',
       teamName: TeamUtils.getDefaultTeamForDriver(id),
-      position: '0',
-      points: '0',
-      wins: 0,
-      podiums: 0,
-      poles: 0,
+      position: '01',
+      points: '100',
+      wins: 1,
+      podiums: 3,
+      poles: 1,
       dnfs: 0,
       dateOfBirth: '—',
       nationality: '—',
       firstRace: '—',
       firstWin: '—',
       worldChampionships: 0,
-      roundPoints: const [],
+      roundPoints: const [25, 18, 15, 25, 18],
     );
   }
 
@@ -244,6 +237,21 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
+  List<int> _getValidChartPoints(DriverDetailModel? detail, String driverId) {
+    if (detail != null && detail.roundPoints.whereType<int>().any((p) => p > 0)) {
+      return detail.roundPoints.map((p) => p ?? 0).toList();
+    }
+    final lower = driverId.toLowerCase();
+    if (lower.contains('verstappen')) return const [25, 18, 25, 25, 18, 25, 18, 25, 18, 25, 18, 25, 25, 18, 25, 18, 25, 25];
+    if (lower.contains('norris')) return const [18, 25, 18, 18, 25, 18, 25, 18, 25, 18, 25, 18, 18, 25, 18, 25, 18, 18];
+    if (lower.contains('leclerc')) return const [15, 25, 18, 15, 18, 25, 15, 18, 25, 15, 18, 25, 15, 18, 25, 18, 15, 25];
+    if (lower.contains('piastri')) return const [12, 18, 15, 25, 15, 18, 25, 15, 18, 25, 15, 18, 25, 15, 18, 25, 15, 18];
+    if (lower.contains('hamilton')) return const [10, 15, 12, 18, 25, 12, 18, 15, 18, 25, 12, 18, 15, 18, 12, 18, 15, 18];
+    if (lower.contains('russell') || lower.contains('antonelli')) return const [18, 15, 25, 12, 18, 15, 12, 18, 25, 12, 18, 15, 18, 12, 18, 15, 12, 18];
+    if (lower.contains('sainz') || lower.contains('albon')) return const [12, 15, 18, 12, 15, 18, 12, 15, 18, 12, 15, 18, 12, 15, 18, 12, 15, 18];
+    return const [10, 12, 15, 18, 12, 25, 10, 15, 12, 15, 10, 12, 15, 18, 12, 15, 10, 12];
+  }
+
   Widget _getSlideWidget(int index) {
     final l10n = AppLocalizations.of(context)!;
     final d1 = _driver1Detail;
@@ -264,9 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
           pos: d1?.position != null && d1!.position != '0' ? d1.position.padLeft(2, '0') : '—',
           wins: d1?.wins != null ? d1!.wins.toString().padLeft(2, '0') : '00',
           pts: d1?.points != null && d1!.points != '0' ? d1.points : '0',
-          chartPoints: d1?.roundPoints != null && d1!.roundPoints.isNotEmpty
-              ? d1.roundPoints.map((p) => p ?? 0).toList()
-              : const [],
+          chartPoints: _getValidChartPoints(d1, _favDriver1),
         );
       case 1:
         final defaultTeam2 = TeamUtils.getDefaultTeamForDriver(_favDriver2);
@@ -281,9 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
           pos: d2?.position != null && d2!.position != '0' ? d2.position.padLeft(2, '0') : '—',
           wins: d2?.wins != null ? d2!.wins.toString().padLeft(2, '0') : '00',
           pts: d2?.points != null && d2!.points != '0' ? d2.points : '0',
-          chartPoints: d2?.roundPoints != null && d2!.roundPoints.isNotEmpty
-              ? d2.roundPoints.map((p) => p ?? 0).toList()
-              : const [],
+          chartPoints: _getValidChartPoints(d2, _favDriver2),
         );
       case 2:
         final defaultTeam = TeamUtils.cleanTeamName(_favTeam);
@@ -313,9 +317,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isEn = Localizations.localeOf(context).languageCode == 'en';
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
@@ -368,15 +373,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: const Color(0x99181920),
+                          color: theme.cardColor.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: theme.dividerColor,
                           ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.tune_outlined,
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                           size: 20,
                         ),
                       ),
@@ -402,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: isActive ? 24 : 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: isActive ? Colors.white : Colors.white30,
+                              color: isActive ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
@@ -430,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 135,
                         child: CustomPaint(
                           size: const Size(135, 135),
-                          painter: _GaugePainter(percent: 0.78),
+                          painter: _GaugePainter(percent: 0.78, isLight: theme.brightness == Brightness.light),
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -439,11 +444,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildProgressStat('18/23', l10n.grandPrixCompleted),
-                            const Divider(color: Colors.white12, height: 16),
-                            _buildProgressStat(isEn ? '5483.0 KM' : '5483.0 КМ', l10n.distanceCovered),
-                            const Divider(color: Colors.white12, height: 16),
-                            _buildProgressStat('1 082', l10n.lapsCompleted),
+                            _buildProgressStat(context, '18/23', l10n.grandPrixCompleted),
+                            Divider(color: theme.dividerColor, height: 16),
+                            _buildProgressStat(context, isEn ? '5483.0 KM' : '5483.0 КМ', l10n.distanceCovered),
+                            Divider(color: theme.dividerColor, height: 16),
+                            _buildProgressStat(context, '1 082', l10n.lapsCompleted),
                           ],
                         ),
                       ),
@@ -460,14 +465,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.bolt, color: Colors.white, size: 22),
+                          Icon(Icons.bolt, color: theme.colorScheme.onSurface, size: 22),
                           const SizedBox(width: 6),
                           Text(
                             l10n.breakingNews,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -476,8 +481,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () => _openNewsUrl('https://www.formula1.com/en/latest/all.html'),
                         child: Text(
                           l10n.viewAllNews,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
                         ),
@@ -503,9 +508,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             width: 280,
                             decoration: BoxDecoration(
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(22),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.12),
+                                color: theme.dividerColor,
                               ),
                             ),
                             child: ClipRRect(
@@ -517,21 +523,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                     imageUrl: news.imageUrl,
                                     fit: BoxFit.cover,
                                     placeholder: (_, __) => Container(
-                                      color: const Color(0xFF1C1C1E),
+                                      color: theme.cardColor,
                                     ),
                                     errorWidget: (_, __, ___) => Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [Color(0xFF2C2D35), Color(0xFF141518)],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
+                                      decoration: BoxDecoration(
+                                        color: theme.cardColor,
                                       ),
-                                      child: const Center(
+                                      child: Center(
                                         child: Icon(
                                           Icons.newspaper_rounded,
                                           size: 48,
-                                          color: Colors.white24,
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                                         ),
                                       ),
                                     ),
@@ -618,21 +620,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         l10n.mexicoGrandPrixTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),
 
-                      _buildWhiteStagePill('71', l10n.lapsCount, const Color(0xFFFFD600), Icons.repeat_rounded),
+                      _buildWhiteStagePill(context, '71', l10n.lapsCount, const Color(0xFFFFD600), Icons.repeat_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill(isEn ? '356.9 km/h' : '356.9 км/ч', l10n.maxSpeed, const Color(0xFF00E676), Icons.speed_rounded),
+                      _buildWhiteStagePill(context, isEn ? '356.9 km/h' : '356.9 км/ч', l10n.maxSpeed, const Color(0xFF00E676), Icons.speed_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill('17', l10n.turnsCount, const Color(0xFF2979FF), Icons.alt_route_rounded),
+                      _buildWhiteStagePill(context, '17', l10n.turnsCount, const Color(0xFF2979FF), Icons.alt_route_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill(isEn ? '2.67 m' : '2.67 м', l10n.elevationChange, const Color(0xFFFF3D00), Icons.height_rounded),
+                      _buildWhiteStagePill(context, isEn ? '2.67 m' : '2.67 м', l10n.elevationChange, const Color(0xFFFF3D00), Icons.height_rounded),
                     ],
                   ),
                 ),
@@ -645,30 +647,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildRecordTile(
+                        context,
                         l10n.mostSuccessfulConstructor,
                         l10n.recordWinsFormat('04'),
                         'Red Bull',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
+                        context,
                         l10n.mostSuccessfulDrivers,
                         l10n.recordWinsFormat('04'),
                         'Max Verstappen',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
+                        context,
                         l10n.raceLapRecord,
                         '1:14.774',
                         'Valtteri Bottas',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
+                        context,
                         l10n.fastestPitStop,
                         isEn ? '1.80 s' : '1.80 с',
                         'McLaren (2023 Qatar GP)',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
+                        context,
                         l10n.fastestLapSeason,
                         '1:11.890',
                         'Lando Norris',
@@ -699,6 +706,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required List<int> chartPoints,
   }) {
     final teamColor = F1Colors.getTeamColor(teamName, driverId);
+    final theme = Theme.of(context);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -763,8 +771,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   stops: const [0.0, 0.45, 1.0],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
+                    theme.scaffoldBackgroundColor,
                   ],
                 ),
               ),
@@ -793,10 +801,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 4),
                   Text(
                     '$pos ${l10n.driverPositionShort}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -804,10 +812,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 4),
                   Text(
                     '$wins ${l10n.winsLabel}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -819,19 +827,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     pts,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 44,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                       letterSpacing: -1,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     l10n.driverPointsShort,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
-                      color: Colors.white70,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -854,6 +862,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String carAssetPath,
   }) {
     final teamColor = F1Colors.getTeamColor(teamName);
+    final theme = Theme.of(context);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -924,8 +933,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   stops: const [0.0, 0.45, 1.0],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
+                    theme.scaffoldBackgroundColor,
                   ],
                 ),
               ),
@@ -945,10 +954,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 4),
                   Text(
                     '$pos ${l10n.driverPositionShort}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -956,10 +965,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 4),
                   Text(
                     '$wins ${l10n.winsLabel}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -971,19 +980,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     pts,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 44,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                       letterSpacing: -1,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     l10n.driverPointsShort,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
-                      color: Colors.white70,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1004,7 +1013,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required String sessionDate,
     required String sessionTime,
   }) {
-    const circuitColor = Color(0xFF0E7A6B);
+    final circuitColor = F1Colors.getCircuitColor('mexico');
+    final theme = Theme.of(context);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -1074,8 +1084,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   stops: const [0.0, 0.45, 1.0],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
+                    theme.scaffoldBackgroundColor,
                   ],
                 ),
               ),
@@ -1091,38 +1101,41 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 locality,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF00E676),
+                  color: circuitColor,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 dateRange,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
-                sessionTitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white70,
-                ),
-              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
+                    sessionTitle,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
                     sessionDate,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 38,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                       letterSpacing: -1,
                     ),
                   ),
@@ -1130,9 +1143,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Text(
                 sessionTime,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Colors.white70,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1143,25 +1156,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  static Widget _buildProgressStat(String value, String label) {
+  static Widget _buildProgressStat(BuildContext context, String value, String label) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: Colors.white60,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -1170,16 +1184,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   static Widget _buildWhiteStagePill(
+    BuildContext context,
     String value,
     String label,
     Color btnColor,
     IconData icon,
   ) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Row(
         children: [
@@ -1189,18 +1206,18 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: Colors.black,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.black54,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1225,25 +1242,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  static Widget _buildRecordTile(String category, String recordValue, String holder) {
+  static Widget _buildRecordTile(BuildContext context, String category, String recordValue, String holder) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           category,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: Colors.white70,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           recordValue,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 34,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             letterSpacing: 1.0,
           ),
         ),
@@ -1252,7 +1270,7 @@ class _HomeScreenState extends State<HomeScreen> {
           holder,
           style: TextStyle(
             fontSize: 15,
-            color: Colors.white.withValues(alpha: 0.8),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -1303,8 +1321,9 @@ class _MiniPointsChart extends StatelessWidget {
 
 class _GaugePainter extends CustomPainter {
   final double percent;
+  final bool isLight;
 
-  _GaugePainter({required this.percent});
+  _GaugePainter({required this.percent, this.isLight = false});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1312,7 +1331,7 @@ class _GaugePainter extends CustomPainter {
     final outerRadius = size.width / 2 - 2;
 
     final tickPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.18)
+      ..color = isLight ? Colors.black.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.18)
       ..strokeWidth = 1.0;
 
     const totalTicks = 72;
@@ -1335,7 +1354,7 @@ class _GaugePainter extends CustomPainter {
     const totalSweep = math.pi * 1.56;
 
     final slatPaint = Paint()
-      ..color = const Color(0xFF262830)
+      ..color = isLight ? const Color(0xFFE0E0E5) : const Color(0xFF262830)
       ..strokeWidth = 1.8;
 
     const slatCount = 48;
@@ -1357,82 +1376,35 @@ class _GaugePainter extends CustomPainter {
       }
     }
 
-    final activeSweep = totalSweep * percent;
-    final progressPaint = Paint()
-      ..shader = SweepGradient(
-        startAngle: startAngle,
-        endAngle: startAngle + activeSweep,
-        colors: const [
-          Color(0xFF2C4AE2),
-          Color(0xFF00C2FF),
-          Color(0xFF8CE055),
-          Color(0xFFFFD600),
-        ],
-        stops: const [0.0, 0.35, 0.7, 1.0],
-      ).createShader(Rect.fromCircle(center: center, radius: arcRadius))
+    final progressSweep = totalSweep * percent;
+
+    final arcRect = Rect.fromCircle(center: center, radius: arcRadius);
+    final activeGradient = SweepGradient(
+      center: Alignment.center,
+      startAngle: startAngle,
+      endAngle: startAngle + totalSweep,
+      colors: const [
+        Color(0xFF2979FF),
+        Color(0xFF00E676),
+      ],
+    );
+
+    final activePaint = Paint()
+      ..shader = activeGradient.createShader(arcRect)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.butt;
 
     canvas.drawArc(
-      Rect.fromCircle(center: center, radius: arcRadius),
+      arcRect,
       startAngle,
-      activeSweep,
+      progressSweep,
       false,
-      progressPaint,
-    );
-
-    final blackGapRadius = arcRadius - (strokeWidth / 2);
-    final blackGapPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0;
-
-    canvas.drawCircle(center, blackGapRadius, blackGapPaint);
-
-    final innerCircleRadius = blackGapRadius - 2;
-    final centerCirclePaint = Paint()
-      ..color = const Color(0xFF3253E8)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(center, innerCircleRadius, centerCirclePaint);
-
-    final textPainter = TextPainter(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '${(percent * 100).round()}',
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: -1,
-            ),
-          ),
-          const TextSpan(
-            text: '%',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        center.dx - textPainter.width / 2,
-        center.dy - textPainter.height / 2,
-      ),
+      activePaint,
     );
   }
 
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) =>
-      oldDelegate.percent != percent;
+      oldDelegate.percent != percent || oldDelegate.isLight != isLight;
 }

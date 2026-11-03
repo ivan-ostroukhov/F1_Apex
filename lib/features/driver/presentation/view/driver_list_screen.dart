@@ -152,16 +152,17 @@ class _DriverListScreenState extends State<DriverListScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<DriverListCubit, DriverListState>(
           builder: (context, state) {
             return switch (state) {
-              DriverListLoading() => const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+              DriverListLoading() => Center(
+                child: CircularProgressIndicator(color: theme.colorScheme.onSurface),
               ),
               DriverListError() => Center(
                 child: Column(
@@ -171,7 +172,7 @@ class _DriverListScreenState extends State<DriverListScreen> {
                     const SizedBox(height: 12),
                     Text(
                       l10n.errorLoading,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
                     ),
                     const SizedBox(height: 16),
                     FilledButton.icon(
@@ -186,7 +187,7 @@ class _DriverListScreenState extends State<DriverListScreen> {
               DriverListNotFound(:final query) => Center(
                 child: Text(
                   '"$query": ${l10n.notFoundSubtitle}',
-                  style: const TextStyle(color: Colors.white70),
+                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                 ),
               ),
               DriverListLoaded(:final drivers) => _DriversContent(
@@ -220,6 +221,7 @@ class _DriversContent extends StatelessWidget {
     }
 
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final leader = drivers.first;
     final leaderTeamColor = F1Colors.getTeamColor(leader.teamName);
 
@@ -244,7 +246,7 @@ class _DriversContent extends StatelessWidget {
                           leaderTeamColor.withValues(alpha: 0.5),
                           leaderTeamColor.withValues(alpha: 0.28),
                           leaderTeamColor.withValues(alpha: 0.08),
-                          Colors.black,
+                          theme.scaffoldBackgroundColor,
                         ],
                       ),
                     ),
@@ -269,14 +271,14 @@ class _DriversContent extends StatelessWidget {
                   height: 90,
                   child: IgnorePointer(
                     child: Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          stops: [0.0, 1.0],
+                          stops: const [0.0, 1.0],
                           colors: [
                             Colors.transparent,
-                            Colors.black,
+                            theme.scaffoldBackgroundColor,
                           ],
                         ),
                       ),
@@ -298,18 +300,18 @@ class _DriversContent extends StatelessWidget {
                           children: [
                             Text(
                               l10n.driversTable,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 height: 1.1,
                               ),
                             ),
                             const SizedBox(width: 6),
-                            const Icon(
+                            Icon(
                               Icons.unfold_more,
                               size: 22,
-                              color: Colors.white70,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ],
                         ),
@@ -328,14 +330,14 @@ class _DriversContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 38,
                             child: Text(
                               '01',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -349,10 +351,10 @@ class _DriversContent extends StatelessWidget {
                                   leader.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -374,27 +376,27 @@ class _DriversContent extends StatelessWidget {
                             children: [
                               Text(
                                 '${leader.points}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                   letterSpacing: -0.5,
                                 ),
                               ),
                               Text(
                                 l10n.driverPointsShort,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.white70,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(width: 10),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
-                            color: Colors.white38,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                             size: 20,
                           ),
                         ],
@@ -429,10 +431,10 @@ class _DriversContent extends StatelessWidget {
                             width: 38,
                             child: Text(
                               positionNumber,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -446,10 +448,10 @@ class _DriversContent extends StatelessWidget {
                                   driver.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -471,34 +473,34 @@ class _DriversContent extends StatelessWidget {
                             children: [
                               Text(
                                 '${driver.points}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                   letterSpacing: -0.5,
                                 ),
                               ),
                               Text(
                                 l10n.driverPointsShort,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.white70,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(width: 10),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
-                            color: Colors.white38,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                             size: 20,
                           ),
                         ],
                       ),
                     ),
                     Divider(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: theme.dividerColor,
                       height: 1,
                     ),
                   ],

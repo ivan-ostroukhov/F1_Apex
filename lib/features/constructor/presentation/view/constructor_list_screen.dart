@@ -183,12 +183,14 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocProvider(
       create: (context) =>
           ConstructorListCubit(context.read<IConstructorRepository>())
             ..loadConstructors(),
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           bottom: false,
           child: BlocBuilder<ConstructorListCubit, ConstructorListState>(
@@ -196,8 +198,8 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
               final l10n = AppLocalizations.of(context)!;
 
               return switch (state) {
-                ConstructorListLoading() => const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                ConstructorListLoading() => Center(
+                    child: CircularProgressIndicator(color: theme.colorScheme.onSurface),
                   ),
                 ConstructorListError() => Center(
                     child: Column(
@@ -211,8 +213,8 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
                         const SizedBox(height: 12),
                         Text(
                           l10n.errorLoading,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
                             fontSize: 16,
                           ),
                         ),
@@ -230,7 +232,7 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
                 ConstructorListNotFound(:final query) => Center(
                     child: Text(
                       '"$query": ${l10n.notFoundSubtitle}',
-                      style: const TextStyle(color: Colors.white70),
+                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                     ),
                   ),
                 ConstructorListLoaded(:final constructors) =>
@@ -272,6 +274,7 @@ class _ConstructorsContent extends StatelessWidget {
     }
 
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final leader = constructors.first;
     final leaderColor = F1Colors.getTeamColor(leader.name);
     final leaderCarImage =
@@ -298,7 +301,7 @@ class _ConstructorsContent extends StatelessWidget {
                           leaderColor.withValues(alpha: 0.55),
                           leaderColor.withValues(alpha: 0.28),
                           leaderColor.withValues(alpha: 0.08),
-                          Colors.black,
+                          theme.scaffoldBackgroundColor,
                         ],
                       ),
                     ),
@@ -329,11 +332,11 @@ class _ConstructorsContent extends StatelessWidget {
                   height: 60,
                   child: IgnorePointer(
                     child: Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.black],
+                          colors: [Colors.transparent, theme.scaffoldBackgroundColor],
                         ),
                       ),
                     ),
@@ -354,25 +357,22 @@ class _ConstructorsContent extends StatelessWidget {
                           children: [
                             Text(
                               l10n.constructorsTable,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 height: 1.1,
                               ),
                             ),
                             const SizedBox(width: 6),
-                            const Icon(
+                            Icon(
                               Icons.unfold_more,
                               size: 22,
-                              color: Colors.white70,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-
-
                     ],
                   ),
                 ),
@@ -404,10 +404,10 @@ class _ConstructorsContent extends StatelessWidget {
                             width: 38,
                             child: Text(
                               posStr,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -420,10 +420,10 @@ class _ConstructorsContent extends StatelessWidget {
                               children: [
                                 Text(
                                   item.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -444,18 +444,18 @@ class _ConstructorsContent extends StatelessWidget {
                             children: [
                               Text(
                                 '${item.points}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                   letterSpacing: -0.5,
                                 ),
                               ),
                               Text(
                                 l10n.driverPointsShort,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.white70,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -463,16 +463,16 @@ class _ConstructorsContent extends StatelessWidget {
                           ),
 
                           const SizedBox(width: 10),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
-                            color: Colors.white38,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                             size: 20,
                           ),
                         ],
                       ),
                     ),
                     Divider(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: theme.dividerColor,
                       height: 1,
                     ),
                   ],

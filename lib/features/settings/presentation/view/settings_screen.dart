@@ -12,6 +12,7 @@ import '../../../driver/domain/driver_model.dart';
 import '../../../constructor/domain/constructor_repository.dart';
 import '../../../constructor/domain/constructor_model.dart';
 
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -24,149 +25,129 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _favDriver2 = 'piastri';
   String _favTeam = 'red_bull';
 
-  bool _is24Hour = true;
-  bool _isDetailedResults = false;
   String _unitSystem = 'Метрика';
+  bool _is24Hour = true;
+  bool _isDetailedResults = true;
+
+  List<DriverModel> _allDrivers = [];
+  List<ConstructorModel> _allTeams = [];
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
+    _loadLocalSettings();
+    _fetchDriversAndTeams();
   }
 
-  void _loadSettings() {
+  void _loadLocalSettings() {
     setState(() {
       _favDriver1 = LocalStorageService.getString('fav_driver_1') ?? 'verstappen';
       _favDriver2 = LocalStorageService.getString('fav_driver_2') ?? 'piastri';
       _favTeam = LocalStorageService.getString('fav_team') ?? 'red_bull';
 
-      final h24 = LocalStorageService.getString('is_24_hour');
-      _is24Hour = h24 == null ? true : (h24 == 'true');
-
-      final det = LocalStorageService.getString('is_detailed_results');
-      _isDetailedResults = det == 'true';
-
       _unitSystem = LocalStorageService.getString('unit_system') ?? 'Метрика';
+      _is24Hour = LocalStorageService.getString('is_24_hour') != 'false';
+      _isDetailedResults = LocalStorageService.getString('is_detailed_results') != 'false';
     });
   }
 
+  Future<void> _fetchDriversAndTeams() async {
+    try {
+      final driverRepo = context.read<IDriverRepository>();
+      final teamRepo = context.read<IConstructorRepository>();
+
+      final drivers = await driverRepo.getDrivers();
+      final teams = await teamRepo.getConstructors();
+
+      if (mounted) {
+        setState(() {
+          _allDrivers = drivers;
+          _allTeams = teams;
+        });
+      }
+    } catch (_) {}
+  }
+
   String _getDriverNum(String driverId) {
+    final d = _allDrivers.where((element) => element.id == driverId).firstOrNull;
+    if (d != null && d.permanentNumber > 0) {
+      return d.permanentNumber.toString().padLeft(2, '0');
+    }
     switch (driverId.toLowerCase()) {
-      case 'verstappen': return '1';
-      case 'piastri': return '81';
+      case 'verstappen': return '01';
+      case 'norris': return '04';
       case 'leclerc': return '16';
-      case 'hamilton': return '44';
-      case 'norris': return '4';
+      case 'piastri': return '81';
       case 'sainz': return '55';
       case 'russell': return '63';
-      case 'perez': return '11';
+      case 'hamilton': return '44';
       case 'alonso': return '14';
-      case 'stroll': return '18';
-      case 'tsunoda': return '22';
-      case 'lawson': return '30';
       case 'gasly': return '10';
-      case 'ocon': return '31';
       case 'albon': return '23';
-      case 'colapinto': return '43';
-      case 'magnussen': return '20';
-      case 'hulkenberg': return '27';
-      case 'bottas': return '77';
-      case 'zhou': return '24';
+      case 'tsunoda': return '22';
+      case 'stroll': return '18';
       case 'bearman': return '38';
+      case 'hulkenberg': return '27';
+      case 'lawson': return '30';
+      case 'colapinto': return '43';
+      case 'hadjar': return '06';
+      case 'lindblad': return '41';
+      case 'bortoleto': return '05';
+      case 'ocon': return '31';
       case 'antonelli': return '12';
-      case 'bortoleto': return '5';
-      case 'hadjar': return '6';
-      default: return '3';
+      default: return '01';
     }
   }
 
   String _getDriverTeam(String driverId) {
-    switch (driverId.toLowerCase()) {
-      case 'verstappen': case 'perez': case 'lawson': case 'hadjar':
-        return 'Red Bull Racing';
-      case 'piastri': case 'norris':
-        return 'McLaren';
-      case 'leclerc': case 'sainz':
-        return 'Ferrari';
-      case 'hamilton': case 'russell': case 'antonelli':
-        return 'Mercedes';
-      case 'alonso': case 'stroll':
-        return 'Aston Martin';
-      case 'gasly': case 'ocon': case 'doohan':
-        return 'Alpine';
-      case 'albon': case 'colapinto':
-        return 'Williams';
-      case 'tsunoda':
-        return 'Racing Bulls';
-      case 'hulkenberg': case 'magnussen':
-        return 'Haas';
-      case 'bottas': case 'zhou': case 'bortoleto':
-        return 'Sauber';
-      default:
-        return 'Red Bull Racing';
+    final d = _allDrivers.where((element) => element.id == driverId).firstOrNull;
+    if (d != null && d.teamName.isNotEmpty) {
+      return d.teamName;
     }
+    return F1Colors.getTeamColor('', driverId) != Colors.white54 ? driverId : 'Red Bull';
   }
 
-  void _openSelectDriverSheet(int driverIndex) async {
-    List<DriverModel> allDrivers = [];
-    try {
-      allDrivers = await context.read<IDriverRepository>().getDrivers();
-    } catch (_) {}
-
-    if (!mounted) return;
-
+  void _openSelectDriverSheet(int driverSlot) async {
     final selectedId = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.black,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _SelectDriverModal(
+        drivers: _allDrivers,
+        getDriverNum: _getDriverNum,
+        getDriverTeam: _getDriverTeam,
       ),
-      builder: (ctx) {
-        return _SelectDriverModal(
-          drivers: allDrivers,
-          getDriverNum: _getDriverNum,
-          getDriverTeam: _getDriverTeam,
-        );
-      },
     );
 
     if (selectedId != null && selectedId.isNotEmpty) {
-      if (driverIndex == 1) {
-        await LocalStorageService.setString('fav_driver_1', selectedId);
-      } else {
-        await LocalStorageService.setString('fav_driver_2', selectedId);
-      }
-      _loadSettings();
+      setState(() {
+        if (driverSlot == 1) {
+          _favDriver1 = selectedId;
+          LocalStorageService.setString('fav_driver_1', selectedId);
+        } else {
+          _favDriver2 = selectedId;
+          LocalStorageService.setString('fav_driver_2', selectedId);
+        }
+      });
     }
   }
 
   void _openSelectTeamSheet() async {
-    List<ConstructorModel> allTeams = [];
-    try {
-      allTeams = await context.read<IConstructorRepository>().getConstructors();
-    } catch (_) {}
-
-    if (!mounted) return;
-
     final selectedId = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.black,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _SelectTeamModal(
+        teams: _allTeams,
+        currentSelected: _favTeam,
       ),
-      builder: (ctx) {
-        return _SelectTeamModal(
-          teams: allTeams,
-          currentSelected: _favTeam,
-        );
-      },
     );
 
     if (selectedId != null && selectedId.isNotEmpty) {
-      await LocalStorageService.setString('fav_team', selectedId);
-      _loadSettings();
+      setState(() {
+        _favTeam = selectedId;
+        LocalStorageService.setString('fav_team', selectedId);
+      });
     }
   }
 
@@ -175,28 +156,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final currentTheme = context.watch<ThemeCubit>().state;
     final currentLocale = context.watch<LocaleCubit>().state;
+    final theme = Theme.of(context);
 
     final team1Name = _getDriverTeam(_favDriver1);
-    final team1Color = F1Colors.getTeamColor(team1Name);
+    final team1Color = F1Colors.getTeamColor(team1Name, _favDriver1);
 
     final team2Name = _getDriverTeam(_favDriver2);
-    final team2Color = F1Colors.getTeamColor(team2Name);
+    final team2Color = F1Colors.getTeamColor(team2Name, _favDriver2);
 
     final favTeamColor = F1Colors.getTeamColor(_favTeam);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => context.pop(),
         ),
         title: Text(
           l10n.settingsTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -211,8 +193,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text(
               l10n.favoritesSection,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -287,52 +269,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: GestureDetector(
-                    onTap: _openSelectTeamSheet,
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: favTeamColor,
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              _favTeam.toUpperCase().replaceAll('_', ' '),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.unfold_more,
-                            color: Colors.white70,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
               ],
+            ),
+
+            const SizedBox(height: 12),
+
+            GestureDetector(
+              onTap: _openSelectTeamSheet,
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  color: favTeamColor,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _TeamBadge(
+                      teamId: _favTeam,
+                      teamName: _favTeam,
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.unfold_more,
+                      color: Colors.white70,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 28),
 
             Text(
               l10n.generalSection,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -341,19 +314,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF141416),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                border: Border.all(color: theme.dividerColor),
               ),
               child: Column(
                 children: [
                   _buildSettingRow(
                     icon: Icons.notifications_none_outlined,
                     title: l10n.notifications,
-                    trailing: const Icon(Icons.chevron_right, color: Colors.white54),
+                    trailing: Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                     onTap: () {},
                   ),
-                  _buildDivider(),
+                  _buildDivider(theme),
 
                   _buildSettingRow(
                     icon: Icons.contrast,
@@ -365,15 +338,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           currentTheme == ThemeMode.system
                               ? l10n.themeSystem
                               : (currentTheme == ThemeMode.dark ? l10n.themeDark : l10n.themeLight),
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
+                          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 14),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.unfold_more, color: Colors.white54, size: 16),
+                        Icon(Icons.unfold_more, color: theme.colorScheme.onSurface.withValues(alpha: 0.5), size: 16),
                       ],
                     ),
                     onTap: () => context.read<ThemeCubit>().toggleTheme(),
                   ),
-                  _buildDivider(),
+                  _buildDivider(theme),
 
                   _buildSettingRow(
                     icon: Icons.speed,
@@ -383,10 +356,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         Text(
                           _unitSystem,
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
+                          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 14),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.unfold_more, color: Colors.white54, size: 16),
+                        Icon(Icons.unfold_more, color: theme.colorScheme.onSurface.withValues(alpha: 0.5), size: 16),
                       ],
                     ),
                     onTap: () {
@@ -395,7 +368,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       LocalStorageService.setString('unit_system', newSys);
                     },
                   ),
-                  _buildDivider(),
+                  _buildDivider(theme),
 
                   _buildSettingRow(
                     icon: Icons.access_time,
@@ -409,7 +382,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                   ),
-                  _buildDivider(),
+                  _buildDivider(theme),
 
                   _buildSettingRow(
                     icon: Icons.view_agenda_outlined,
@@ -423,7 +396,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                   ),
-                  _buildDivider(),
+                  _buildDivider(theme),
 
                   _buildSettingRow(
                     icon: Icons.translate,
@@ -433,10 +406,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         Text(
                           currentLocale.languageCode == 'ru' ? 'Русский' : 'English',
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
+                          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 14),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.chevron_right, color: Colors.white54, size: 18),
+                        Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withValues(alpha: 0.5), size: 18),
                       ],
                     ),
                     onTap: () => context.read<LocaleCubit>().toggleLocale(),
@@ -458,19 +431,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required Widget trailing,
     VoidCallback? onTap,
   }) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white, size: 22),
+            Icon(icon, color: theme.colorScheme.onSurface, size: 22),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -483,8 +457,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildDivider() {
-    return Divider(color: Colors.white.withValues(alpha: 0.08), height: 1);
+  Widget _buildDivider(ThemeData theme) {
+    return Divider(color: theme.dividerColor, height: 1);
+  }
+}
+
+class _TeamBadge extends StatelessWidget {
+  final String teamId;
+  final String teamName;
+
+  const _TeamBadge({
+    required this.teamId,
+    required this.teamName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final lower = '$teamId $teamName'.toLowerCase();
+    String code = 'F1';
+    if (lower.contains('red_bull') || lower.contains('red bull')) {
+      code = 'RB';
+    } else if (lower.contains('ferrari')) {
+      code = 'SF';
+    } else if (lower.contains('mercedes')) {
+      code = 'MB';
+    } else if (lower.contains('mclaren')) {
+      code = 'MC';
+    } else if (lower.contains('aston')) {
+      code = 'AM';
+    } else if (lower.contains('alpine')) {
+      code = 'AP';
+    } else if (lower.contains('williams')) {
+      code = 'FW';
+    } else if (lower.contains('haas')) {
+      code = 'VF';
+    } else if (lower.contains('sauber') || lower.contains('kick')) {
+      code = 'C4';
+    } else if (lower.contains('audi')) {
+      code = 'AU';
+    } else if (lower.contains('cadillac')) {
+      code = 'CD';
+    }
+
+    return Text(
+      code,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.w900,
+        fontStyle: FontStyle.italic,
+        letterSpacing: 1.0,
+      ),
+    );
   }
 }
 
@@ -509,6 +533,7 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final displayDrivers = widget.drivers.where((d) {
       if (_search.isEmpty) return true;
       final q = _search.toLowerCase();
@@ -522,7 +547,10 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          color: Colors.black,
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
           child: Column(
             children: [
               Padding(
@@ -534,13 +562,14 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2C2C2E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: theme.dividerColor),
                         ),
                         child: Text(
                           l10n.cancel,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -551,8 +580,8 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
                       child: Text(
                         l10n.selectDriver,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -562,7 +591,7 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
                   ],
                 ),
               ),
-              Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+              Divider(color: theme.dividerColor, height: 1),
 
               Expanded(
                 child: ListView.builder(
@@ -600,10 +629,10 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
                                 Expanded(
                                   child: Text(
                                     driver.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -611,7 +640,7 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
                             ),
                           ),
                         ),
-                        Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+                        Divider(color: theme.dividerColor, height: 1),
                       ],
                     );
                   },
@@ -626,16 +655,16 @@ class _SelectDriverModalState extends State<_SelectDriverModal> {
                   MediaQuery.of(context).viewInsets.bottom + 16,
                 ),
                 child: TextField(
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.searchDriver,
-                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
+                    hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13),
+                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
                     filled: true,
-                    fillColor: const Color(0xFF2C2C2E),
+                    fillColor: theme.cardColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: theme.dividerColor),
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   ),
@@ -669,6 +698,7 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final displayTeams = widget.teams.where((t) {
       if (_search.isEmpty) return true;
       final q = _search.toLowerCase();
@@ -682,7 +712,10 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          color: Colors.black,
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
           child: Column(
             children: [
               Padding(
@@ -694,13 +727,14 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2C2C2E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: theme.dividerColor),
                         ),
                         child: Text(
                           l10n.cancel,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -711,8 +745,8 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
                       child: Text(
                         l10n.selectTeam,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -722,7 +756,7 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
                   ],
                 ),
               ),
-              Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+              Divider(color: theme.dividerColor, height: 1),
 
               Expanded(
                 child: ListView.builder(
@@ -749,10 +783,10 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
                                 Expanded(
                                   child: Text(
                                     team.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -766,7 +800,7 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
                             ),
                           ),
                         ),
-                        Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+                        Divider(color: theme.dividerColor, height: 1),
                       ],
                     );
                   },
@@ -781,16 +815,16 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
                   MediaQuery.of(context).viewInsets.bottom + 16,
                 ),
                 child: TextField(
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.searchTeam,
-                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
+                    hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13),
+                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
                     filled: true,
-                    fillColor: const Color(0xFF2C2C2E),
+                    fillColor: theme.cardColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: theme.dividerColor),
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   ),
@@ -801,113 +835,6 @@ class _SelectTeamModalState extends State<_SelectTeamModal> {
           ),
         );
       },
-    );
-  }
-}
-
-class _TeamBadge extends StatelessWidget {
-  final String teamId;
-  final String teamName;
-
-  const _TeamBadge({
-    required this.teamId,
-    required this.teamName,
-  });
-
-  String _getLogoFileName() {
-    final lower = '$teamId $teamName'.toLowerCase();
-    if (lower.contains('ferrari')) return 'ferrari';
-    if (lower.contains('mercedes')) return 'mercedes';
-    if (lower.contains('red_bull') || lower.contains('red bull')) return 'red_bull';
-    if (lower.contains('mclaren')) return 'mclaren';
-    if (lower.contains('aston')) return 'aston_martin';
-    if (lower.contains('alpine')) return 'alpine';
-    if (lower.contains('rb') || lower.contains('racing_bulls') || lower.contains('racing bulls')) return 'racing_bulls';
-    if (lower.contains('haas')) return 'haas';
-    if (lower.contains('williams')) return 'williams';
-    if (lower.contains('sauber') || lower.contains('kick')) return 'sauber';
-    return teamId.toLowerCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fileName = _getLogoFileName();
-    final assetPath = 'assets/images/team_logo/$fileName.png';
-    final teamColor = F1Colors.getTeamColor(teamName);
-
-    return Image.asset(
-      assetPath,
-      width: 32,
-      height: 32,
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => _buildFallbackBadge(teamColor),
-    );
-  }
-
-  Widget _buildFallbackBadge(Color teamColor) {
-    final lower = '$teamId $teamName'.toLowerCase();
-    if (lower.contains('ferrari')) {
-      return Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFE000),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black26, width: 1),
-        ),
-        child: const Center(
-          child: Icon(Icons.shield, color: Colors.black, size: 18),
-        ),
-      );
-    }
-    if (lower.contains('mercedes')) {
-      return Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1C1C1E),
-          shape: BoxShape.circle,
-          border: Border.all(color: teamColor, width: 1.5),
-        ),
-        child: Icon(Icons.star_outline, color: teamColor, size: 18),
-      );
-    }
-    if (lower.contains('mclaren')) {
-      return Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: teamColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Center(
-          child: Icon(Icons.speed, color: Colors.black, size: 18),
-        ),
-      );
-    }
-    if (lower.contains('red_bull') || lower.contains('red bull')) {
-      return Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E2442),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: teamColor, width: 1.5),
-        ),
-        child: const Center(
-          child: Icon(Icons.sports_motorsports, color: Color(0xFFE80020), size: 18),
-        ),
-      );
-    }
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: teamColor, width: 1.5),
-      ),
-      child: Icon(Icons.shield_outlined, color: teamColor, size: 18),
     );
   }
 }
