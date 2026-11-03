@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,8 +9,145 @@ import '../bloc/list/driver_list_cubit.dart';
 import '../bloc/list/driver_list_state.dart';
 import '../widgets/driver_hero_image.dart';
 
-class DriverListScreen extends StatelessWidget {
+class DriverListScreen extends StatefulWidget {
   const DriverListScreen({super.key});
+
+  @override
+  State<DriverListScreen> createState() => _DriverListScreenState();
+}
+
+class _DriverListScreenState extends State<DriverListScreen> {
+  final GlobalKey _seasonButtonKey = GlobalKey();
+
+  void _showSeasonPicker(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final renderBox = _seasonButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final buttonOffset = renderBox.localToGlobal(Offset.zero);
+    final screenSize = MediaQuery.of(context).size;
+    final cubit = context.read<DriverListCubit>();
+    final currentSeason = cubit.currentSeason;
+
+    final seasons = ['2026', '2025', '2024', '2023'];
+
+    double top = buttonOffset.dy - 10;
+    double left = buttonOffset.dx - 12;
+
+    final estimatedHeight = seasons.length * 46.0 + 30.0;
+    if (top + estimatedHeight > screenSize.height - 30) {
+      top = screenSize.height - estimatedHeight - 30;
+    }
+    if (top < 40) top = 40;
+
+    if (!mounted) return;
+
+    final selected = await showGeneralDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'DriverSeasonPicker',
+      barrierColor: Colors.black26,
+      transitionDuration: const Duration(milliseconds: 180),
+      pageBuilder: (ctx, anim1, anim2) {
+        return Stack(
+          children: [
+            Positioned(
+              top: top,
+              left: left,
+              child: Material(
+                color: Colors.transparent,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    child: Container(
+                      width: 215,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xCC181A22),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.45),
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final season in seasons) ...[
+                            InkWell(
+                              onTap: () => Navigator.of(ctx).pop(season),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 4,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        l10n.seasonPrefix(season),
+                                        style: TextStyle(
+                                          color: season == currentSeason
+                                              ? Colors.white
+                                              : Colors.white70,
+                                          fontSize: 16,
+                                          fontWeight: season == currentSeason
+                                              ? FontWeight.bold
+                                              : FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    if (season == currentSeason)
+                                      const Icon(
+                                        Icons.check,
+                                        size: 18,
+                                        color: Colors.white,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+      transitionBuilder: (ctx, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1,
+          child: ScaleTransition(
+            scale: CurvedAnimation(
+              parent: anim1,
+              curve: Curves.easeOutCubic,
+            ),
+            alignment: Alignment.topLeft,
+            child: child,
+          ),
+        );
+      },
+    );
+
+    if (selected != null && selected != currentSeason) {
+      cubit.loadDrivers(season: selected);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,41 +155,48 @@ class DriverListScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: BlocBuilder<DriverListCubit, DriverListState>(
-        builder: (context, state) {
-          return switch (state) {
-            DriverListLoading() => const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
-            DriverListError() => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.cloud_off, size: 64, color: Colors.redAccent),
-                  const SizedBox(height: 12),
-                  Text(
-                    l10n.errorLoading,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    label: Text(l10n.retry),
-                    onPressed: () =>
-                        context.read<DriverListCubit>().loadDrivers(),
-                  ),
-                ],
+      body: SafeArea(
+        bottom: false,
+        child: BlocBuilder<DriverListCubit, DriverListState>(
+          builder: (context, state) {
+            return switch (state) {
+              DriverListLoading() => const Center(
+                child: CircularProgressIndicator(color: Colors.white),
               ),
-            ),
-            DriverListNotFound(:final query) => Center(
-              child: Text(
-                '"$query": ${l10n.notFoundSubtitle}',
-                style: const TextStyle(color: Colors.white70),
+              DriverListError() => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.cloud_off, size: 64, color: Colors.redAccent),
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.errorLoading,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l10n.retry),
+                      onPressed: () =>
+                          context.read<DriverListCubit>().loadDrivers(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            DriverListLoaded(:final drivers) => _DriversContent(drivers: drivers),
-          };
-        },
+              DriverListNotFound(:final query) => Center(
+                child: Text(
+                  '"$query": ${l10n.notFoundSubtitle}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
+              DriverListLoaded(:final drivers) => _DriversContent(
+                drivers: drivers,
+                seasonButtonKey: _seasonButtonKey,
+                onShowSeasonPicker: () => _showSeasonPicker(context),
+              ),
+            };
+          },
+        ),
       ),
     );
   }
@@ -59,8 +204,14 @@ class DriverListScreen extends StatelessWidget {
 
 class _DriversContent extends StatelessWidget {
   final List<dynamic> drivers;
+  final GlobalKey seasonButtonKey;
+  final VoidCallback onShowSeasonPicker;
 
-  const _DriversContent({required this.drivers});
+  const _DriversContent({
+    required this.drivers,
+    required this.seasonButtonKey,
+    required this.onShowSeasonPicker,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +228,7 @@ class _DriversContent extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: SizedBox(
-            height: 340,
+            height: 320,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -133,30 +284,37 @@ class _DriversContent extends StatelessWidget {
                   ),
                 ),
 
-                SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        key: seasonButtonKey,
+                        onTap: onShowSeasonPicker,
+                        behavior: HitTestBehavior.opaque,
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              l10n.appTitle,
+                              l10n.driversTable,
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w900,
                                 color: Colors.white,
+                                height: 1.1,
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.unfold_more, color: Colors.white70, size: 20),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.unfold_more,
+                              size: 22,
+                              color: Colors.white70,
+                            ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
 

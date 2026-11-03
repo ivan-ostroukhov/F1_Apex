@@ -7,11 +7,13 @@ class DriverApi {
   const DriverApi(this._dio);
 
   Future<ErgastStandingsResponseDto> getStandings({
+    String? season,
     int limit = 30,
     int offset = 0,
   }) async {
+    final querySeason = (season == '2026' || season == null || season == 'current') ? 'current' : season;
     final response = await _dio.get<Map<String, dynamic>>(
-      '/current/driverStandings.json',
+      '/$querySeason/driverStandings.json',
       queryParameters: {'limit': limit, 'offset': offset},
     );
     return ErgastStandingsResponseDto.fromJson(response.data!);

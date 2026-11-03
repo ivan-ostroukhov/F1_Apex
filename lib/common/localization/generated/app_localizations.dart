@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Constructors Standings'**
   String get constructorsTable;
 
+  /// No description provided for @driversTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers Standings'**
+  String get driversTable;
+
   /// No description provided for @constructorsComingSoon.
   ///
   /// In en, this message translates to:

@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constructorsTable => 'Constructors Standings';
 
   @override
+  String get driversTable => 'Drivers Standings';
+
+  @override
   String get constructorsComingSoon => 'Constructors championship coming soon';
 
   @override

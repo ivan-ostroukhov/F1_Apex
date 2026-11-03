@@ -15,10 +15,13 @@ class DriverRepository implements IDriverRepository {
   const DriverRepository(this._dataSource);
 
   @override
-  Future<List<DriverModel>> getDrivers({String? query}) async {
+  Future<List<DriverModel>> getDrivers({String? query, String? season}) async {
+    final reqSeason = (season == null || season == '2026') ? 'current' : season;
+    final cacheKey = 'driver_standings_$reqSeason';
+
     List<DriverModel> drivers = [];
 
-    final cached = LocalStorageService.getString('driver_standings');
+    final cached = LocalStorageService.getString(cacheKey);
     if (cached != null && cached.isNotEmpty) {
       try {
         final list = (jsonDecode(cached) as List<dynamic>)
@@ -29,12 +32,12 @@ class DriverRepository implements IDriverRepository {
     }
 
     try {
-      final dtos = await _dataSource.getDriverStandings();
+      final dtos = await _dataSource.getDriverStandings(season: reqSeason);
       final liveList = dtos.toDomainList();
       if (liveList.isNotEmpty) {
         drivers = liveList;
         LocalStorageService.setString(
-          'driver_standings',
+          cacheKey,
           jsonEncode(liveList.map((d) => d.toJson()).toList()),
         );
       }
@@ -88,7 +91,7 @@ class DriverRepository implements IDriverRepository {
   @override
   Future<DriverModel?> getDriverById(String id, {String season = 'current'}) async {
     final results = await Future.wait([
-      _dataSource.getDriverStandings(),
+      _dataSource.getDriverStandings(season: season),
       _dataSource
           .getDriverById(id, season: season)
           .then<DriverStandingDto?>((val) => val)
@@ -254,7 +257,7 @@ class DriverRepository implements IDriverRepository {
 
       if (season == '2026' || season == 'current') {
         try {
-          final allDrivers = await getDrivers();
+          final allDrivers = await getDrivers(season: 'current');
           final matched = allDrivers.where((d) => d.id.toLowerCase() == driverId.toLowerCase()).firstOrNull;
           if (matched != null) {
             final idx = allDrivers.indexOf(matched);
