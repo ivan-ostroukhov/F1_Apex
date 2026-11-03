@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../data/repositories/schedule_repository.dart';
 import '../../domain/models/race_model.dart';
 import '../cubit/schedule_cubit.dart';
@@ -253,10 +254,14 @@ class _ScheduleViewState extends State<_ScheduleView> {
                               top: 10,
                               width: 200,
                               height: 180,
-                              child: Icon(
-                                Icons.polyline_rounded,
-                                size: 150,
-                                color: currentCircuitColor.withValues(alpha: 0.85),
+                              child: Image.asset(
+                                F1Media.getTrackAssetPath(currentRace.circuitId),
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.polyline_rounded,
+                                  size: 150,
+                                  color: currentCircuitColor.withValues(alpha: 0.85),
+                                ),
                               ),
                             ),
                             Positioned(
@@ -410,10 +415,6 @@ class _ScheduleViewState extends State<_ScheduleView> {
   }
 
   static Widget _buildPastRaceTile(BuildContext context, RaceModel race) {
-    final circuitColor = F1Colors.getCircuitColor(
-      race.circuitId.isNotEmpty ? race.circuitId : race.raceName,
-    );
-
     return Column(
       children: [
         Divider(color: Colors.white.withValues(alpha: 0.07), height: 1),
@@ -431,7 +432,23 @@ class _ScheduleViewState extends State<_ScheduleView> {
               children: [
                 SizedBox(
                   width: 44,
-                  child: Icon(Icons.timeline, color: Colors.white.withValues(alpha: 0.7)),
+                  child: ColorFiltered(
+                    colorFilter: const ColorFilter.mode(
+                      Colors.grey,
+                      BlendMode.srcIn,
+                    ),
+                    child: Image.asset(
+                      F1Media.get2DTrackAssetPath(race.circuitId),
+                      width: 28,
+                      height: 28,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.timeline,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -443,7 +460,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: Colors.white54,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -452,15 +469,15 @@ class _ScheduleViewState extends State<_ScheduleView> {
                           text: 'R${race.round} • ',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white54,
+                            color: Colors.white38,
                           ),
                           children: [
                             TextSpan(
                               text: race.locality,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: circuitColor.withValues(alpha: 0.95),
+                                color: Colors.white38,
                               ),
                             ),
                           ],
@@ -479,7 +496,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                     width: 14,
                                     height: 4,
                                     decoration: BoxDecoration(
-                                      color: teamColor,
+                                      color: teamColor.withValues(alpha: 0.5),
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -489,7 +506,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white70,
+                                      color: Colors.white38,
                                     ),
                                   ),
                                 ],
@@ -592,7 +609,17 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     ],
                   ),
                 ),
-                Icon(Icons.timeline, color: Colors.white.withValues(alpha: 0.6)),
+                Image.asset(
+                  F1Media.get2DTrackAssetPath(race.circuitId),
+                  width: 28,
+                  height: 28,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.timeline,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    size: 20,
+                  ),
+                ),
                 const SizedBox(width: 6),
                 Icon(
                   Icons.chevron_right,

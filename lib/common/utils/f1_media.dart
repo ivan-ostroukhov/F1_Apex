@@ -49,4 +49,14 @@ class F1Media {
     final short = key.contains('_') ? key.split('_').last : key;
     return 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/2025Drivers/$short.png';
   }
+
+  static String getTrackAssetPath(String circuitId) {
+    final key = circuitId.toLowerCase().replaceAll('-', '_');
+    return 'assets/images/tracks/$key.png';
+  }
+
+  static String get2DTrackAssetPath(String circuitId) {
+    final key = circuitId.toLowerCase().replaceAll('-', '_');
+    return 'assets/images/2d_track/$key.png';
+  }
 }

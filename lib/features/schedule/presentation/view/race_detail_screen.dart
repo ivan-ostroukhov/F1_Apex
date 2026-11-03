@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../data/repositories/schedule_repository.dart';
 import '../../domain/models/circuit_stats.dart';
 import '../../domain/models/race_model.dart';
@@ -235,10 +236,16 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
                                 SizedBox(
                                   height: 170,
                                   child: Center(
-                                    child: Icon(
-                                      Icons.polyline_rounded,
-                                      size: 160,
-                                      color: circuitColor.withValues(alpha: 0.9),
+                                    child: Image.asset(
+                                      F1Media.getTrackAssetPath(widget.race.circuitId),
+                                      width: 200,
+                                      height: 180,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (_, __, ___) => Icon(
+                                        Icons.polyline_rounded,
+                                        size: 160,
+                                        color: circuitColor.withValues(alpha: 0.9),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -389,7 +396,7 @@ class _StatRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Colors.white70),
+        Icon(icon, size: 40, color: Colors.white70),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

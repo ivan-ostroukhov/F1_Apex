@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../../../common/utils/team_utils.dart';
 import '../../../../common/network/local_storage_service.dart';
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
@@ -1048,10 +1049,14 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 20,
           width: 200,
           height: 180,
-          child: Icon(
-            Icons.polyline_rounded,
-            size: 160,
-            color: circuitColor.withValues(alpha: 0.9),
+          child: Image.asset(
+            F1Media.getTrackAssetPath('rodriguez'),
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => Icon(
+              Icons.polyline_rounded,
+              size: 160,
+              color: circuitColor.withValues(alpha: 0.9),
+            ),
           ),
         ),
 
