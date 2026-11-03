@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
-import '../../../../common/localization/locale_cubit.dart';
-import '../../../../common/theme/theme_cubit.dart';
 import '../../../../common/utils/f1_colors.dart';
 import '../bloc/list/driver_list_cubit.dart';
 import '../bloc/list/driver_list_state.dart';
@@ -158,18 +156,6 @@ class _DriversContent extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             const Icon(Icons.unfold_more, color: Colors.white70, size: 20),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.language, color: Colors.white70),
-                              onPressed: () => context.read<LocaleCubit>().toggleLocale(),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.brightness_6, color: Colors.white70),
-                              onPressed: () => context.read<ThemeCubit>().toggleTheme(),
-                            ),
                           ],
                         ),
                       ],
