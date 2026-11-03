@@ -529,14 +529,14 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                     accentColor: displayTeamColor,
                   )
                 else
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: SizedBox(
                       height: 50,
                       child: Center(
                         child: Text(
-                          'Нет данных по очкам текущего сезона',
-                          style: TextStyle(color: Colors.white38, fontSize: 13),
+                          l10n.noPointsData,
+                          style: const TextStyle(color: Colors.white38, fontSize: 13),
                         ),
                       ),
                     ),

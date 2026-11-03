@@ -105,5 +105,21 @@
   "fastestLapSeason": "Самый быстрый круг сезона",
   "mexicoDateRange": "31 Окт. - 02 Нояб.",
   "mexicoSessionDate": "31 СБ",
-  "mexicoSessionTitle": "Practice 1"
+  "mexicoSessionTitle": "Practice 1",
+
+  "noPointsData": "Нет данных по очкам текущего сезона",
+  "roundFormat": "Раунд {number}",
+  "@roundFormat": {
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
+  "kmUnit": "КМ",
+  "kmhUnit": "км/ч",
+  "mUnit": "м",
+  "topSpeed": "Максимальная скорость",
+  "turns": "Повороты",
+  "elevationChangeLabel": "Перепад высот",
+  "lapsCountLabel": "Количество кругов",
+  "weekendSessions": "Выходные гонки"
 }

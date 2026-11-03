@@ -272,7 +272,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Раунд ${currentRace.round}',
+                                    l10n.roundFormat(currentRace.round),
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.white.withValues(alpha: 0.65),

@@ -272,4 +272,36 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mexicoSessionTitle => 'Practice 1';
+
+  @override
+  String get noPointsData => 'Нет данных по очкам текущего сезона';
+
+  @override
+  String roundFormat(String number) {
+    return 'Раунд $number';
+  }
+
+  @override
+  String get kmUnit => 'КМ';
+
+  @override
+  String get kmhUnit => 'км/ч';
+
+  @override
+  String get mUnit => 'м';
+
+  @override
+  String get topSpeed => 'Максимальная скорость';
+
+  @override
+  String get turns => 'Повороты';
+
+  @override
+  String get elevationChangeLabel => 'Перепад высот';
+
+  @override
+  String get lapsCountLabel => 'Количество кругов';
+
+  @override
+  String get weekendSessions => 'Выходные гонки';
 }

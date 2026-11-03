@@ -613,6 +613,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Practice 1'**
   String get mexicoSessionTitle;
+
+  /// No description provided for @noPointsData.
+  ///
+  /// In en, this message translates to:
+  /// **'No points data for the current season'**
+  String get noPointsData;
+
+  /// No description provided for @roundFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {number}'**
+  String roundFormat(String number);
+
+  /// No description provided for @kmUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'KM'**
+  String get kmUnit;
+
+  /// No description provided for @kmhUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'km/h'**
+  String get kmhUnit;
+
+  /// No description provided for @mUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get mUnit;
+
+  /// No description provided for @topSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top speed'**
+  String get topSpeed;
+
+  /// No description provided for @turns.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns'**
+  String get turns;
+
+  /// No description provided for @elevationChangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation change'**
+  String get elevationChangeLabel;
+
+  /// No description provided for @lapsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of laps'**
+  String get lapsCountLabel;
+
+  /// No description provided for @weekendSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend Sessions'**
+  String get weekendSessions;
 }
 
 class _AppLocalizationsDelegate

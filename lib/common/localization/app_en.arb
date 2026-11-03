@@ -105,7 +105,21 @@
   "fastestLapSeason": "Fastest lap of the season",
   "mexicoDateRange": "Oct 31 - Nov 02",
   "mexicoSessionDate": "31 SAT",
-  "mexicoSessionTitle": "Practice 1"
+  "mexicoSessionTitle": "Practice 1",
+
+  "noPointsData": "No points data for the current season",
+  "roundFormat": "Round {number}",
+  "@roundFormat": {
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
+  "kmUnit": "KM",
+  "kmhUnit": "km/h",
+  "mUnit": "m",
+  "topSpeed": "Top speed",
+  "turns": "Turns",
+  "elevationChangeLabel": "Elevation change",
+  "lapsCountLabel": "Number of laps",
+  "weekendSessions": "Weekend Sessions"
 }
-
-
