@@ -49,7 +49,6 @@ class HomeRepository {
         }
       } catch (_) {}
 
-      // Fallback feed if primary was empty
       if (newsList.isEmpty) {
         final secondaryUrl = isEnglish
             ? 'https://www.f1news.ru/export/news.xml'
@@ -107,19 +106,16 @@ class HomeRepository {
     for (final match in matches) {
       final itemXml = match.group(1) ?? '';
 
-      // Title
       final titleMatch = RegExp(r'<title>([\s\S]*?)</title>', caseSensitive: false).firstMatch(itemXml);
       final rawTitle = titleMatch?.group(1) ?? '';
       final title = _cleanHtmlAndEntities(rawTitle);
 
-      // Link
       final linkMatch = RegExp(r'<link>([\s\S]*?)</link>', caseSensitive: false).firstMatch(itemXml) ??
           RegExp(r'<guid[^>]*>([\s\S]*?)</guid>', caseSensitive: false).firstMatch(itemXml);
       final url = _cleanHtmlAndEntities(linkMatch?.group(1) ?? '');
 
       if (title.isEmpty || url.isEmpty) continue;
 
-      // Image
       String imageUrl = '';
       final enclosureMatch = RegExp(r'enclosure[^>]*url="([^"]+)"', caseSensitive: false).firstMatch(itemXml) ??
           RegExp(r'media:(?:content|thumbnail)[^>]*url="([^"]+)"', caseSensitive: false).firstMatch(itemXml) ??
@@ -133,7 +129,6 @@ class HomeRepository {
         imageUrl = _fallbackImages[idCounter % _fallbackImages.length];
       }
 
-      // Date
       final pubDateMatch = RegExp(r'<pubDate>([\s\S]*?)</pubDate>', caseSensitive: false).firstMatch(itemXml);
       final pubDateStr = pubDateMatch?.group(1) ?? '';
       final pubDate = _parseRfc2822Date(pubDateStr) ?? DateTime.now();

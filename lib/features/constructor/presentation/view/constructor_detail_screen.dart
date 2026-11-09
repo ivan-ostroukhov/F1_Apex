@@ -395,7 +395,6 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                   height: 1,
                 ),
 
-                // Drivers of this constructor
                 if (detail != null && detail.drivers.isNotEmpty) ...[
                   for (final d in detail.drivers) ...[
                     InkWell(
@@ -449,7 +448,6 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                   ],
                 ],
 
-                // Technical & Meta details
                 _buildDetailTile(
                   leading: Text(
                     chassis.length > 2 ? chassis.substring(0, 2) : chassis,

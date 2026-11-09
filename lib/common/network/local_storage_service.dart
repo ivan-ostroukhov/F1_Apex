@@ -37,7 +37,6 @@ class LocalStorageService {
       jsonStr = await rootBundle.loadString('assets/data/f1_history.json');
     } catch (_) {
       try {
-        // Fallback for tests or local execution
         final file = File('assets/data/f1_history.json');
         if (file.existsSync()) {
           jsonStr = await file.readAsString();

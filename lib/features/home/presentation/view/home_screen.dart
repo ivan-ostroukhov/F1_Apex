@@ -21,6 +21,7 @@ import '../../../constructor/domain/constructor_repository.dart';
 import '../../../constructor/domain/constructor_detail_model.dart';
 import '../../../schedule/data/repositories/schedule_repository.dart';
 import '../../../schedule/domain/models/race_model.dart';
+import '../../../schedule/domain/models/circuit_stats.dart';
 import '../../../driver/presentation/widgets/driver_hero_image.dart';
 import '../../data/home_repository.dart';
 import '../../domain/home_news_model.dart';
@@ -45,7 +46,43 @@ class _HomeScreenState extends State<HomeScreen> {
   DriverDetailModel? _driver2Detail;
   ConstructorDetailModel? _teamDetail;
   RaceModel? _nextRace;
+  List<RaceModel> _seasonSchedule = [];
   bool? _lastIsEn;
+
+  int get _completedRacesCount {
+    if (_seasonSchedule.isNotEmpty) {
+      final count = _seasonSchedule.where((r) => r.isCompleted).length;
+      return count > 0 ? count : 18;
+    }
+    return 18;
+  }
+
+  int get _totalRacesCount {
+    if (_seasonSchedule.isNotEmpty) {
+      return _seasonSchedule.length;
+    }
+    return 24;
+  }
+
+  double get _seasonProgressPercent => _totalRacesCount > 0
+      ? (_completedRacesCount / _totalRacesCount).clamp(0.0, 1.0)
+      : 0.75;
+
+  int get _percentValue => (_seasonProgressPercent * 100).round();
+
+  String get _completedDistanceKm {
+    final km = _completedRacesCount * 305.4;
+    return km.toStringAsFixed(1);
+  }
+
+  String get _completedLaps {
+    final laps = (_completedRacesCount * 59.5).round();
+    final str = laps.toString();
+    if (str.length > 3) {
+      return '${str.substring(0, str.length - 3)} ${str.substring(str.length - 3)}';
+    }
+    return str;
+  }
 
   @override
   void initState() {
@@ -147,6 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _teamDetail = resTeam;
           }
           if (schedule.isNotEmpty) {
+            _seasonSchedule = schedule;
             _nextRace = schedule.where((r) => !r.isCompleted).firstOrNull ?? schedule.last;
           }
         });
@@ -500,14 +538,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             CustomPaint(
                               size: const Size(135, 135),
-                              painter: _GaugePainter(percent: 0.78, isLight: theme.brightness == Brightness.light),
+                              painter: _GaugePainter(
+                                percent: _seasonProgressPercent,
+                                isLight: theme.brightness == Brightness.light,
+                              ),
                             ),
-                            const Text.rich(
+                            Text.rich(
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: '78',
-                                    style: TextStyle(
+                                    text: '$_percentValue',
+                                    style: const TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.w900,
                                       color: Colors.white,
@@ -516,7 +557,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   TextSpan(
                                     text: '%',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -534,11 +575,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildProgressStat(context, '18/23', l10n.grandPrixCompleted),
+                            _buildProgressStat(context, '$_completedRacesCount/$_totalRacesCount', l10n.grandPrixCompleted),
                             Divider(color: theme.dividerColor, height: 16),
-                            _buildProgressStat(context, isEn ? '5483.0 KM' : '5483.0 КМ', l10n.distanceCovered),
+                            _buildProgressStat(context, isEn ? '$_completedDistanceKm KM' : '$_completedDistanceKm КМ', l10n.distanceCovered),
                             Divider(color: theme.dividerColor, height: 16),
-                            _buildProgressStat(context, '1 082', l10n.lapsCompleted),
+                            _buildProgressStat(context, _completedLaps, l10n.lapsCompleted),
                           ],
                         ),
                       ),
@@ -703,37 +744,65 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 28),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.mexicoGrandPrixTitle,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                Builder(
+                  builder: (context) {
+                    final race = _nextRace;
+                    final stats = CircuitStats.getFor(race?.circuitId ?? 'rodriguez');
+                    final stageTitle = race != null
+                        ? 'R${race.round} ${race.raceName}'
+                        : l10n.mexicoGrandPrixTitle;
 
-                      _buildWhiteStagePill(context, '71', l10n.lapsCount, const Color(0xFFFFD600), Icons.repeat_rounded),
-                      const SizedBox(height: 10),
-                      _buildWhiteStagePill(context, isEn ? '356.9 km/h' : '356.9 км/ч', l10n.maxSpeed, const Color(0xFF00E676), Icons.speed_rounded),
-                      const SizedBox(height: 10),
-                      _buildWhiteStagePill(
-                        context,
-                        '17',
-                        l10n.turnsCount,
-                        const Color(0xFF2979FF),
-                        Icons.alt_route_rounded,
-                        customIcon: const TurnsIcon(size: 22, color: Colors.black),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            stageTitle,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          _buildWhiteStagePill(
+                            context,
+                            '${stats.laps}',
+                            l10n.lapsCount,
+                            const Color(0xFFFFD600),
+                            Icons.repeat_rounded,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildWhiteStagePill(
+                            context,
+                            isEn ? '${stats.maxSpeed} km/h' : '${stats.maxSpeed} км/ч',
+                            l10n.maxSpeed,
+                            const Color(0xFF00E676),
+                            Icons.speed_rounded,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildWhiteStagePill(
+                            context,
+                            '${stats.corners}',
+                            l10n.turnsCount,
+                            const Color(0xFF2979FF),
+                            Icons.alt_route_rounded,
+                            customIcon: const TurnsIcon(size: 22, color: Colors.black),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildWhiteStagePill(
+                            context,
+                            isEn ? '${stats.elevation} m' : '${stats.elevation} м',
+                            l10n.elevationChange,
+                            const Color(0xFFFF3D00),
+                            Icons.height_rounded,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildWhiteStagePill(context, isEn ? '2.67 m' : '2.67 м', l10n.elevationChange, const Color(0xFFFF3D00), Icons.height_rounded),
-                    ],
-                  ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 28),
@@ -1494,7 +1563,6 @@ class _GaugePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final outerRadius = size.width / 2 - 2;
 
-    // 1. Outer Ticks
     final tickPaint = Paint()
       ..color = isLight ? Colors.black.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.18)
       ..strokeWidth = 1.0;
@@ -1518,7 +1586,6 @@ class _GaugePainter extends CustomPainter {
     const startAngle = math.pi * 0.72;
     const totalSweep = math.pi * 1.56;
 
-    // 2. Inner Blue Disk (as shown in the screenshot)
     final innerRadius = arcRadius - (strokeWidth / 2) - 3;
     final innerRect = Rect.fromCircle(center: center, radius: innerRadius);
     final innerPaint = Paint()
@@ -1541,7 +1608,6 @@ class _GaugePainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.25);
     canvas.drawCircle(center, innerRadius, innerBorderPaint);
 
-    // 3. Unfilled Slats Background
     final slatPaint = Paint()
       ..color = isLight ? const Color(0xFFE0E0E5) : const Color(0xFF262830)
       ..strokeWidth = 1.8;
@@ -1565,37 +1631,73 @@ class _GaugePainter extends CustomPainter {
       }
     }
 
-    // 4. Active Progress Arc with Gradient & Round Caps
-    final progressSweep = totalSweep * percent;
-    final arcRect = Rect.fromCircle(center: center, radius: arcRadius);
-    final activeGradient = SweepGradient(
-      center: Alignment.center,
-      startAngle: startAngle,
-      endAngle: startAngle + totalSweep,
-      colors: const [
-        Color(0xFF0038FF),
-        Color(0xFF0075FF),
-        Color(0xFF00E676),
-        Color(0xFFAEEA00),
-        Color(0xFFFFD600),
-        Color(0xFFFFEA00),
-      ],
-      stops: const [0.0, 0.20, 0.42, 0.60, 0.76, 1.0],
-    );
+    if (percent > 0) {
+      final arcRect = Rect.fromCircle(center: center, radius: arcRadius);
+      final progressSweep = totalSweep * percent;
+      final capRadius = strokeWidth / 2;
 
-    final activePaint = Paint()
-      ..shader = activeGradient.createShader(arcRect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+      final startCapCenter = Offset(
+        center.dx + arcRadius * math.cos(startAngle),
+        center.dy + arcRadius * math.sin(startAngle),
+      );
+      canvas.drawCircle(
+        startCapCenter,
+        capRadius,
+        Paint()
+          ..color = _getArcColor(0.0)
+          ..style = PaintingStyle.fill,
+      );
 
-    canvas.drawArc(
-      arcRect,
-      startAngle,
-      progressSweep,
-      false,
-      activePaint,
-    );
+      const steps = 120;
+      final segmentPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.butt;
+
+      for (int i = 0; i < steps; i++) {
+        final t1 = (i / steps) * percent;
+        final t2 = ((i + 1) / steps) * percent;
+        final a1 = startAngle + (totalSweep * t1);
+        final a2 = startAngle + (totalSweep * t2);
+
+        segmentPaint.color = _getArcColor((t1 + t2) / 2);
+        canvas.drawArc(
+          arcRect,
+          a1,
+          a2 - a1 + 0.005,
+          false,
+          segmentPaint,
+        );
+      }
+
+      final endAngle = startAngle + progressSweep;
+      final endCapCenter = Offset(
+        center.dx + arcRadius * math.cos(endAngle),
+        center.dy + arcRadius * math.sin(endAngle),
+      );
+      canvas.drawCircle(
+        endCapCenter,
+        capRadius,
+        Paint()
+          ..color = _getArcColor(percent)
+          ..style = PaintingStyle.fill,
+      );
+    }
+  }
+
+  Color _getArcColor(double t) {
+    final clampedT = t.clamp(0.0, 1.0);
+    if (clampedT <= 0.20) {
+      return Color.lerp(const Color(0xFF0038FF), const Color(0xFF0075FF), clampedT / 0.20)!;
+    } else if (clampedT <= 0.42) {
+      return Color.lerp(const Color(0xFF0075FF), const Color(0xFF00E676), (clampedT - 0.20) / 0.22)!;
+    } else if (clampedT <= 0.60) {
+      return Color.lerp(const Color(0xFF00E676), const Color(0xFFAEEA00), (clampedT - 0.42) / 0.18)!;
+    } else if (clampedT <= 0.76) {
+      return Color.lerp(const Color(0xFFAEEA00), const Color(0xFFFFD600), (clampedT - 0.60) / 0.16)!;
+    } else {
+      return Color.lerp(const Color(0xFFFFD600), const Color(0xFFFFEA00), ((clampedT - 0.76) / 0.24).clamp(0.0, 1.0))!;
+    }
   }
 
   @override
