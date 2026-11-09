@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/f1_media.dart';
@@ -17,6 +18,8 @@ import '../../../driver/domain/i_driver_repository.dart';
 import '../../../driver/domain/driver_detail_model.dart';
 import '../../../constructor/domain/constructor_repository.dart';
 import '../../../constructor/domain/constructor_detail_model.dart';
+import '../../../schedule/data/repositories/schedule_repository.dart';
+import '../../../schedule/domain/models/race_model.dart';
 import '../../../driver/presentation/widgets/driver_hero_image.dart';
 import '../../data/home_repository.dart';
 import '../../domain/home_news_model.dart';
@@ -40,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   DriverDetailModel? _driver1Detail;
   DriverDetailModel? _driver2Detail;
   ConstructorDetailModel? _teamDetail;
+  RaceModel? _nextRace;
 
   @override
   void initState() {
@@ -98,12 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final driverRepo = context.read<IDriverRepository>();
       final teamRepo = context.read<IConstructorRepository>();
+      final scheduleRepo = ScheduleRepository();
 
       final results = await Future.wait([
         driverRepo.getDriverDetails(d1).catchError((_) => _fallbackDriverDetail(d1)),
         driverRepo.getDriverDetails(d2).catchError((_) => _fallbackDriverDetail(d2)),
         teamRepo.getConstructorDetails(tm).catchError((_) => _fallbackTeamDetail(tm)),
       ]);
+
+      List<RaceModel> schedule = [];
+      try {
+        schedule = await scheduleRepo.getSeasonSchedule();
+      } catch (_) {}
 
       if (mounted) {
         setState(() {
@@ -118,6 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
           final resTeam = results[2] as ConstructorDetailModel;
           if (resTeam.points != '0' || resTeam.position != '0' || resTeam.wins > 0) {
             _teamDetail = resTeam;
+          }
+          if (schedule.isNotEmpty) {
+            _nextRace = schedule.where((r) => !r.isCompleted).firstOrNull ?? schedule.last;
           }
         });
       }
@@ -303,7 +316,31 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       case 3:
       default:
+        final race = _nextRace;
+        if (race != null) {
+          final now = DateTime.now();
+          final session = race.sessions.where((s) => s.endTime.isAfter(now)).firstOrNull ??
+              race.sessions.firstOrNull;
+
+          final sessionTitle = session != null ? session.title : 'Race';
+          final sessionDate = session != null
+              ? '${session.day} ${session.dayOfWeek}'
+              : (race.date != null ? DateFormat('dd MMM', 'ru').format(race.date!) : '');
+          final sessionTime = session != null ? session.timeRange : '';
+
+          return _buildRaceSlide(
+            circuitId: race.circuitId,
+            bgText: race.circuitId.toLowerCase().replaceAll('-', '_'),
+            locality: race.locality.isNotEmpty ? race.locality : race.raceName,
+            dateRange: race.dateRange,
+            sessionTitle: sessionTitle,
+            sessionDate: sessionDate,
+            sessionTime: sessionTime,
+          );
+        }
+
         return _buildRaceSlide(
+          circuitId: 'rodriguez',
           bgText: 'mexico',
           locality: 'Mexico City',
           dateRange: l10n.mexicoDateRange,
@@ -1096,6 +1133,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRaceSlide({
+    required String circuitId,
     required String bgText,
     required String locality,
     required String dateRange,
@@ -1103,7 +1141,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String sessionDate,
     required String sessionTime,
   }) {
-    final circuitColor = F1Colors.getCircuitColor('mexico');
+    final circuitColor = F1Colors.getCircuitColor(circuitId);
     final theme = Theme.of(context);
 
     return Stack(
@@ -1150,7 +1188,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 200,
           height: 180,
           child: Image.asset(
-            F1Media.getTrackAssetPath('rodriguez'),
+            F1Media.getTrackAssetPath(circuitId),
             fit: BoxFit.contain,
             errorBuilder: (_, __, ___) => Icon(
               Icons.polyline_rounded,
