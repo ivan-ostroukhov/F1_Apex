@@ -232,27 +232,25 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
                             ),
                           ),
                           Expanded(
-                            flex: 5,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  height: 255,
-                                  child: Center(
-                                    child: Image.asset(
-                                      F1Media.getTrackAssetPath(widget.race.circuitId),
-                                      width: 300,
-                                      height: 270,
-                                      fit: BoxFit.contain,
-                                      errorBuilder: (_, __, ___) => Icon(
-                                        Icons.polyline_rounded,
-                                        size: 240,
-                                        color: circuitColor.withValues(alpha: 0.9),
-                                      ),
+                            flex: 6,
+                            child: SizedBox(
+                              height: 270,
+                              child: Transform.translate(
+                                offset: const Offset(-10, 0),
+                                child: Transform.scale(
+                                  scale: 1.15,
+                                  child: Image.asset(
+                                    F1Media.getTrackAssetPath(widget.race.circuitId),
+                                    fit: BoxFit.contain,
+                                    alignment: Alignment.centerLeft,
+                                    errorBuilder: (_, __, ___) => Icon(
+                                      Icons.polyline_rounded,
+                                      size: 240,
+                                      color: circuitColor.withValues(alpha: 0.9),
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ],
