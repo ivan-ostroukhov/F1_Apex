@@ -26,8 +26,7 @@ class HomeRepository {
     }
 
     try {
-      final featuredDriverNews = _getFeaturedDriverNews(isEnglish: isEnglish);
-      final rssNewsList = <HomeNewsModel>[];
+      final newsList = <HomeNewsModel>[];
 
       final primaryUrl = isEnglish
           ? 'https://www.racefans.net/feed/'
@@ -46,12 +45,12 @@ class HomeRepository {
         if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
           final xmlText = utf8.decode(response.bodyBytes, allowMalformed: true);
           final parsed = _parseRssFeed(xmlText, sourceName: primarySource);
-          rssNewsList.addAll(parsed);
+          newsList.addAll(parsed);
         }
       } catch (_) {}
 
-      // Fallback feed if primary RSS was empty
-      if (rssNewsList.isEmpty) {
+      // Fallback feed if primary was empty
+      if (newsList.isEmpty) {
         final secondaryUrl = isEnglish
             ? 'https://www.f1news.ru/export/news.xml'
             : 'https://www.racefans.net/feed/';
@@ -69,33 +68,19 @@ class HomeRepository {
           if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
             final xmlText = utf8.decode(response.bodyBytes, allowMalformed: true);
             final parsed = _parseRssFeed(xmlText, sourceName: secondarySource);
-            rssNewsList.addAll(parsed);
+            newsList.addAll(parsed);
           }
         } catch (_) {}
       }
 
-      // Merge featured driver news with RSS news
-      final combined = <HomeNewsModel>[];
-      final seenUrls = <String>{};
-
-      // Add top driver news quotes first
-      for (final feat in featuredDriverNews) {
-        if (!seenUrls.contains(feat.url)) {
-          seenUrls.add(feat.url);
-          combined.add(feat);
+      if (newsList.isNotEmpty) {
+        final uniqueNews = <String, HomeNewsModel>{};
+        for (final item in newsList) {
+          if (!uniqueNews.containsKey(item.url) && item.url.startsWith('http')) {
+            uniqueNews[item.url] = item;
+          }
         }
-      }
-
-      // Interleave live RSS articles
-      for (final rss in rssNewsList) {
-        if (!seenUrls.contains(rss.url) && rss.url.startsWith('http')) {
-          seenUrls.add(rss.url);
-          combined.add(rss);
-        }
-      }
-
-      if (combined.isNotEmpty) {
-        final result = combined.take(12).toList();
+        final result = uniqueNews.values.take(12).toList();
 
         LocalStorageService.setString(
           cacheKey,
@@ -110,89 +95,7 @@ class HomeRepository {
       return cachedList;
     }
 
-    return _getFeaturedDriverNews(isEnglish: isEnglish);
-  }
-
-  List<HomeNewsModel> _getFeaturedDriverNews({required bool isEnglish}) {
-    if (isEnglish) {
-      return const [
-        HomeNewsModel(
-          id: 'driver_feat_1',
-          title: 'Max Verstappen: "Overtaking in the rain is much easier when you have full confidence in the car balance"',
-          source: 'Formula1.com',
-          timeAgo: '15 минут назад',
-          timeAgoEn: '15 mins ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/max_verstappen/192469.jpg',
-          url: 'https://www.formula1.com/en/latest/all.html',
-        ),
-        HomeNewsModel(
-          id: 'driver_feat_2',
-          title: 'Charles Leclerc: "Ferrari floor & sidepod upgrades give us strong downforce gains in low-speed corners"',
-          source: 'Motorsport.com',
-          timeAgo: '42 минуты назад',
-          timeAgoEn: '42 mins ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/ferrari/192463.jpg',
-          url: 'https://www.motorsport.com/f1/news/',
-        ),
-        HomeNewsModel(
-          id: 'driver_feat_3',
-          title: 'Lando Norris: "Title fight against Verstappen is getting more intense with every Grand Prix"',
-          source: 'Autosport.com',
-          timeAgo: '2 часа назад',
-          timeAgoEn: '2 hours ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/stella/192467.jpg',
-          url: 'https://www.autosport.com/f1/news/',
-        ),
-        HomeNewsModel(
-          id: 'driver_feat_4',
-          title: 'Lewis Hamilton reflects on Mercedes progress ahead of his Ferrari transition',
-          source: 'RaceFans.net',
-          timeAgo: '4 часа назад',
-          timeAgoEn: '4 hours ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/hamilton/192470.jpg',
-          url: 'https://www.racefans.net/',
-        ),
-      ];
-    } else {
-      return const [
-        HomeNewsModel(
-          id: 'driver_feat_1',
-          title: 'Макс Ферстаппен: «В дождь обгонять значительно легче, если ты полностью доверяешь машине»',
-          source: 'F1News.ru',
-          timeAgo: '15 минут назад',
-          timeAgoEn: '15 mins ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/max_verstappen/192469.jpg',
-          url: 'https://www.f1news.ru/news/f1-192470.html',
-        ),
-        HomeNewsModel(
-          id: 'driver_feat_2',
-          title: 'Шарль Леклер: «Обновления днища и понтонов Ferrari дают отличный прирост прижима в медленных поворотах»',
-          source: 'Motorsport.com',
-          timeAgo: '42 минуты назад',
-          timeAgoEn: '42 mins ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/ferrari/192463.jpg',
-          url: 'https://www.f1news.ru/',
-        ),
-        HomeNewsModel(
-          id: 'driver_feat_3',
-          title: 'Ландо Норрис: «Борьба за чемпионский титул с Ферстаппеном становится жестче с каждым этапом»',
-          source: 'Autosport.com',
-          timeAgo: '2 часа назад',
-          timeAgoEn: '2 hours ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/stella/192467.jpg',
-          url: 'https://www.f1news.ru/',
-        ),
-        HomeNewsModel(
-          id: 'driver_feat_4',
-          title: 'Льюис Хэмилтон подвел итоги прогресса Mercedes перед переходом в Ferrari',
-          source: 'RaceFans.net',
-          timeAgo: '4 часа назад',
-          timeAgoEn: '4 hours ago',
-          imageUrl: 'https://c.f1news.ru/userfiles/hamilton/192470.jpg',
-          url: 'https://www.f1news.ru/',
-        ),
-      ];
-    }
+    return isEnglish ? _fallbackNewsEn : _fallbackNewsRu;
   }
 
   List<HomeNewsModel> _parseRssFeed(String xmlString, {required String sourceName}) {
@@ -322,4 +225,46 @@ class HomeRepository {
         .replaceAll('&nbsp;', ' ')
         .trim();
   }
+
+  static const List<HomeNewsModel> _fallbackNewsRu = [
+    HomeNewsModel(
+      id: '1',
+      title: 'Макс Ферстаппен подвел итоги прошедшей гонки и прокомментировал обгоны',
+      source: 'F1News.ru',
+      timeAgo: '15 минут назад',
+      timeAgoEn: '15 mins ago',
+      imageUrl: 'https://c.f1news.ru/userfiles/max_verstappen/192469.jpg',
+      url: 'https://www.f1news.ru/news/f1-192469.html',
+    ),
+    HomeNewsModel(
+      id: '2',
+      title: 'Шарль Леклер оценил работу новинок и прогресс Ferrari',
+      source: 'F1News.ru',
+      timeAgo: '45 минут назад',
+      timeAgoEn: '45 mins ago',
+      imageUrl: 'https://c.f1news.ru/userfiles/ferrari/192463.jpg',
+      url: 'https://www.f1news.ru/news/f1-192463.html',
+    ),
+  ];
+
+  static const List<HomeNewsModel> _fallbackNewsEn = [
+    HomeNewsModel(
+      id: '1',
+      title: 'Aston Martin told Alonso he was quicker than the Mercedes at end of Brazilian GP',
+      source: 'RaceFans',
+      timeAgo: '15 минут назад',
+      timeAgoEn: '15 mins ago',
+      imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop',
+      url: 'https://www.racefans.net/',
+    ),
+    HomeNewsModel(
+      id: '2',
+      title: 'Ferrari introduces major floor & sidepod upgrades for upcoming Grand Prix',
+      source: 'RaceFans',
+      timeAgo: '45 минут назад',
+      timeAgoEn: '45 mins ago',
+      imageUrl: 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?q=80&w=800&auto=format&fit=crop',
+      url: 'https://www.racefans.net/',
+    ),
+  ];
 }

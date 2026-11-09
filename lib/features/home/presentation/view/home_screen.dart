@@ -44,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   DriverDetailModel? _driver2Detail;
   ConstructorDetailModel? _teamDetail;
   RaceModel? _nextRace;
+  bool? _lastIsEn;
 
   @override
   void initState() {
@@ -55,6 +56,16 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
     _startAutoScroll();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    if (_lastIsEn != isEn) {
+      _lastIsEn = isEn;
+      _loadNews();
+    }
   }
 
   void _startAutoScroll() {
