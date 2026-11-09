@@ -17,29 +17,72 @@ class F1Colors {
     if (key.isEmpty) return circuitPalette.first;
     final lower = key.toLowerCase();
 
-    if (lower.contains('sao_paulo') || lower.contains('brazil') || lower.contains('interlagos') || lower.contains('albert') || lower.contains('australia') || lower.contains('imola') || lower.contains('emilia') || lower.contains('spa') || lower.contains('belgium') || lower.contains('mexico') || lower.contains('rodriguez')) {
-      return const Color(0xFF0F5A28);
+    if (lower.contains('marina_bay') ||
+        lower.contains('singapore') ||
+        lower.contains('monaco') ||
+        lower.contains('monte_carlo') ||
+        lower.contains('suzuka') ||
+        lower.contains('japan') ||
+        lower.contains('bahrain') ||
+        lower.contains('sakhir') ||
+        lower.contains('catalunya') ||
+        lower.contains('spain') ||
+        lower.contains('red_bull_ring') ||
+        lower.contains('austria') ||
+        lower.contains('shanghai') ||
+        lower.contains('china') ||
+        lower.contains('villeneuve') ||
+        lower.contains('canada') ||
+        lower.contains('rodriguez') ||
+        lower.contains('mexico')) {
+      return const Color(0xFFC8282D);
     }
-    if (lower.contains('vegas') || lower.contains('las_vegas') || lower.contains('miami') || lower.contains('austin') || lower.contains('cota') || lower.contains('americas') || lower.contains('usa') || lower.contains('austria') || lower.contains('red_bull_ring')) {
-      return const Color(0xFF15448C);
+
+    if (lower.contains('silverstone') ||
+        lower.contains('britain') ||
+        lower.contains('british') ||
+        lower.contains('uk') ||
+        lower.contains('americas') ||
+        lower.contains('cota') ||
+        lower.contains('austin') ||
+        lower.contains('usa') ||
+        lower.contains('vegas') ||
+        lower.contains('las_vegas') ||
+        lower.contains('miami')) {
+      return const Color(0xFF233565);
     }
-    if (lower.contains('qatar') || lower.contains('losail') || lower.contains('bahrain') || lower.contains('sakhir') || lower.contains('monza') || lower.contains('italy')) {
-      return const Color(0xFF7A1828);
+
+    if (lower.contains('monza') ||
+        lower.contains('italy') ||
+        lower.contains('baku') ||
+        lower.contains('azerbaijan') ||
+        lower.contains('hungaroring') ||
+        lower.contains('hungary') ||
+        lower.contains('interlagos') ||
+        lower.contains('brazil') ||
+        lower.contains('sao_paulo') ||
+        lower.contains('albert') ||
+        lower.contains('australia') ||
+        lower.contains('imola') ||
+        lower.contains('emilia') ||
+        lower.contains('losail') ||
+        lower.contains('qatar')) {
+      return const Color(0xFF1E6B45);
     }
-    if (lower.contains('abu_dhabi') || lower.contains('yas_marina') || lower.contains('jeddah') || lower.contains('saudi') || lower.contains('baku') || lower.contains('azerbaijan')) {
+
+    if (lower.contains('jeddah') ||
+        lower.contains('saudi') ||
+        lower.contains('yas_marina') ||
+        lower.contains('abu_dhabi')) {
       return const Color(0xFF0E7A6B);
     }
-    if (lower.contains('suzuka') || lower.contains('japan') || lower.contains('canada') || lower.contains('montreal') || lower.contains('spain') || lower.contains('catalunya') || lower.contains('zandvoort') || lower.contains('dutch')) {
-      return const Color(0xFFB55A12);
+
+    if (lower.contains('spa') || lower.contains('belgium')) {
+      return const Color(0xFFC49A28);
     }
-    if (lower.contains('singapore') || lower.contains('marina_bay') || lower.contains('hungary') || lower.contains('hungaroring') || lower.contains('budapest')) {
-      return const Color(0xFF5B2382);
-    }
-    if (lower.contains('silverstone') || lower.contains('britain') || lower.contains('british') || lower.contains('uk')) {
-      return const Color(0xFF1E3D59);
-    }
-    if (lower.contains('shanghai') || lower.contains('china') || lower.contains('chinese') || lower.contains('monaco') || lower.contains('monte_carlo')) {
-      return const Color(0xFF8B263E);
+
+    if (lower.contains('zandvoort') || lower.contains('dutch')) {
+      return const Color(0xFFC8501A);
     }
 
     final hash = key.codeUnits.fold<int>(0, (acc, val) => acc + val);

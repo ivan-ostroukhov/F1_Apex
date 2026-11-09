@@ -425,7 +425,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
             child: Row(
               children: [
                 SizedBox(
-                  width: 44,
+                  width: 52,
                   child: ColorFiltered(
                     colorFilter: const ColorFilter.mode(
                       Colors.grey,
@@ -433,13 +433,13 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     ),
                     child: Image.asset(
                       F1Media.get2DTrackAssetPath(race.circuitId),
-                      width: 28,
-                      height: 28,
+                      width: 42,
+                      height: 42,
                       fit: BoxFit.contain,
                       errorBuilder: (_, __, ___) => const Icon(
                         Icons.timeline,
                         color: Colors.grey,
-                        size: 20,
+                        size: 24,
                       ),
                     ),
                   ),
@@ -602,13 +602,13 @@ class _ScheduleViewState extends State<_ScheduleView> {
                 ),
                 Image.asset(
                   F1Media.get2DTrackAssetPath(race.circuitId),
-                  width: 28,
-                  height: 28,
+                  width: 42,
+                  height: 42,
                   fit: BoxFit.contain,
                   errorBuilder: (_, __, ___) => Icon(
                     Icons.timeline,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    size: 20,
+                    size: 24,
                   ),
                 ),
                 const SizedBox(width: 6),
