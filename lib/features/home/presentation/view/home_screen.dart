@@ -433,9 +433,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(
                         width: 135,
                         height: 135,
-                        child: CustomPaint(
-                          size: const Size(135, 135),
-                          painter: _GaugePainter(percent: 0.78, isLight: theme.brightness == Brightness.light),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CustomPaint(
+                              size: const Size(135, 135),
+                              painter: _GaugePainter(percent: 0.78, isLight: theme.brightness == Brightness.light),
+                            ),
+                            const Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '78',
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: -1.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '%',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -1330,6 +1358,7 @@ class _GaugePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final outerRadius = size.width / 2 - 2;
 
+    // 1. Outer Ticks
     final tickPaint = Paint()
       ..color = isLight ? Colors.black.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.18)
       ..strokeWidth = 1.0;
@@ -1349,10 +1378,34 @@ class _GaugePainter extends CustomPainter {
     }
 
     final arcRadius = outerRadius - 16;
-    const strokeWidth = 16.0;
+    const strokeWidth = 14.0;
     const startAngle = math.pi * 0.72;
     const totalSweep = math.pi * 1.56;
 
+    // 2. Inner Blue Disk (as shown in the screenshot)
+    final innerRadius = arcRadius - (strokeWidth / 2) - 3;
+    final innerRect = Rect.fromCircle(center: center, radius: innerRadius);
+    final innerPaint = Paint()
+      ..shader = const RadialGradient(
+        center: Alignment(0.0, -0.2),
+        radius: 0.85,
+        colors: [
+          Color(0xFF0075FF),
+          Color(0xFF004BD6),
+          Color(0xFF0036A8),
+        ],
+        stops: [0.0, 0.7, 1.0],
+      ).createShader(innerRect);
+
+    canvas.drawCircle(center, innerRadius, innerPaint);
+
+    final innerBorderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..color = Colors.white.withValues(alpha: 0.25);
+    canvas.drawCircle(center, innerRadius, innerBorderPaint);
+
+    // 3. Unfilled Slats Background
     final slatPaint = Paint()
       ..color = isLight ? const Color(0xFFE0E0E5) : const Color(0xFF262830)
       ..strokeWidth = 1.8;
@@ -1376,24 +1429,29 @@ class _GaugePainter extends CustomPainter {
       }
     }
 
+    // 4. Active Progress Arc with Gradient & Round Caps
     final progressSweep = totalSweep * percent;
-
     final arcRect = Rect.fromCircle(center: center, radius: arcRadius);
     final activeGradient = SweepGradient(
       center: Alignment.center,
       startAngle: startAngle,
       endAngle: startAngle + totalSweep,
       colors: const [
-        Color(0xFF2979FF),
+        Color(0xFF0038FF),
+        Color(0xFF0075FF),
         Color(0xFF00E676),
+        Color(0xFFAEEA00),
+        Color(0xFFFFD600),
+        Color(0xFFFFEA00),
       ],
+      stops: const [0.0, 0.20, 0.42, 0.60, 0.76, 1.0],
     );
 
     final activePaint = Paint()
       ..shader = activeGradient.createShader(arcRect)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.butt;
+      ..strokeCap = StrokeCap.round;
 
     canvas.drawArc(
       arcRect,
