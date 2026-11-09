@@ -198,12 +198,23 @@ class DriverRepository implements IDriverRepository {
         standingFuture,
       ]);
 
-      final seasonData = results[0] as Map<String, dynamic>;
+      var seasonData = results[0] as Map<String, dynamic>;
       final careerData = results[1] as Map<String, dynamic>;
       final seasonStanding = results[2] as DriverStandingDto?;
 
-      final raceList =
+      var raceList =
           seasonData['MRData']?['RaceTable']?['Races'] as List<dynamic>? ?? [];
+
+      if (raceList.isEmpty && (querySeason == '2026' || querySeason == 'current')) {
+        try {
+          final fallbackData = await _dataSource.getDriverSeasonResults(driverId, season: '2024');
+          final fallbackRaces = fallbackData['MRData']?['RaceTable']?['Races'] as List<dynamic>? ?? [];
+          if (fallbackRaces.isNotEmpty) {
+            seasonData = fallbackData;
+            raceList = fallbackRaces;
+          }
+        } catch (_) {}
+      }
 
       int wins = 0;
       int podiums = 0;

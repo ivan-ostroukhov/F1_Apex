@@ -185,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
       firstRace: '—',
       firstWin: '—',
       worldChampionships: 0,
-      roundPoints: const [25, 18, 15, 25, 18],
+      roundPoints: _getValidChartPoints(null, id),
     );
   }
 
@@ -242,14 +242,14 @@ class _HomeScreenState extends State<HomeScreen> {
       return detail.roundPoints.map((p) => p ?? 0).toList();
     }
     final lower = driverId.toLowerCase();
-    if (lower.contains('verstappen')) return const [25, 18, 25, 25, 18, 25, 18, 25, 18, 25, 18, 25, 25, 18, 25, 18, 25, 25];
-    if (lower.contains('norris')) return const [18, 25, 18, 18, 25, 18, 25, 18, 25, 18, 25, 18, 18, 25, 18, 25, 18, 18];
-    if (lower.contains('leclerc')) return const [15, 25, 18, 15, 18, 25, 15, 18, 25, 15, 18, 25, 15, 18, 25, 18, 15, 25];
-    if (lower.contains('piastri')) return const [12, 18, 15, 25, 15, 18, 25, 15, 18, 25, 15, 18, 25, 15, 18, 25, 15, 18];
-    if (lower.contains('hamilton')) return const [10, 15, 12, 18, 25, 12, 18, 15, 18, 25, 12, 18, 15, 18, 12, 18, 15, 18];
-    if (lower.contains('russell') || lower.contains('antonelli')) return const [18, 15, 25, 12, 18, 15, 12, 18, 25, 12, 18, 15, 18, 12, 18, 15, 12, 18];
-    if (lower.contains('sainz') || lower.contains('albon')) return const [12, 15, 18, 12, 15, 18, 12, 15, 18, 12, 15, 18, 12, 15, 18, 12, 15, 18];
-    return const [10, 12, 15, 18, 12, 25, 10, 15, 12, 15, 10, 12, 15, 18, 12, 15, 10, 12];
+    if (lower.contains('verstappen')) return const [25, 25, 0, 25, 25, 18, 25, 25, 12, 18, 10, 25, 12, 25, 18, 25, 18, 25];
+    if (lower.contains('norris')) return const [15, 18, 15, 10, 18, 25, 18, 18, 15, 18, 15, 25, 12, 18, 25, 18, 25, 18];
+    if (lower.contains('leclerc')) return const [12, 15, 18, 12, 15, 25, 15, 25, 0, 10, 15, 12, 18, 25, 15, 25, 18, 15];
+    if (lower.contains('piastri')) return const [5, 12, 15, 4, 3, 13, 12, 18, 10, 18, 18, 15, 25, 15, 7, 12, 25, 10];
+    if (lower.contains('hamilton')) return const [6, 2, 0, 2, 2, 8, 8, 6, 12, 15, 12, 25, 15, 25, 4, 10, 8, 12];
+    if (lower.contains('russell') || lower.contains('antonelli')) return const [10, 8, 0, 6, 4, 4, 6, 10, 18, 12, 25, 12, 0, 6, 6, 6, 12, 10];
+    if (lower.contains('sainz') || lower.contains('albon')) return const [15, 0, 25, 15, 10, 15, 10, 15, 0, 8, 15, 10, 8, 6, 10, 12, 0, 8];
+    return const [8, 12, 4, 10, 15, 18, 6, 12, 10, 15, 8, 12, 15, 6, 10, 15, 8, 12];
   }
 
   Widget _getSlideWidget(int index) {
