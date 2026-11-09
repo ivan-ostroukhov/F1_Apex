@@ -48,8 +48,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadNews();
-    _loadFavoritesAndData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadNews();
+        _loadFavoritesAndData();
+      }
+    });
     _startAutoScroll();
   }
 
@@ -79,8 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadNews() async {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
     final repo = HomeRepository();
-    final newsList = await repo.getLatestNews();
+    final newsList = await repo.getLatestNews(isEnglish: isEn);
     if (mounted) {
       setState(() {
         _news = newsList;
@@ -359,10 +364,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.wait([
+            _loadNews(),
+            _loadFavoritesAndData(),
+          ]);
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
         slivers: [
           SliverToBoxAdapter(
             child: SizedBox(
@@ -756,6 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

@@ -16,4 +16,26 @@ class HomeNewsModel {
     required this.imageUrl,
     required this.url,
   });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'source': source,
+        'timeAgo': timeAgo,
+        'timeAgoEn': timeAgoEn,
+        'imageUrl': imageUrl,
+        'url': url,
+      };
+
+  factory HomeNewsModel.fromJson(Map<String, dynamic> json) {
+    return HomeNewsModel(
+      id: json['id'] as String? ?? '1',
+      title: json['title'] as String? ?? '',
+      source: json['source'] as String? ?? 'F1 News',
+      timeAgo: json['timeAgo'] as String? ?? '',
+      timeAgoEn: json['timeAgoEn'] as String?,
+      imageUrl: json['imageUrl'] as String? ?? '',
+      url: json['url'] as String? ?? '',
+    );
+  }
 }
