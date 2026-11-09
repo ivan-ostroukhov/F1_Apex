@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/f1_media.dart';
+import '../../../../common/widgets/turns_icon.dart';
 import '../../data/repositories/schedule_repository.dart';
 import '../../domain/models/circuit_stats.dart';
 import '../../domain/models/race_model.dart';
@@ -211,7 +212,7 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
                                 ),
                                 const SizedBox(height: 14),
                                 _StatRow(
-                                  icon: Icons.alt_route_rounded,
+                                  customIcon: const TurnsIcon(size: 36, color: Colors.white70),
                                   value: '${stats.corners}',
                                   label: l10n.turns,
                                 ),
@@ -383,12 +384,14 @@ class _SlantedStripesPainter extends CustomPainter {
 }
 
 class _StatRow extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final String value;
   final String label;
 
   const _StatRow({
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.value,
     required this.label,
   });
@@ -398,7 +401,13 @@ class _StatRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 40, color: Colors.white70),
+        SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: customIcon ?? Icon(icon, size: 40, color: Colors.white70),
+          ),
+        ),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

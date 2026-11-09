@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/f1_media.dart';
 import '../../../../common/utils/team_utils.dart';
+import '../../../../common/widgets/turns_icon.dart';
 import '../../../../common/network/local_storage_service.dart';
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../driver/domain/i_driver_repository.dart';
@@ -721,7 +722,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 10),
                       _buildWhiteStagePill(context, isEn ? '356.9 km/h' : '356.9 км/ч', l10n.maxSpeed, const Color(0xFF00E676), Icons.speed_rounded),
                       const SizedBox(height: 10),
-                      _buildWhiteStagePill(context, '17', l10n.turnsCount, const Color(0xFF2979FF), Icons.alt_route_rounded),
+                      _buildWhiteStagePill(
+                        context,
+                        '17',
+                        l10n.turnsCount,
+                        const Color(0xFF2979FF),
+                        Icons.alt_route_rounded,
+                        customIcon: const TurnsIcon(size: 22, color: Colors.black),
+                      ),
                       const SizedBox(height: 10),
                       _buildWhiteStagePill(context, isEn ? '2.67 m' : '2.67 м', l10n.elevationChange, const Color(0xFFFF3D00), Icons.height_rounded),
                     ],
@@ -1340,8 +1348,9 @@ class _HomeScreenState extends State<HomeScreen> {
     String value,
     String label,
     Color btnColor,
-    IconData icon,
-  ) {
+    IconData icon, {
+    Widget? customIcon,
+  }) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1383,10 +1392,13 @@ class _HomeScreenState extends State<HomeScreen> {
               color: btnColor,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              icon,
-              color: Colors.black,
-              size: 22,
+            child: Center(
+              child: customIcon ??
+                  Icon(
+                    icon,
+                    color: Colors.black,
+                    size: 22,
+                  ),
             ),
           ),
         ],
