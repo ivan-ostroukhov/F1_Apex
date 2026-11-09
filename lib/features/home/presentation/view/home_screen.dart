@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/f1_media.dart';
@@ -736,6 +737,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final teamColor = F1Colors.getTeamColor(teamName, driverId);
     final theme = Theme.of(context);
 
+    final formattedPos = pos.padLeft(2, '0');
+    final formattedWins = (int.tryParse(wins) ?? 0).toString().padLeft(2, '0');
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -765,7 +769,7 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 10,
           child: Text(
             bgText,
-            style: TextStyle(
+            style: GoogleFonts.titilliumWeb(
               fontSize: 110,
               fontWeight: FontWeight.w900,
               color: teamColor.withValues(alpha: 0.15),
@@ -827,48 +831,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text(
-                    '$pos ${l10n.driverPositionShort}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formattedPos,
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${l10n.driverPositionShort}',
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   Icon(Icons.stars, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text(
-                    '$wins ${l10n.winsLabel}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formattedWins,
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${l10n.winsLabel}',
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
                     pts,
-                    style: TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w900,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w300,
                       color: theme.colorScheme.onSurface,
-                      letterSpacing: -1,
+                      letterSpacing: -1.0,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     l10n.driverPointsShort,
-                    style: TextStyle(
-                      fontSize: 15,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -891,6 +923,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     final teamColor = F1Colors.getTeamColor(teamName);
     final theme = Theme.of(context);
+    final formattedPos = pos.padLeft(2, '0');
+    final formattedWins = (int.tryParse(wins) ?? 0).toString().padLeft(2, '0');
 
     return Stack(
       clipBehavior: Clip.none,
@@ -921,7 +955,7 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 10,
           child: Text(
             bgText,
-            style: TextStyle(
+            style: GoogleFonts.titilliumWeb(
               fontSize: 100,
               fontWeight: FontWeight.w900,
               color: teamColor.withValues(alpha: 0.15),
@@ -980,48 +1014,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text(
-                    '$pos ${l10n.driverPositionShort}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formattedPos,
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${l10n.driverPositionShort}',
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   Icon(Icons.stars, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text(
-                    '$wins ${l10n.winsLabel}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formattedWins,
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${l10n.winsLabel}',
+                          style: GoogleFonts.titilliumWeb(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
                     pts,
-                    style: TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w900,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w300,
                       color: theme.colorScheme.onSurface,
-                      letterSpacing: -1,
+                      letterSpacing: -1.0,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     l10n.driverPointsShort,
-                    style: TextStyle(
-                      fontSize: 15,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -1073,7 +1135,7 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 10,
           child: Text(
             bgText,
-            style: TextStyle(
+            style: GoogleFonts.titilliumWeb(
               fontSize: 100,
               fontWeight: FontWeight.w900,
               color: circuitColor.withValues(alpha: 0.2),
@@ -1129,19 +1191,19 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 locality,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.titilliumWeb(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
                   color: circuitColor,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 dateRange,
-                style: TextStyle(
+                style: GoogleFonts.titilliumWeb(
                   fontSize: 13,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               const SizedBox(height: 10),
@@ -1151,30 +1213,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     sessionTitle,
-                    style: TextStyle(
+                    style: GoogleFonts.titilliumWeb(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     sessionDate,
-                    style: TextStyle(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w900,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w300,
                       color: theme.colorScheme.onSurface,
-                      letterSpacing: -1,
+                      letterSpacing: -1.0,
                     ),
                   ),
                 ],
               ),
               Text(
                 sessionTime,
-                style: TextStyle(
+                style: GoogleFonts.titilliumWeb(
                   fontSize: 13,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
@@ -637,20 +638,20 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
       children: [
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
+          style: GoogleFonts.titilliumWeb(
+            fontSize: 48,
+            fontWeight: FontWeight.w300,
             color: Colors.white,
-            letterSpacing: -0.5,
+            letterSpacing: -1.0,
           ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 6),
         Text(
           unit,
-          style: const TextStyle(
-            fontSize: 13,
+          style: GoogleFonts.titilliumWeb(
+            fontSize: 16,
             color: Colors.white70,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
