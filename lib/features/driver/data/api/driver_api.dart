@@ -34,9 +34,10 @@ class DriverApi {
     String season = 'current',
   }) async {
     try {
-      final path = season == 'career'
+      final effectiveSeason = (season == '2026' || season == 'current') ? 'current' : season;
+      final path = effectiveSeason == 'career'
           ? '/drivers/$driverId/results.json'
-          : '/$season/drivers/$driverId/results.json';
+          : '/$effectiveSeason/drivers/$driverId/results.json';
       final response = await _dio.get<Map<String, dynamic>>(
         path,
         queryParameters: {'limit': 30},

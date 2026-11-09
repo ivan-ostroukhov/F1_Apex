@@ -162,7 +162,11 @@ class DriverRepository implements IDriverRepository {
       return cachedModel;
     }
 
-    if (cachedModel != null && cachedModel.points != '0' && cachedModel.position != '0' && cachedModel.position != '21') {
+    if (cachedModel != null &&
+        cachedModel.points != '0' &&
+        cachedModel.position != '0' &&
+        cachedModel.position != '21' &&
+        cachedModel.roundPoints.whereType<int>().any((p) => p > 0)) {
       final tsStr = LocalStorageService.getString(tsKey);
       final ts = int.tryParse(tsStr ?? '') ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
