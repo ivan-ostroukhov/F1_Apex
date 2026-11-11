@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../domain/constructor_detail_model.dart';
 import '../../domain/constructor_repository.dart';
 
@@ -224,7 +225,9 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
               ? '..'
               : (detail?.dnfs ?? 0).toString().padLeft(2, '0');
 
-          final carAssetPath = detail?.carAssetPath ?? 'assets/images/${widget.constructorId}.png';
+          final carAssetPath = detail?.carAssetPath.isNotEmpty == true
+              ? detail!.carAssetPath
+              : F1Media.getCarAssetPath(widget.constructorId);
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),

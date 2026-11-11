@@ -59,4 +59,19 @@ class F1Media {
     final key = circuitId.toLowerCase().replaceAll('-', '_');
     return 'assets/images/2d_track/$key.png';
   }
+
+  static String getCarAssetPath(String constructorId) {
+    final key = constructorId.toLowerCase().replaceAll('-', '_').replaceAll(' ', '_').trim();
+    if (key.contains('red_bull') || key.contains('redbull')) return 'assets/images/cars/red_bull.png';
+    if (key.contains('ferrari')) return 'assets/images/cars/ferrari.png';
+    if (key.contains('mercedes')) return 'assets/images/cars/mercedes.png';
+    if (key.contains('mclaren')) return 'assets/images/cars/mclaren.png';
+    if (key.contains('aston')) return 'assets/images/cars/aston_martin.png';
+    if (key.contains('alpine')) return 'assets/images/cars/alpine.png';
+    if (key.contains('williams')) return 'assets/images/cars/williams.png';
+    if (key.contains('haas')) return 'assets/images/cars/haas.png';
+    if (key.contains('rb') || key.contains('racing_bulls') || key.contains('vcarb')) return 'assets/images/cars/racing_bulls.png';
+    if (key.contains('sauber') || key.contains('kick') || key.contains('stake')) return 'assets/images/cars/sauber.png';
+    return 'assets/images/cars/$key.png';
+  }
 }

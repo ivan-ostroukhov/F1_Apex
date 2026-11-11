@@ -286,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
       poles: 2,
       dnfs: 0,
       season: '2026',
-      carAssetPath: 'assets/images/$id.png',
+      carAssetPath: F1Media.getCarAssetPath(id),
       drivers: const [],
     );
   }
@@ -367,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
           pos: tm?.position != null && tm!.position != '0' ? tm.position.padLeft(2, '0') : '01',
           wins: tm?.wins != null ? tm!.wins.toString().padLeft(2, '0') : '00',
           pts: tm?.points ?? '0',
-          carAssetPath: tm?.carAssetPath ?? 'assets/images/$_favTeam.png',
+          carAssetPath: tm?.carAssetPath ?? F1Media.getCarAssetPath(_favTeam),
         );
       case 3:
       default:
