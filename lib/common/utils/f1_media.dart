@@ -50,13 +50,45 @@ class F1Media {
     return 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/2025Drivers/$short.png';
   }
 
+  static String _normalizeCircuitKey(String circuitId) {
+    final key = circuitId.toLowerCase().replaceAll('-', '_').replaceAll(' ', '_').trim();
+
+    if (key.contains('madring') || key.contains('madrid')) return 'madrid';
+    if (key.contains('vegas') || key.contains('las_vegas')) return 'las_vegas';
+    if (key.contains('spain') || key.contains('catalunya')) return 'catalunya';
+    if (key.contains('sepang') || key.contains('malaysia')) return 'bahrain';
+    if (key.contains('americas') || key.contains('cota') || key.contains('austin') || key.contains('usa')) return 'americas';
+    if (key.contains('sao_paulo') || key.contains('brazil') || key.contains('interlagos')) return 'interlagos';
+    if (key.contains('albert') || key.contains('australia') || key.contains('melbourne')) return 'albert_park';
+    if (key.contains('imola') || key.contains('emilia')) return 'imola';
+    if (key.contains('suzuka') || key.contains('japan')) return 'suzuka';
+    if (key.contains('shanghai') || key.contains('china')) return 'shanghai';
+    if (key.contains('canada') || key.contains('montreal') || key.contains('villeneuve')) return 'villeneuve';
+    if (key.contains('mexico') || key.contains('rodriguez') || key.contains('hermanos')) return 'rodriguez';
+    if (key.contains('hungaroring') || key.contains('hungary') || key.contains('budapest')) return 'hungaroring';
+    if (key.contains('spa') || key.contains('belgium')) return 'spa';
+    if (key.contains('zandvoort') || key.contains('dutch')) return 'zandvoort';
+    if (key.contains('monza') || key.contains('italy')) return 'monza';
+    if (key.contains('baku') || key.contains('azerbaijan')) return 'baku';
+    if (key.contains('singapore') || key.contains('marina_bay')) return 'marina_bay';
+    if (key.contains('losail') || key.contains('qatar') || key.contains('lusail')) return 'losail';
+    if (key.contains('yas_marina') || key.contains('abu_dhabi')) return 'yas_marina';
+    if (key.contains('jeddah') || key.contains('saudi')) return 'jeddah';
+    if (key.contains('silverstone') || key.contains('britain') || key.contains('uk')) return 'silverstone';
+    if (key.contains('monaco') || key.contains('monte_carlo')) return 'monaco';
+    if (key.contains('miami')) return 'miami';
+    if (key.contains('bahrain') || key.contains('sakhir')) return 'bahrain';
+
+    return key;
+  }
+
   static String getTrackAssetPath(String circuitId) {
-    final key = circuitId.toLowerCase().replaceAll('-', '_');
+    final key = _normalizeCircuitKey(circuitId);
     return 'assets/images/tracks/$key.png';
   }
 
   static String get2DTrackAssetPath(String circuitId) {
-    final key = circuitId.toLowerCase().replaceAll('-', '_');
+    final key = _normalizeCircuitKey(circuitId);
     return 'assets/images/2d_track/$key.png';
   }
 

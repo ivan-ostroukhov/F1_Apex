@@ -27,14 +27,16 @@ class F1Colors {
         lower.contains('sakhir') ||
         lower.contains('catalunya') ||
         lower.contains('spain') ||
+        lower.contains('madring') ||
+        lower.contains('madrid') ||
         lower.contains('red_bull_ring') ||
         lower.contains('austria') ||
         lower.contains('shanghai') ||
         lower.contains('china') ||
         lower.contains('villeneuve') ||
         lower.contains('canada') ||
-        lower.contains('rodriguez') ||
-        lower.contains('mexico')) {
+        lower.contains('mexico') ||
+        lower.contains('sepang')) {
       return const Color(0xFFC8282D);
     }
 
@@ -61,24 +63,27 @@ class F1Colors {
         lower.contains('interlagos') ||
         lower.contains('brazil') ||
         lower.contains('sao_paulo') ||
-        lower.contains('albert') ||
         lower.contains('australia') ||
         lower.contains('imola') ||
         lower.contains('emilia') ||
-        lower.contains('losail') ||
-        lower.contains('qatar')) {
+        lower.contains('malaysia') ||
+        lower.contains('rodriguez') ||
+        lower.contains('yas_marina')) {
       return const Color(0xFF1E6B45);
     }
 
     if (lower.contains('jeddah') ||
         lower.contains('saudi') ||
-        lower.contains('yas_marina') ||
         lower.contains('abu_dhabi')) {
       return const Color(0xFF0E7A6B);
     }
 
-    if (lower.contains('spa') || lower.contains('belgium')) {
+    if (lower.contains('spa') || lower.contains('belgium') || lower.contains('albert')) {
       return const Color(0xFFC49A28);
+    }
+
+    if (lower.contains('qatar') || lower.contains('losail') || lower.contains('lusail')) {
+      return const Color(0xFF74253A);
     }
 
     if (lower.contains('zandvoort') || lower.contains('dutch')) {

@@ -247,17 +247,21 @@ class _ScheduleViewState extends State<_ScheduleView> {
                               ),
                             ),
                             Positioned(
-                              right: 8,
-                              top: 10,
-                              width: 200,
-                              height: 180,
-                              child: Image.asset(
-                                F1Media.getTrackAssetPath(currentRace.circuitId),
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) => Icon(
-                                  Icons.polyline_rounded,
-                                  size: 150,
-                                  color: currentCircuitColor.withValues(alpha: 0.85),
+                              right: -5,
+                              top: 25,
+                              width: 230,
+                              height: 205,
+                              child: Transform.scale(
+                                scale: 1.12,
+                                child: Image.asset(
+                                  F1Media.getTrackAssetPath(currentRace.circuitId),
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.centerRight,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.polyline_rounded,
+                                    size: 165,
+                                    color: currentCircuitColor.withValues(alpha: 0.85),
+                                  ),
                                 ),
                               ),
                             ),
