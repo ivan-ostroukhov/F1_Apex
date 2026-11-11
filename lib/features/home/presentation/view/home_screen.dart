@@ -1107,14 +1107,17 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 20,
           bottom: 0,
           width: 230,
-          child: Image.asset(
-            carAssetPath,
-            fit: BoxFit.contain,
-            alignment: Alignment.topRight,
-            errorBuilder: (_, __, ___) => const Icon(
-              Icons.sports_motorsports,
-              size: 130,
-              color: Colors.white12,
+          child: Transform.scale(
+            scale: 0.85,
+            child: Image.asset(
+              carAssetPath,
+              fit: BoxFit.contain,
+              alignment: Alignment.topRight,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.sports_motorsports,
+                size: 130,
+                color: Colors.white12,
+              ),
             ),
           ),
         ),
@@ -1123,17 +1126,18 @@ class _HomeScreenState extends State<HomeScreen> {
           left: 0,
           right: 0,
           bottom: 0,
-          height: 100,
+          height: 140,
           child: IgnorePointer(
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.45, 1.0],
+                  stops: const [0.0, 0.30, 0.65, 1.0],
                   colors: [
                     Colors.transparent,
-                    theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.50),
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.88),
                     theme.scaffoldBackgroundColor,
                   ],
                 ),

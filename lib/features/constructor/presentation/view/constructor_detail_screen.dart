@@ -261,14 +261,17 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                       top: 40,
                       bottom: 0,
                       width: 250,
-                      child: Image.asset(
-                        carAssetPath,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.topRight,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.sports_motorsports,
-                          size: 140,
-                          color: Colors.white12,
+                      child: Transform.scale(
+                        scale: 0.85,
+                        child: Image.asset(
+                          carAssetPath,
+                          fit: BoxFit.contain,
+                          alignment: Alignment.topRight,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.sports_motorsports,
+                            size: 140,
+                            color: Colors.white12,
+                          ),
                         ),
                       ),
                     ),
@@ -277,14 +280,20 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      height: 60,
+                      height: 240,
                       child: IgnorePointer(
                         child: Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Colors.black],
+                              stops: const [0.0, 0.25, 0.60, 1.0],
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.60),
+                                Colors.black.withValues(alpha: 0.95),
+                                Colors.black,
+                              ],
                             ),
                           ),
                         ),

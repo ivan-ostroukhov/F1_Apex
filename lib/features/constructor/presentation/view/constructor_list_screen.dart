@@ -2,10 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../domain/constructor_model.dart';
 import '../../domain/constructor_repository.dart';
 import '../bloc/constructor_list_cubit.dart';
@@ -277,8 +277,7 @@ class _ConstructorsContent extends StatelessWidget {
     final theme = Theme.of(context);
     final leader = constructors.first;
     final leaderColor = F1Colors.getTeamColor(leader.name);
-    final leaderCarImage =
-        'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2025/${getTeamImageId(leader.name)}.png';
+    final leaderCarAsset = F1Media.getCarAssetPath(leader.id.isNotEmpty ? leader.id : leader.name);
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -309,18 +308,21 @@ class _ConstructorsContent extends StatelessWidget {
                 ),
 
                 Positioned(
-                  right: -10,
+                  right: 35,
                   top: 20,
                   width: 280,
                   height: 240,
-                  child: CachedNetworkImage(
-                    imageUrl: leaderCarImage,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.topRight,
-                    errorWidget: (_, __, ___) => const Icon(
-                      Icons.sports_motorsports,
-                      size: 120,
-                      color: Colors.white12,
+                  child: Transform.scale(
+                    scale: 1.1,
+                    child: Image.asset(
+                      leaderCarAsset,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.topRight,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.sports_motorsports,
+                        size: 120,
+                        color: Colors.white12,
+                      ),
                     ),
                   ),
                 ),
@@ -329,14 +331,20 @@ class _ConstructorsContent extends StatelessWidget {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  height: 60,
+                  height: 120,
                   child: IgnorePointer(
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, theme.scaffoldBackgroundColor],
+                          stops: const [0.0, 0.35, 0.70, 1.0],
+                          colors: [
+                            Colors.transparent,
+                            theme.scaffoldBackgroundColor.withValues(alpha: 0.50),
+                            theme.scaffoldBackgroundColor.withValues(alpha: 0.88),
+                            theme.scaffoldBackgroundColor,
+                          ],
                         ),
                       ),
                     ),
