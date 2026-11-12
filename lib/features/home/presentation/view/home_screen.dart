@@ -236,25 +236,27 @@ class _HomeScreenState extends State<HomeScreen> {
       } catch (_) {}
     }
     final name = _getDefaultDriverName(id);
+    final stats = TeamUtils.getDefaultDriverStats(id);
+
     return DriverDetailModel(
       id: id,
       firstName: name.$1,
       lastName: name.$2,
       code: id.length >= 3 ? id.substring(0, 3).toUpperCase() : id.toUpperCase(),
-      permanentNumber: '1',
+      permanentNumber: stats.permanentNumber,
       teamName: TeamUtils.getDefaultTeamForDriver(id),
-      position: '01',
-      points: '100',
-      wins: 1,
-      podiums: 3,
-      poles: 1,
+      position: stats.pos,
+      points: stats.pts,
+      wins: stats.wins,
+      podiums: stats.podiums,
+      poles: stats.poles,
       dnfs: 0,
       dateOfBirth: '—',
       nationality: '—',
       firstRace: '—',
       firstWin: '—',
-      worldChampionships: 0,
-      roundPoints: _getValidChartPoints(null, id),
+      worldChampionships: stats.worldChampionships,
+      roundPoints: _getValidChartPoints(null),
     );
   }
 
@@ -306,19 +308,11 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
-  List<int> _getValidChartPoints(DriverDetailModel? detail, String driverId) {
-    if (detail != null && detail.roundPoints.whereType<int>().any((p) => p > 0)) {
+  List<int> _getValidChartPoints(DriverDetailModel? detail) {
+    if (detail != null && detail.roundPoints.isNotEmpty) {
       return detail.roundPoints.map((p) => p ?? 0).toList();
     }
-    final lower = driverId.toLowerCase();
-    if (lower.contains('verstappen')) return const [25, 25, 0, 25, 25, 18, 25, 25, 12, 18, 10, 25, 12, 25, 18, 25, 18, 25];
-    if (lower.contains('norris')) return const [15, 18, 15, 10, 18, 25, 18, 18, 15, 18, 15, 25, 12, 18, 25, 18, 25, 18];
-    if (lower.contains('leclerc')) return const [12, 15, 18, 12, 15, 25, 15, 25, 0, 10, 15, 12, 18, 25, 15, 25, 18, 15];
-    if (lower.contains('piastri')) return const [5, 12, 15, 4, 3, 13, 12, 18, 10, 18, 18, 15, 25, 15, 7, 12, 25, 10];
-    if (lower.contains('hamilton')) return const [6, 2, 0, 2, 2, 8, 8, 6, 12, 15, 12, 25, 15, 25, 4, 10, 8, 12];
-    if (lower.contains('russell') || lower.contains('antonelli')) return const [10, 8, 0, 6, 4, 4, 6, 10, 18, 12, 25, 12, 0, 6, 6, 6, 12, 10];
-    if (lower.contains('sainz') || lower.contains('albon')) return const [15, 0, 25, 15, 10, 15, 10, 15, 0, 8, 15, 10, 8, 6, 10, 12, 0, 8];
-    return const [8, 12, 4, 10, 15, 18, 6, 12, 10, 15, 8, 12, 15, 6, 10, 15, 8, 12];
+    return const [];
   }
 
   Widget _getSlideWidget(int index) {
@@ -341,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
           pos: d1?.position != null && d1!.position != '0' ? d1.position.padLeft(2, '0') : '—',
           wins: d1?.wins != null ? d1!.wins.toString().padLeft(2, '0') : '00',
           pts: d1?.points != null && d1!.points != '0' ? d1.points : '0',
-          chartPoints: _getValidChartPoints(d1, _favDriver1),
+          chartPoints: _getValidChartPoints(d1),
         );
       case 1:
         final defaultTeam2 = TeamUtils.getDefaultTeamForDriver(_favDriver2);
@@ -356,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
           pos: d2?.position != null && d2!.position != '0' ? d2.position.padLeft(2, '0') : '—',
           wins: d2?.wins != null ? d2!.wins.toString().padLeft(2, '0') : '00',
           pts: d2?.points != null && d2!.points != '0' ? d2.points : '0',
-          chartPoints: _getValidChartPoints(d2, _favDriver2),
+          chartPoints: _getValidChartPoints(d2),
         );
       case 2:
         final defaultTeam = TeamUtils.cleanTeamName(_favTeam);
@@ -1528,7 +1522,7 @@ class _MiniPointsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const maxScore = 25;
-    const totalRounds = 18;
+    final totalRounds = math.max(24, roundPoints.length);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,

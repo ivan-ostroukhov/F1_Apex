@@ -78,15 +78,20 @@ class F1Colors {
       return const Color(0xFF0E7A6B);
     }
 
-    if (lower.contains('spa') || lower.contains('belgium') || lower.contains('albert')) {
+    if (lower.contains('spa') ||
+        lower.contains('belgium') ||
+        lower.contains('albert')) {
       return const Color(0xFFC49A28);
     }
 
-    if (lower.contains('qatar') || lower.contains('losail') || lower.contains('lusail')) {
+    if (lower.contains('qatar') ||
+        lower.contains('losail') ||
+        lower.contains('lusail')) {
       return const Color(0xFF74253A);
     }
 
-    if (lower.contains('zandvoort') || lower.contains('dutch')) {
+    if (lower.contains('zandvoort') ||
+        lower.contains('dutch')) {
       return const Color(0xFFC8501A);
     }
 
@@ -107,16 +112,13 @@ class F1Colors {
     if (lower.contains('williams')) return const Color(0xFF64C4FF);
     if (lower.contains('haas')) return const Color(0xFFFF2A2A);
     if (lower.contains('audi')) return const Color(0xFFE20613);
-    if (lower.contains('cadillac')) return const Color(0xFFE8A838);
+    if (lower.contains('cadillac')) return const Color(0xFF9F9F9F);
     if (lower.contains('rb') ||
         lower.contains('racing bulls') ||
         lower.contains('vcarb') ||
         lower.contains('alphatauri') ||
         lower.contains('toro rosso')) {
       return const Color(0xFF6692FF);
-    }
-    if (lower.contains('sauber') || lower.contains('kick') || lower.contains('stake')) {
-      return const Color(0xFF52E252);
     }
 
     final driverId = fallbackDriverId ?? (teamName.contains('_') ? teamName : null);
