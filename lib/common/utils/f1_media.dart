@@ -51,14 +51,27 @@ class F1Media {
   }
 
   static String _normalizeCircuitKey(String circuitId) {
-    final key = circuitId.toLowerCase().replaceAll('-', '_').replaceAll(' ', '_').trim();
+    var key = circuitId.toLowerCase().replaceAll('-', '_').replaceAll(' ', '_').trim();
+
+    key = key
+        .replaceAll('ã', 'a')
+        .replaceAll('á', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ô', 'o')
+        .replaceAll('ú', 'u')
+        .replaceAll('ç', 'c')
+        .replaceAll('ü', 'u');
 
     if (key.contains('madring') || key.contains('madrid')) return 'madrid';
     if (key.contains('vegas') || key.contains('las_vegas')) return 'las_vegas';
     if (key.contains('spain') || key.contains('catalunya')) return 'catalunya';
     if (key.contains('sepang') || key.contains('malaysia')) return 'bahrain';
     if (key.contains('americas') || key.contains('cota') || key.contains('austin') || key.contains('usa')) return 'americas';
-    if (key.contains('sao_paulo') || key.contains('brazil') || key.contains('interlagos')) return 'interlagos';
+    if (key.contains('sao_paulo') || key.contains('paulo') || key.contains('brazil') || key.contains('interlagos') || key.contains('pace')) return 'interlagos';
     if (key.contains('albert') || key.contains('australia') || key.contains('melbourne')) return 'albert_park';
     if (key.contains('imola') || key.contains('emilia')) return 'imola';
     if (key.contains('suzuka') || key.contains('japan')) return 'suzuka';
