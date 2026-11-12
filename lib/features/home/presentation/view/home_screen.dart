@@ -1259,18 +1259,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
 
         Positioned(
-          right: 25,
-          top: 50,
-          width: 210,
-          height: 180,
-          child: Image.asset(
-            F1Media.getTrackAssetPath(circuitId),
-            fit: BoxFit.contain,
-            alignment: Alignment.centerRight,
-            errorBuilder: (_, __, ___) => Icon(
-              Icons.polyline_rounded,
-              size: 160,
-              color: circuitColor.withValues(alpha: 0.9),
+          right: 15,
+          top: 35,
+          width: 240,
+          height: 210,
+          child: Transform.scale(
+            scale: 1.1,
+            child: Image.asset(
+              F1Media.getTrackAssetPath(circuitId),
+              fit: BoxFit.contain,
+              alignment: Alignment.centerRight,
+              errorBuilder: (_, __, ___) => Icon(
+                Icons.polyline_rounded,
+                size: 170,
+                color: circuitColor.withValues(alpha: 0.9),
+              ),
             ),
           ),
         ),

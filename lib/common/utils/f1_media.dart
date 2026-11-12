@@ -103,7 +103,7 @@ class F1Media {
     if (key.contains('williams')) return 'assets/images/cars/williams.png';
     if (key.contains('haas')) return 'assets/images/cars/haas.png';
     if (key.contains('rb') || key.contains('racing_bulls') || key.contains('vcarb')) return 'assets/images/cars/racing_bulls.png';
-    if (key.contains('sauber') || key.contains('kick') || key.contains('stake')) return 'assets/images/cars/sauber.png';
+    if (key.contains('sauber') || key.contains('kick') || key.contains('stake')) return 'assets/images/cars/cadillac.png';
     return 'assets/images/cars/$key.png';
   }
 }
