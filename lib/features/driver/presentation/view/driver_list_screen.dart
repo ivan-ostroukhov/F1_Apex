@@ -512,7 +512,7 @@ class _DriversContent extends StatelessWidget {
         ),
 
         const SliverToBoxAdapter(
-          child: SizedBox(height: 40),
+          child: SizedBox(height: 105),
         ),
       ],
     );

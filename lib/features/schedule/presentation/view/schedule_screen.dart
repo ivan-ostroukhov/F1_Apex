@@ -383,7 +383,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                   childCount: upcomingRaces.length,
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 90)),
+              const SliverToBoxAdapter(child: SizedBox(height: 105)),
             ],
           );
         },
