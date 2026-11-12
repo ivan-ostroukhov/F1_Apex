@@ -247,12 +247,12 @@ class _ScheduleViewState extends State<_ScheduleView> {
                               ),
                             ),
                             Positioned(
-                              right: -5,
-                              top: 25,
-                              width: 230,
-                              height: 205,
+                              right: 20,
+                              top: 45,
+                              width: 220,
+                              height: 190,
                               child: Transform.scale(
-                                scale: 1.12,
+                                scale: 1.10,
                                 child: Image.asset(
                                   F1Media.getTrackAssetPath(currentRace.circuitId),
                                   fit: BoxFit.contain,
