@@ -13,6 +13,7 @@ import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/f1_media.dart';
 import '../../../../common/utils/team_utils.dart';
 import '../../../../common/widgets/turns_icon.dart';
+import '../../../../common/widgets/animated_digit_text.dart';
 import '../../../../common/network/local_storage_service.dart';
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../driver/domain/i_driver_repository.dart';
@@ -963,51 +964,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formattedPos,
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ${l10n.driverPositionShort}',
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
+                  AnimatedDigitText(
+                    text: formattedPos,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    ' ${l10n.driverPositionShort}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(width: 14),
                   Icon(Icons.stars, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formattedWins,
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ${l10n.winsLabel}',
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
+                  AnimatedDigitText(
+                    text: formattedWins,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    ' ${l10n.winsLabel}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -1017,8 +1006,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    pts,
+                  AnimatedDigitText(
+                    text: pts,
                     style: GoogleFonts.titilliumWeb(
                       fontSize: 54,
                       fontWeight: FontWeight.w300,
@@ -1150,51 +1139,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formattedPos,
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ${l10n.driverPositionShort}',
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
+                  AnimatedDigitText(
+                    text: formattedPos,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    ' ${l10n.driverPositionShort}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(width: 14),
                   Icon(Icons.stars, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formattedWins,
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ${l10n.winsLabel}',
-                          style: GoogleFonts.titilliumWeb(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
+                  AnimatedDigitText(
+                    text: formattedWins,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    ' ${l10n.winsLabel}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -1204,8 +1181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    pts,
+                  AnimatedDigitText(
+                    text: pts,
                     style: GoogleFonts.titilliumWeb(
                       fontSize: 54,
                       fontWeight: FontWeight.w300,

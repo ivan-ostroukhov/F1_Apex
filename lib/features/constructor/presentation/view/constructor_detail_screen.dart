@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
 import '../../../../common/utils/f1_media.dart';
+import '../../../../common/widgets/animated_digit_text.dart';
 import '../../domain/constructor_detail_model.dart';
 import '../../domain/constructor_repository.dart';
 
@@ -549,8 +550,8 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(
-          value,
+        AnimatedDigitText(
+          text: value,
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
@@ -579,8 +580,8 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              value,
+            AnimatedDigitText(
+              text: value,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,

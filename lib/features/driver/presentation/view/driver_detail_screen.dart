@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/widgets/animated_digit_text.dart';
 import '../../domain/driver_detail_model.dart';
 import '../../domain/i_driver_repository.dart';
 import '../bloc/list/driver_list_cubit.dart';
@@ -636,8 +637,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(
-          value,
+        AnimatedDigitText(
+          text: value,
           style: GoogleFonts.titilliumWeb(
             fontSize: 48,
             fontWeight: FontWeight.w300,
@@ -666,8 +667,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              value,
+            AnimatedDigitText(
+              text: value,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
