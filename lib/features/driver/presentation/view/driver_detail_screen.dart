@@ -2,9 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/widgets/animated_digit_text.dart';
 import '../../domain/driver_detail_model.dart';
 import '../../domain/i_driver_repository.dart';
 import '../bloc/list/driver_list_cubit.dart';
@@ -305,16 +307,19 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
           final dynamicTeamName = (detail != null && detail.teamName.isNotEmpty)
               ? detail.teamName
               : fallbackTeamName;
-          final displayTeamColor = F1Colors.getTeamColor(dynamicTeamName);
+          final displayTeamColor = F1Colors.getTeamColor(dynamicTeamName, widget.driverId);
 
-          String displayPosition = fallbackPositionNumber;
-          if (detail != null && detail.position != '0') {
-            displayPosition = detail.position.padLeft(2, '0');
-          }
+          final displayPosition = isLoading
+              ? '..'
+              : (detail != null && detail.position.isNotEmpty && detail.position != '0'
+                  ? (detail.position != '—' ? detail.position.padLeft(2, '0') : '—')
+                  : (_selectedSeason == '2026' ? fallbackPositionNumber : '—'));
 
-          final displayPoints = (detail != null && detail.points != '0')
-              ? detail.points
-              : (isLoading ? '..' : fallbackPoints);
+          final displayPoints = isLoading
+              ? '..'
+              : (detail != null
+                  ? detail.points
+                  : (_selectedSeason == '2026' ? fallbackPoints : '0'));
 
           final winsStr = isLoading
               ? '..'
@@ -330,8 +335,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
               : (detail?.dnfs ?? 0).toString().padLeft(2, '0');
 
           final chartPoints = (detail?.roundPoints != null && detail!.roundPoints.isNotEmpty)
-              ? detail.roundPoints.map((p) => p ?? 0).toList()
-              : <int>[];
+              ? detail.roundPoints
+              : <int?>[];
 
           final driverCode = (detail != null && detail.code.isNotEmpty)
               ? detail.code
@@ -526,14 +531,14 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                     accentColor: displayTeamColor,
                   )
                 else
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: SizedBox(
                       height: 50,
                       child: Center(
                         child: Text(
-                          'Нет данных по очкам текущего сезона',
-                          style: TextStyle(color: Colors.white38, fontSize: 13),
+                          l10n.noPointsData,
+                          style: const TextStyle(color: Colors.white38, fontSize: 13),
                         ),
                       ),
                     ),
@@ -632,22 +637,22 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
+        AnimatedDigitText(
+          text: value,
+          style: GoogleFonts.titilliumWeb(
+            fontSize: 48,
+            fontWeight: FontWeight.w300,
             color: Colors.white,
-            letterSpacing: -0.5,
+            letterSpacing: -1.0,
           ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 6),
         Text(
           unit,
-          style: const TextStyle(
-            fontSize: 13,
+          style: GoogleFonts.titilliumWeb(
+            fontSize: 16,
             color: Colors.white70,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
@@ -662,8 +667,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              value,
+            AnimatedDigitText(
+              text: value,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,

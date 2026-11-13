@@ -74,14 +74,14 @@ class DriverInfoDto {
   final String? permanentNumber;
   final String givenName;
   final String familyName;
-  final String nationality;
+  final String? nationality;
 
   const DriverInfoDto({
     required this.driverId,
     this.permanentNumber,
     required this.givenName,
     required this.familyName,
-    required this.nationality,
+    this.nationality,
   });
 
   factory DriverInfoDto.fromJson(Map<String, dynamic> json) =>

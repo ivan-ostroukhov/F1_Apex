@@ -158,6 +158,17 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
                                       UINT const message,
                                       WPARAM const wparam,
                                       LPARAM const lparam) noexcept {
+  if (message == WM_GETMINMAXINFO) {
+    auto info = reinterpret_cast<MINMAXINFO*>(lparam);
+    UINT dpi = GetDpiForWindow(window);
+    if (dpi == 0) dpi = 96;
+    float scale = static_cast<float>(dpi) / 96.0f;
+
+    info->ptMinTrackSize.x = static_cast<LONG>(440 * scale);
+    info->ptMinTrackSize.y = static_cast<LONG>(680 * scale);
+    return 0;
+  }
+
   if (message == WM_NCCREATE) {
     auto window_struct = reinterpret_cast<CREATESTRUCT*>(lparam);
     SetWindowLongPtr(window, GWLP_USERDATA,
@@ -179,6 +190,31 @@ Win32Window::MessageHandler(HWND hwnd,
                             WPARAM const wparam,
                             LPARAM const lparam) noexcept {
   switch (message) {
+    case WM_SIZING: {
+      auto rect = reinterpret_cast<RECT*>(lparam);
+      UINT dpi = GetDpiForWindow(hwnd);
+      if (dpi == 0) dpi = 96;
+      float scale = static_cast<float>(dpi) / 96.0f;
+      LONG minWidth = static_cast<LONG>(420 * scale);
+      LONG minHeight = static_cast<LONG>(680 * scale);
+
+      if (rect->right - rect->left < minWidth) {
+        if (wparam == WMSZ_LEFT || wparam == WMSZ_TOPLEFT || wparam == WMSZ_BOTTOMLEFT) {
+          rect->left = rect->right - minWidth;
+        } else {
+          rect->right = rect->left + minWidth;
+        }
+      }
+      if (rect->bottom - rect->top < minHeight) {
+        if (wparam == WMSZ_TOP || wparam == WMSZ_TOPLEFT || wparam == WMSZ_TOPRIGHT) {
+          rect->top = rect->bottom - minHeight;
+        } else {
+          rect->bottom = rect->top + minHeight;
+        }
+      }
+      return TRUE;
+    }
+
     case WM_DESTROY:
       window_handle_ = nullptr;
       Destroy();

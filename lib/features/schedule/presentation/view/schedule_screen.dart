@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../data/repositories/schedule_repository.dart';
 import '../../domain/models/race_model.dart';
 import '../cubit/schedule_cubit.dart';
-import 'race_detail_screen.dart';
 
 class ScheduleScreen extends StatelessWidget {
   const ScheduleScreen({super.key});
@@ -93,19 +94,16 @@ class _ScheduleViewState extends State<_ScheduleView> {
   }
 
   void _openRaceDetail(BuildContext context, RaceModel race) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => RaceDetailScreen(race: race),
-      ),
-    );
+    context.push('/schedule/detail', extra: race);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: BlocConsumer<ScheduleCubit, ScheduleState>(
         listener: (context, state) {
           if (state is ScheduleLoaded && state.currentRace?.date != null) {
@@ -114,8 +112,8 @@ class _ScheduleViewState extends State<_ScheduleView> {
         },
         builder: (context, state) {
           if (state is ScheduleLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.white30),
+            return Center(
+              child: CircularProgressIndicator(color: theme.colorScheme.onSurface),
             );
           }
 
@@ -126,13 +124,13 @@ class _ScheduleViewState extends State<_ScheduleView> {
                 children: [
                   Text(
                     state.message,
-                    style: const TextStyle(color: Colors.white70),
+                    style: TextStyle(color: theme.colorScheme.onSurface),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () => context.read<ScheduleCubit>().loadSchedule(),
-                    child: const Text('Повторить'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -184,10 +182,10 @@ class _ScheduleViewState extends State<_ScheduleView> {
                             children: [
                               Text(
                                 l10n.pastRaces,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(width: 6),
@@ -195,9 +193,9 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                 turns: _isPastRacesExpanded ? 0.5 : 0.0,
                                 duration: const Duration(milliseconds: 200),
                                 curve: Curves.easeOutQuad,
-                                child: const Icon(
+                                child: Icon(
                                   Icons.keyboard_arrow_up,
-                                  color: Colors.white70,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                   size: 24,
                                 ),
                               ),
@@ -224,7 +222,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                       currentCircuitColor.withValues(alpha: 0.65),
                                       currentCircuitColor.withValues(alpha: 0.30),
                                       currentCircuitColor.withValues(alpha: 0.08),
-                                      Colors.black,
+                                      theme.scaffoldBackgroundColor,
                                     ],
                                   ),
                                 ),
@@ -242,21 +240,29 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                       currentCircuitColor.withValues(alpha: 0.65),
                                       currentCircuitColor.withValues(alpha: 0.30),
                                       currentCircuitColor.withValues(alpha: 0.08),
-                                      Colors.black,
+                                      theme.scaffoldBackgroundColor,
                                     ],
                                   ),
                                 ),
                               ),
                             ),
                             Positioned(
-                              right: 8,
-                              top: 10,
-                              width: 200,
-                              height: 180,
-                              child: Icon(
-                                Icons.polyline_rounded,
-                                size: 150,
-                                color: currentCircuitColor.withValues(alpha: 0.85),
+                              right: 20,
+                              top: 45,
+                              width: 220,
+                              height: 190,
+                              child: Transform.scale(
+                                scale: 1.10,
+                                child: Image.asset(
+                                  F1Media.getTrackAssetPath(currentRace.circuitId),
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.centerRight,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.polyline_rounded,
+                                    size: 165,
+                                    color: currentCircuitColor.withValues(alpha: 0.85),
+                                  ),
+                                ),
                               ),
                             ),
                             Positioned(
@@ -267,20 +273,20 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Раунд ${currentRace.round}',
+                                    l10n.roundFormat(currentRace.round),
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.white.withValues(alpha: 0.65),
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     currentRace.raceName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w900,
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -288,16 +294,16 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                     currentRace.locality,
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.white.withValues(alpha: 0.5),
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     currentRace.dateRange,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
                                 ],
@@ -318,25 +324,25 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                         l10n.raceCountdownPrefix,
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                         ),
                                       ),
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          _buildCountdownItem(days, l10n.daysShort),
+                                          _buildCountdownItem(days, l10n.daysShort, theme),
                                           const SizedBox(width: 14),
-                                          _buildCountdownItem(hours, l10n.hoursShort),
+                                          _buildCountdownItem(hours, l10n.hoursShort, theme),
                                           const SizedBox(width: 14),
-                                          _buildCountdownItem(minutes, l10n.minutesShort),
+                                          _buildCountdownItem(minutes, l10n.minutesShort, theme),
                                         ],
                                       ),
                                     ],
                                   ),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white.withValues(alpha: 0.14),
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.14),
+                                      foregroundColor: theme.colorScheme.onSurface,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
                                       ),
@@ -356,11 +362,11 @@ class _ScheduleViewState extends State<_ScheduleView> {
                               bottom: 0,
                               height: 24,
                               child: Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [Colors.transparent, Colors.black],
+                                    colors: [Colors.transparent, theme.scaffoldBackgroundColor],
                                   ),
                                 ),
                               ),
@@ -377,7 +383,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                   childCount: upcomingRaces.length,
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 90)),
+              const SliverToBoxAdapter(child: SizedBox(height: 105)),
             ],
           );
         },
@@ -385,24 +391,24 @@ class _ScheduleViewState extends State<_ScheduleView> {
     );
   }
 
-  static Widget _buildCountdownItem(String value, String label) {
+  static Widget _buildCountdownItem(String value, String label, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             letterSpacing: -0.5,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 10,
-            color: Colors.white38,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
           ),
         ),
       ],
@@ -410,28 +416,37 @@ class _ScheduleViewState extends State<_ScheduleView> {
   }
 
   static Widget _buildPastRaceTile(BuildContext context, RaceModel race) {
-    final circuitColor = F1Colors.getCircuitColor(
-      race.circuitId.isNotEmpty ? race.circuitId : race.raceName,
-    );
-
+    final theme = Theme.of(context);
     return Column(
       children: [
-        Divider(color: Colors.white.withValues(alpha: 0.07), height: 1),
+        Divider(color: theme.dividerColor, height: 1),
         InkWell(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RaceDetailScreen(race: race),
-              ),
-            );
+            context.push('/schedule/detail', extra: race);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 SizedBox(
-                  width: 44,
-                  child: Icon(Icons.timeline, color: Colors.white.withValues(alpha: 0.7)),
+                  width: 52,
+                  child: ColorFiltered(
+                    colorFilter: const ColorFilter.mode(
+                      Colors.grey,
+                      BlendMode.srcIn,
+                    ),
+                    child: Image.asset(
+                      F1Media.get2DTrackAssetPath(race.circuitId),
+                      width: 42,
+                      height: 42,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.timeline,
+                        color: Colors.grey,
+                        size: 24,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -440,19 +455,19 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     children: [
                       Text(
                         race.raceName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       const SizedBox(height: 2),
                       RichText(
                         text: TextSpan(
                           text: 'R${race.round} • ',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white54,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                           children: [
                             TextSpan(
@@ -460,7 +475,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: circuitColor.withValues(alpha: 0.95),
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                               ),
                             ),
                           ],
@@ -479,17 +494,17 @@ class _ScheduleViewState extends State<_ScheduleView> {
                                     width: 14,
                                     height: 4,
                                     decoration: BoxDecoration(
-                                      color: teamColor,
+                                      color: teamColor.withValues(alpha: 0.5),
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     driver.code,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white70,
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                                     ),
                                   ),
                                 ],
@@ -502,7 +517,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                 ),
                 Icon(
                   Icons.chevron_right,
-                  color: Colors.white.withValues(alpha: 0.35),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
                   size: 20,
                 ),
               ],
@@ -514,20 +529,17 @@ class _ScheduleViewState extends State<_ScheduleView> {
   }
 
   static Widget _buildUpcomingRaceTile(BuildContext context, RaceModel race) {
+    final theme = Theme.of(context);
     final circuitColor = F1Colors.getCircuitColor(
       race.circuitId.isNotEmpty ? race.circuitId : race.raceName,
     );
 
     return Column(
       children: [
-        Divider(color: Colors.white.withValues(alpha: 0.07), height: 1),
+        Divider(color: theme.dividerColor, height: 1),
         InkWell(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RaceDetailScreen(race: race),
-              ),
-            );
+            context.push('/schedule/detail', extra: race);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -540,17 +552,17 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     children: [
                       Text(
                         race.dateRange.isNotEmpty ? race.dateRange.split(' ').first : '--',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         race.dateRange.split(' ').length > 1 ? race.dateRange.split(' ').last : '',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Colors.white54,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                         ),
                       ),
                     ],
@@ -563,19 +575,19 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     children: [
                       Text(
                         race.raceName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 2),
                       RichText(
                         text: TextSpan(
                           text: 'R${race.round} • ',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white54,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                           ),
                           children: [
                             TextSpan(
@@ -592,11 +604,21 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     ],
                   ),
                 ),
-                Icon(Icons.timeline, color: Colors.white.withValues(alpha: 0.6)),
+                Image.asset(
+                  F1Media.get2DTrackAssetPath(race.circuitId),
+                  width: 42,
+                  height: 42,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.timeline,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    size: 24,
+                  ),
+                ),
                 const SizedBox(width: 6),
                 Icon(
                   Icons.chevron_right,
-                  color: Colors.white.withValues(alpha: 0.35),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
                   size: 20,
                 ),
               ],

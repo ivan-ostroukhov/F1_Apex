@@ -1,22 +1,1801 @@
 {
   "podiums": {
-    "1": [{"code": "RUS", "teamName": "Mercedes", "position": 1}, {"code": "VER", "teamName": "Red Bull", "position": 2}, {"code": "NOR", "teamName": "McLaren", "position": 3}],
-    "2": [{"code": "VER", "teamName": "Red Bull", "position": 1}, {"code": "HAM", "teamName": "Mercedes", "position": 2}, {"code": "LEC", "teamName": "Ferrari", "position": 3}],
-    "3": [{"code": "ANT", "teamName": "Mercedes", "position": 1}, {"code": "PIA", "teamName": "McLaren", "position": 2}, {"code": "LEC", "teamName": "Ferrari", "position": 3}],
-    "4": [{"code": "ANT", "teamName": "Mercedes", "position": 1}, {"code": "NOR", "teamName": "McLaren", "position": 2}, {"code": "PIA", "teamName": "McLaren", "position": 3}],
-    "5": [{"code": "ANT", "teamName": "Mercedes", "position": 1}, {"code": "HAM", "teamName": "Mercedes", "position": 2}, {"code": "VER", "teamName": "Red Bull", "position": 3}],
-    "6": [{"code": "LEC", "teamName": "Ferrari", "position": 1}, {"code": "PIA", "teamName": "McLaren", "position": 2}, {"code": "SAI", "teamName": "Ferrari", "position": 3}],
-    "7": [{"code": "VER", "teamName": "Red Bull", "position": 1}, {"code": "NOR", "teamName": "McLaren", "position": 2}, {"code": "HAM", "teamName": "Mercedes", "position": 3}],
-    "8": [{"code": "RUS", "teamName": "Mercedes", "position": 1}, {"code": "PIA", "teamName": "McLaren", "position": 2}, {"code": "SAI", "teamName": "Ferrari", "position": 3}],
-    "9": [{"code": "HAM", "teamName": "Mercedes", "position": 1}, {"code": "VER", "teamName": "Red Bull", "position": 2}, {"code": "NOR", "teamName": "McLaren", "position": 3}],
-    "10": [{"code": "PIA", "teamName": "McLaren", "position": 1}, {"code": "NOR", "teamName": "McLaren", "position": 2}, {"code": "HAM", "teamName": "Mercedes", "position": 3}],
-    "11": [{"code": "RUS", "teamName": "Mercedes", "position": 1}, {"code": "HAM", "teamName": "Mercedes", "position": 2}, {"code": "PIA", "teamName": "McLaren", "position": 3}],
-    "12": [{"code": "LEC", "teamName": "Ferrari", "position": 1}, {"code": "PIA", "teamName": "McLaren", "position": 2}, {"code": "NOR", "teamName": "McLaren", "position": 3}],
-    "13": [{"code": "ANT", "teamName": "Mercedes", "position": 1}, {"code": "RUS", "teamName": "Mercedes", "position": 2}, {"code": "VER", "teamName": "Red Bull", "position": 3}],
-    "14": [{"code": "ANT", "teamName": "Mercedes", "position": 1}, {"code": "VER", "teamName": "Red Bull", "position": 2}, {"code": "NOR", "teamName": "McLaren", "position": 3}],
-    "15": [{"code": "PIA", "teamName": "McLaren", "position": 1}, {"code": "LEC", "teamName": "Ferrari", "position": 2}, {"code": "RUS", "teamName": "Mercedes", "position": 3}],
-    "16": [{"code": "NOR", "teamName": "McLaren", "position": 1}, {"code": "VER", "teamName": "Red Bull", "position": 2}, {"code": "PIA", "teamName": "McLaren", "position": 3}],
-    "17": [{"code": "VER", "teamName": "Red Bull", "position": 1}, {"code": "LEC", "teamName": "Ferrari", "position": 2}, {"code": "ANT", "teamName": "Mercedes", "position": 3}],
-    "18": [{"code": "LEC", "teamName": "Ferrari", "position": 1}, {"code": "SAI", "teamName": "Ferrari", "position": 2}, {"code": "VER", "teamName": "Red Bull", "position": 3}]
+    "1": [
+      {
+        "code": "RUS",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 2
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "2": [
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 1
+      },
+      {
+        "code": "HAM",
+        "teamName": "Mercedes",
+        "position": 2
+      },
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 3
+      }
+    ],
+    "3": [
+      {
+        "code": "ANT",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 3
+      }
+    ],
+    "4": [
+      {
+        "code": "ANT",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "5": [
+      {
+        "code": "ANT",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "HAM",
+        "teamName": "Mercedes",
+        "position": 2
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 3
+      }
+    ],
+    "6": [
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 1
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "SAI",
+        "teamName": "Ferrari",
+        "position": 3
+      }
+    ],
+    "7": [
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 1
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "HAM",
+        "teamName": "Mercedes",
+        "position": 3
+      }
+    ],
+    "8": [
+      {
+        "code": "RUS",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "SAI",
+        "teamName": "Ferrari",
+        "position": 3
+      }
+    ],
+    "9": [
+      {
+        "code": "HAM",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 2
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "10": [
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 1
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "HAM",
+        "teamName": "Mercedes",
+        "position": 3
+      }
+    ],
+    "11": [
+      {
+        "code": "RUS",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "HAM",
+        "teamName": "Mercedes",
+        "position": 2
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "12": [
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 1
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 2
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "13": [
+      {
+        "code": "ANT",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "RUS",
+        "teamName": "Mercedes",
+        "position": 2
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 3
+      }
+    ],
+    "14": [
+      {
+        "code": "ANT",
+        "teamName": "Mercedes",
+        "position": 1
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 2
+      },
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "15": [
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 1
+      },
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 2
+      },
+      {
+        "code": "RUS",
+        "teamName": "Mercedes",
+        "position": 3
+      }
+    ],
+    "16": [
+      {
+        "code": "NOR",
+        "teamName": "McLaren",
+        "position": 1
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 2
+      },
+      {
+        "code": "PIA",
+        "teamName": "McLaren",
+        "position": 3
+      }
+    ],
+    "17": [
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 1
+      },
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 2
+      },
+      {
+        "code": "ANT",
+        "teamName": "Mercedes",
+        "position": 3
+      }
+    ],
+    "18": [
+      {
+        "code": "LEC",
+        "teamName": "Ferrari",
+        "position": 1
+      },
+      {
+        "code": "SAI",
+        "teamName": "Ferrari",
+        "position": 2
+      },
+      {
+        "code": "VER",
+        "teamName": "Red Bull",
+        "position": 3
+      }
+    ]
+  },
+  "driver_milestones": {
+    "max_verstappen": {
+      "firstRace": "2015 Australian Grand Prix",
+      "firstWin": "2016 Spanish Grand Prix",
+      "worldChampionships": 4,
+      "nationality": "Dutch",
+      "dateOfBirth": "30.09.1997 (28)",
+      "code": "VER",
+      "permanentNumber": "3",
+      "givenName": "Max",
+      "familyName": "Verstappen"
+    },
+    "verstappen": {
+      "firstRace": "2015 Australian Grand Prix",
+      "firstWin": "2016 Spanish Grand Prix",
+      "worldChampionships": 4,
+      "nationality": "Dutch",
+      "dateOfBirth": "30.09.1997 (28)",
+      "code": "VER",
+      "permanentNumber": "3",
+      "givenName": "Max",
+      "familyName": "Verstappen"
+    },
+    "hamilton": {
+      "firstRace": "2007 Australian Grand Prix",
+      "firstWin": "2007 Canadian Grand Prix",
+      "worldChampionships": 7,
+      "nationality": "British",
+      "dateOfBirth": "07.01.1985 (41)",
+      "code": "HAM",
+      "permanentNumber": "44",
+      "givenName": "Lewis",
+      "familyName": "Hamilton"
+    },
+    "leclerc": {
+      "firstRace": "2018 Australian Grand Prix",
+      "firstWin": "2019 Belgian Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "Monegasque",
+      "dateOfBirth": "16.10.1997 (28)",
+      "code": "LEC",
+      "permanentNumber": "16",
+      "givenName": "Charles",
+      "familyName": "Leclerc"
+    },
+    "norris": {
+      "firstRace": "2019 Australian Grand Prix",
+      "firstWin": "2024 Miami Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "British",
+      "dateOfBirth": "13.11.1999 (26)",
+      "code": "NOR",
+      "permanentNumber": "1",
+      "givenName": "Lando",
+      "familyName": "Norris"
+    },
+    "russell": {
+      "firstRace": "2019 Australian Grand Prix",
+      "firstWin": "2022 Brazilian Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "British",
+      "dateOfBirth": "15.02.1998 (28)",
+      "code": "RUS",
+      "permanentNumber": "63",
+      "givenName": "George",
+      "familyName": "Russell"
+    },
+    "piastri": {
+      "firstRace": "2023 Bahrain Grand Prix",
+      "firstWin": "2024 Hungarian Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "Australian",
+      "dateOfBirth": "06.04.2001 (24)",
+      "code": "PIA",
+      "permanentNumber": "81",
+      "givenName": "Oscar",
+      "familyName": "Piastri"
+    },
+    "alonso": {
+      "firstRace": "2001 Australian Grand Prix",
+      "firstWin": "2003 Hungarian Grand Prix",
+      "worldChampionships": 2,
+      "nationality": "Spanish",
+      "dateOfBirth": "29.07.1981 (44)",
+      "code": "ALO",
+      "permanentNumber": "14",
+      "givenName": "Fernando",
+      "familyName": "Alonso"
+    },
+    "sainz": {
+      "firstRace": "2015 Australian Grand Prix",
+      "firstWin": "2022 British Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "Spanish",
+      "dateOfBirth": "01.09.1994 (31)",
+      "code": "SAI",
+      "permanentNumber": "55",
+      "givenName": "Carlos",
+      "familyName": "Sainz"
+    },
+    "perez": {
+      "firstRace": "2011 Australian Grand Prix",
+      "firstWin": "2020 Sakhir Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "Mexican",
+      "dateOfBirth": "26.01.1990 (36)",
+      "code": "PER",
+      "permanentNumber": "11",
+      "givenName": "Sergio",
+      "familyName": "Pérez"
+    },
+    "bottas": {
+      "firstRace": "2013 Australian Grand Prix",
+      "firstWin": "2017 Russian Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "Finnish",
+      "dateOfBirth": "28.08.1989 (36)",
+      "code": "BOT",
+      "permanentNumber": "77",
+      "givenName": "Valtteri",
+      "familyName": "Bottas"
+    },
+    "gasly": {
+      "firstRace": "2017 Malaysian Grand Prix",
+      "firstWin": "2020 Italian Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "French",
+      "dateOfBirth": "07.02.1996 (30)",
+      "code": "GAS",
+      "permanentNumber": "10",
+      "givenName": "Pierre",
+      "familyName": "Gasly"
+    },
+    "ocon": {
+      "firstRace": "2016 Belgian Grand Prix",
+      "firstWin": "2021 Hungarian Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "French",
+      "dateOfBirth": "17.09.1996 (29)",
+      "code": "OCO",
+      "permanentNumber": "31",
+      "givenName": "Esteban",
+      "familyName": "Ocon"
+    },
+    "hulkenberg": {
+      "firstRace": "2010 Bahrain Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "German",
+      "dateOfBirth": "19.08.1987 (38)",
+      "code": "HUL",
+      "permanentNumber": "27",
+      "givenName": "Nico",
+      "familyName": "Hülkenberg"
+    },
+    "albon": {
+      "firstRace": "2019 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "Thai",
+      "dateOfBirth": "23.03.1996 (30)",
+      "code": "ALB",
+      "permanentNumber": "23",
+      "givenName": "Alexander",
+      "familyName": "Albon"
+    },
+    "tsunoda": {
+      "firstRace": "2021 Bahrain Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "Japanese",
+      "dateOfBirth": "11.05.2000 (25)",
+      "code": "TSU",
+      "permanentNumber": "22",
+      "givenName": "Yuki",
+      "familyName": "Tsunoda"
+    },
+    "stroll": {
+      "firstRace": "2017 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "Canadian",
+      "dateOfBirth": "29.10.1998 (27)",
+      "code": "STR",
+      "permanentNumber": "18",
+      "givenName": "Lance",
+      "familyName": "Stroll"
+    },
+    "antonelli": {
+      "firstRace": "2025 Australian Grand Prix",
+      "firstWin": "2025 Monaco Grand Prix",
+      "worldChampionships": 0,
+      "nationality": "Italian",
+      "dateOfBirth": "25.08.2006 (19)",
+      "code": "ANT",
+      "permanentNumber": "12",
+      "givenName": "Andrea Kimi",
+      "familyName": "Antonelli"
+    },
+    "hadjar": {
+      "firstRace": "2025 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "French",
+      "dateOfBirth": "28.09.2004 (21)",
+      "code": "HAD",
+      "permanentNumber": "6",
+      "givenName": "Isack",
+      "familyName": "Hadjar"
+    },
+    "bortoleto": {
+      "firstRace": "2025 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "Brazilian",
+      "dateOfBirth": "14.10.2004 (21)",
+      "code": "BOR",
+      "permanentNumber": "5",
+      "givenName": "Gabriel",
+      "familyName": "Bortoleto"
+    },
+    "bearman": {
+      "firstRace": "2024 Saudi Arabian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "British",
+      "dateOfBirth": "08.05.2005 (20)",
+      "code": "BEA",
+      "permanentNumber": "87",
+      "givenName": "Oliver",
+      "familyName": "Bearman"
+    },
+    "colapinto": {
+      "firstRace": "2024 Italian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "Argentine",
+      "dateOfBirth": "27.05.2003 (22)",
+      "code": "COL",
+      "permanentNumber": "43",
+      "givenName": "Franco",
+      "familyName": "Colapinto"
+    },
+    "lawson": {
+      "firstRace": "2023 Dutch Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "New Zealander",
+      "dateOfBirth": "11.02.2002 (24)",
+      "code": "LAW",
+      "permanentNumber": "30",
+      "givenName": "Liam",
+      "familyName": "Lawson"
+    },
+    "arvid_lindblad": {
+      "firstRace": "2026 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "British",
+      "dateOfBirth": "08.08.2007 (18)",
+      "code": "LIN",
+      "permanentNumber": "41",
+      "givenName": "Arvid",
+      "familyName": "Lindblad"
+    },
+    "ryo_hirakawa": {
+      "firstRace": "2026 Japanese Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "nationality": "Japanese",
+      "dateOfBirth": "07.03.1994 (32)",
+      "code": "HIR",
+      "permanentNumber": "",
+      "givenName": "Ryo",
+      "familyName": "Hirakawa"
+    }
+  },
+  "driver_seasons": {
+    "verstappen": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015"
+    ],
+    "max_verstappen": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015"
+    ],
+    "hamilton": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015",
+      "2014",
+      "2013",
+      "2012",
+      "2011",
+      "2010",
+      "2009",
+      "2008",
+      "2007"
+    ],
+    "alonso": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2018",
+      "2017",
+      "2016",
+      "2015",
+      "2014",
+      "2013",
+      "2012",
+      "2011",
+      "2010",
+      "2009",
+      "2008",
+      "2007",
+      "2006",
+      "2005",
+      "2004",
+      "2003",
+      "2001"
+    ],
+    "leclerc": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018"
+    ],
+    "norris": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019"
+    ],
+    "russell": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019"
+    ],
+    "sainz": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015"
+    ],
+    "perez": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015",
+      "2014",
+      "2013",
+      "2012",
+      "2011"
+    ],
+    "bottas": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015",
+      "2014",
+      "2013"
+    ],
+    "hulkenberg": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2020",
+      "2019",
+      "2018",
+      "2017",
+      "2016",
+      "2015",
+      "2014",
+      "2013",
+      "2012",
+      "2010"
+    ],
+    "gasly": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017"
+    ],
+    "ocon": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2018",
+      "2017",
+      "2016"
+    ],
+    "stroll": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+      "2018",
+      "2017"
+    ],
+    "albon": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2020",
+      "2019"
+    ],
+    "tsunoda": [
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021"
+    ],
+    "piastri": [
+      "2026",
+      "2025",
+      "2024",
+      "2023"
+    ],
+    "lawson": [
+      "2026",
+      "2025",
+      "2024",
+      "2023"
+    ],
+    "bearman": [
+      "2026",
+      "2025",
+      "2024"
+    ],
+    "colapinto": [
+      "2026",
+      "2025",
+      "2024"
+    ],
+    "antonelli": [
+      "2026",
+      "2025"
+    ],
+    "hadjar": [
+      "2026",
+      "2025"
+    ],
+    "bortoleto": [
+      "2026",
+      "2025"
+    ],
+    "arvid_lindblad": [
+      "2026"
+    ],
+    "ryo_hirakawa": [
+      "2026"
+    ]
+  },
+  "driver_details": {
+    "max_verstappen_2026": {
+      "id": "max_verstappen",
+      "firstName": "Max",
+      "lastName": "Verstappen",
+      "code": "VER",
+      "permanentNumber": "3",
+      "teamName": "Red Bull Racing",
+      "position": "4",
+      "points": "236",
+      "wins": 2,
+      "podiums": 10,
+      "poles": 2,
+      "dnfs": 4,
+      "dateOfBirth": "30.09.1997 (28)",
+      "nationality": "Dutch",
+      "firstRace": "2015 Australian Grand Prix",
+      "firstWin": "2016 Spanish Grand Prix",
+      "worldChampionships": 4,
+      "roundPoints": [
+        8,
+        0,
+        4,
+        10,
+        15,
+        0,
+        12,
+        18,
+        0,
+        15,
+        18,
+        0,
+        15,
+        18,
+        18,
+        25,
+        25,
+        15
+      ],
+      "season": "2026"
+    },
+    "verstappen_2026": {
+      "id": "max_verstappen",
+      "firstName": "Max",
+      "lastName": "Verstappen",
+      "code": "VER",
+      "permanentNumber": "3",
+      "teamName": "Red Bull Racing",
+      "position": "4",
+      "points": "236",
+      "wins": 2,
+      "podiums": 10,
+      "poles": 2,
+      "dnfs": 4,
+      "dateOfBirth": "30.09.1997 (28)",
+      "nationality": "Dutch",
+      "firstRace": "2015 Australian Grand Prix",
+      "firstWin": "2016 Spanish Grand Prix",
+      "worldChampionships": 4,
+      "roundPoints": [
+        8,
+        0,
+        4,
+        10,
+        15,
+        0,
+        12,
+        18,
+        0,
+        15,
+        18,
+        0,
+        15,
+        18,
+        18,
+        25,
+        25,
+        15
+      ],
+      "season": "2026"
+    },
+    "piastri_2026": {
+      "id": "piastri",
+      "firstName": "Oscar",
+      "lastName": "Piastri",
+      "code": "PIA",
+      "permanentNumber": "81",
+      "teamName": "McLaren",
+      "position": "7",
+      "points": "144",
+      "wins": 0,
+      "podiums": 2,
+      "poles": 0,
+      "dnfs": 4,
+      "dateOfBirth": "06.04.2001 (24)",
+      "nationality": "Australian",
+      "firstRace": "2023 Bahrain Grand Prix",
+      "firstWin": "2024 Hungarian Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [
+        0,
+        0,
+        18,
+        15,
+        0,
+        12,
+        10,
+        12,
+        0,
+        10,
+        0,
+        8,
+        10,
+        4,
+        0,
+        8,
+        10,
+        6
+      ],
+      "season": "2026"
+    },
+    "leclerc_2026": {
+      "id": "leclerc",
+      "firstName": "Charles",
+      "lastName": "Leclerc",
+      "code": "LEC",
+      "permanentNumber": "16",
+      "teamName": "Ferrari",
+      "position": "5",
+      "points": "233",
+      "wins": 1,
+      "podiums": 6,
+      "poles": 0,
+      "dnfs": 3,
+      "dateOfBirth": "16.10.1997 (28)",
+      "nationality": "Monegasque",
+      "firstRace": "2018 Australian Grand Prix",
+      "firstWin": "2019 Belgian Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [
+        15,
+        12,
+        15,
+        4,
+        12,
+        0,
+        0,
+        4,
+        25,
+        18,
+        12,
+        10,
+        0,
+        12,
+        12,
+        12,
+        18,
+        18
+      ],
+      "season": "2026"
+    },
+    "norris_2026": {
+      "id": "norris",
+      "firstName": "Lando",
+      "lastName": "Norris",
+      "code": "NOR",
+      "permanentNumber": "1",
+      "teamName": "McLaren",
+      "position": "6",
+      "points": "211",
+      "wins": 2,
+      "podiums": 5,
+      "poles": 3,
+      "dnfs": 4,
+      "dateOfBirth": "13.11.1999 (26)",
+      "nationality": "British",
+      "firstRace": "2019 Australian Grand Prix",
+      "firstWin": "2024 Miami Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [
+        10,
+        0,
+        10,
+        18,
+        0,
+        0,
+        15,
+        6,
+        12,
+        6,
+        25,
+        25,
+        12,
+        15,
+        0,
+        2,
+        12,
+        10
+      ],
+      "season": "2026"
+    },
+    "hamilton_2026": {
+      "id": "hamilton",
+      "firstName": "Lewis",
+      "lastName": "Hamilton",
+      "code": "HAM",
+      "permanentNumber": "44",
+      "teamName": "Ferrari",
+      "position": "3",
+      "points": "241",
+      "wins": 1,
+      "podiums": 6,
+      "poles": 0,
+      "dnfs": 1,
+      "dateOfBirth": "07.01.1985 (41)",
+      "nationality": "British",
+      "firstRace": "2007 Australian Grand Prix",
+      "firstWin": "2007 Canadian Grand Prix",
+      "worldChampionships": 7,
+      "roundPoints": [
+        12,
+        15,
+        8,
+        8,
+        18,
+        18,
+        25,
+        10,
+        15,
+        12,
+        10,
+        12,
+        8,
+        0,
+        8,
+        15,
+        8,
+        12
+      ],
+      "season": "2026"
+    },
+    "russell_2026": {
+      "id": "russell",
+      "firstName": "George",
+      "lastName": "Russell",
+      "code": "RUS",
+      "permanentNumber": "63",
+      "teamName": "Mercedes",
+      "position": "2",
+      "points": "242",
+      "wins": 3,
+      "podiums": 8,
+      "poles": 5,
+      "dnfs": 3,
+      "dateOfBirth": "15.02.1998 (28)",
+      "nationality": "British",
+      "firstRace": "2019 Australian Grand Prix",
+      "firstWin": "2022 Brazilian Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [
+        25,
+        18,
+        12,
+        12,
+        0,
+        0,
+        18,
+        25,
+        18,
+        0,
+        6,
+        15,
+        18,
+        10,
+        25,
+        0,
+        2,
+        4
+      ],
+      "season": "2026"
+    },
+    "antonelli_2026": {
+      "id": "antonelli",
+      "firstName": "Andrea Kimi",
+      "lastName": "Antonelli",
+      "code": "ANT",
+      "permanentNumber": "12",
+      "teamName": "Mercedes",
+      "position": "1",
+      "points": "365",
+      "wins": 9,
+      "podiums": 15,
+      "poles": 7,
+      "dnfs": 1,
+      "dateOfBirth": "25.08.2006 (19)",
+      "nationality": "Italian",
+      "firstRace": "2025 Australian Grand Prix",
+      "firstWin": "2025 Monaco Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [
+        18,
+        25,
+        25,
+        25,
+        25,
+        25,
+        0,
+        15,
+        0,
+        25,
+        15,
+        18,
+        25,
+        25,
+        10,
+        18,
+        15,
+        25
+      ],
+      "season": "2026"
+    },
+    "sainz_2026": {
+      "id": "sainz",
+      "firstName": "Carlos",
+      "lastName": "Sainz",
+      "code": "SAI",
+      "permanentNumber": "55",
+      "teamName": "Williams",
+      "position": "9",
+      "points": "62",
+      "wins": 0,
+      "podiums": 1,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "01.09.1994 (31)",
+      "nationality": "Spanish",
+      "firstRace": "2015 Australian Grand Prix",
+      "firstWin": "2022 British Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [4, 6, 0, 8, 2, 4, 0, 6, 8, 4, 2, 0, 4, 6, 0, 4, 2, 2],
+      "season": "2026"
+    },
+    "alonso_2026": {
+      "id": "alonso",
+      "firstName": "Fernando",
+      "lastName": "Alonso",
+      "code": "ALO",
+      "permanentNumber": "14",
+      "teamName": "Aston Martin",
+      "position": "10",
+      "points": "48",
+      "wins": 0,
+      "podiums": 1,
+      "poles": 0,
+      "dnfs": 3,
+      "dateOfBirth": "29.07.1981 (44)",
+      "nationality": "Spanish",
+      "firstRace": "2001 Australian Grand Prix",
+      "firstWin": "2003 Hungarian Grand Prix",
+      "worldChampionships": 2,
+      "roundPoints": [2, 4, 1, 2, 6, 0, 4, 2, 0, 2, 4, 15, 0, 2, 2, 0, 1, 1],
+      "season": "2026"
+    },
+    "gasly_2026": {
+      "id": "gasly",
+      "firstName": "Pierre",
+      "lastName": "Gasly",
+      "code": "GAS",
+      "permanentNumber": "10",
+      "teamName": "Alpine",
+      "position": "11",
+      "points": "26",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "07.02.1996 (30)",
+      "nationality": "French",
+      "firstRace": "2017 Malaysian Grand Prix",
+      "firstWin": "2020 Italian Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [1, 2, 0, 1, 0, 2, 2, 0, 4, 1, 1, 2, 0, 4, 1, 2, 1, 2],
+      "season": "2026"
+    },
+    "albon_2026": {
+      "id": "albon",
+      "firstName": "Alexander",
+      "lastName": "Albon",
+      "code": "ALB",
+      "permanentNumber": "23",
+      "teamName": "Williams",
+      "position": "12",
+      "points": "18",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 1,
+      "dateOfBirth": "23.03.1996 (30)",
+      "nationality": "Thai",
+      "firstRace": "2019 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 1, 2, 0, 1, 1, 0, 2, 1, 0, 2, 1, 2, 1, 2, 0, 1, 1],
+      "season": "2026"
+    },
+    "tsunoda_2026": {
+      "id": "tsunoda",
+      "firstName": "Yuki",
+      "lastName": "Tsunoda",
+      "code": "TSU",
+      "permanentNumber": "22",
+      "teamName": "Racing Bulls",
+      "position": "13",
+      "points": "14",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 3,
+      "dateOfBirth": "11.05.2000 (25)",
+      "nationality": "Japanese",
+      "firstRace": "2021 Bahrain Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 1, 2, 0, 1, 1, 0, 2, 1, 0, 2, 0, 1, 0, 2, 0, 1],
+      "season": "2026"
+    },
+    "hulkenberg_2026": {
+      "id": "hulkenberg",
+      "firstName": "Nico",
+      "lastName": "Hulkenberg",
+      "code": "HUL",
+      "permanentNumber": "27",
+      "teamName": "Sauber",
+      "position": "14",
+      "points": "10",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "19.08.1987 (38)",
+      "nationality": "German",
+      "firstRace": "2010 Bahrain Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 2, 1, 1, 0, 0, 1, 1, 0],
+      "season": "2026"
+    },
+    "bearman_2026": {
+      "id": "bearman",
+      "firstName": "Oliver",
+      "lastName": "Bearman",
+      "code": "BEA",
+      "permanentNumber": "87",
+      "teamName": "Haas",
+      "position": "15",
+      "points": "8",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "08.05.2005 (20)",
+      "nationality": "British",
+      "firstRace": "2024 Saudi Arabian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+      "season": "2026"
+    },
+    "ocon_2026": {
+      "id": "ocon",
+      "firstName": "Esteban",
+      "lastName": "Ocon",
+      "code": "OCO",
+      "permanentNumber": "31",
+      "teamName": "Haas",
+      "position": "16",
+      "points": "6",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "17.09.1996 (29)",
+      "nationality": "French",
+      "firstRace": "2016 Belgian Grand Prix",
+      "firstWin": "2021 Hungarian Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
+      "season": "2026"
+    },
+    "lawson_2026": {
+      "id": "lawson",
+      "firstName": "Liam",
+      "lastName": "Lawson",
+      "code": "LAW",
+      "permanentNumber": "30",
+      "teamName": "Racing Bulls",
+      "position": "17",
+      "points": "4",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 3,
+      "dateOfBirth": "11.02.2002 (24)",
+      "nationality": "New Zealander",
+      "firstRace": "2023 Dutch Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+      "season": "2026"
+    },
+    "stroll_2026": {
+      "id": "stroll",
+      "firstName": "Lance",
+      "lastName": "Stroll",
+      "code": "STR",
+      "permanentNumber": "18",
+      "teamName": "Aston Martin",
+      "position": "18",
+      "points": "2",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 3,
+      "dateOfBirth": "29.10.1998 (27)",
+      "nationality": "Canadian",
+      "firstRace": "2017 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+      "season": "2026"
+    },
+    "colapinto_2026": {
+      "id": "colapinto",
+      "firstName": "Franco",
+      "lastName": "Colapinto",
+      "code": "COL",
+      "permanentNumber": "43",
+      "teamName": "Alpine",
+      "position": "19",
+      "points": "0",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "27.05.2003 (22)",
+      "nationality": "Argentine",
+      "firstRace": "2024 Italian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "season": "2026"
+    },
+    "bortoleto_2026": {
+      "id": "bortoleto",
+      "firstName": "Gabriel",
+      "lastName": "Bortoleto",
+      "code": "BOR",
+      "permanentNumber": "5",
+      "teamName": "Sauber",
+      "position": "20",
+      "points": "0",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 2,
+      "dateOfBirth": "14.10.2004 (21)",
+      "nationality": "Brazilian",
+      "firstRace": "2025 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "season": "2026"
+    },
+    "hadjar_2026": {
+      "id": "hadjar",
+      "firstName": "Isack",
+      "lastName": "Hadjar",
+      "code": "HAD",
+      "permanentNumber": "6",
+      "teamName": "Red Bull Racing",
+      "position": "21",
+      "points": "0",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 1,
+      "dateOfBirth": "28.09.2004 (21)",
+      "nationality": "French",
+      "firstRace": "2025 Australian Grand Prix",
+      "firstWin": "—",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "season": "2026"
+    },
+    "bottas_2026": {
+      "id": "bottas",
+      "firstName": "Valtteri",
+      "lastName": "Bottas",
+      "code": "BOT",
+      "permanentNumber": "77",
+      "teamName": "Mercedes",
+      "position": "22",
+      "points": "0",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 0,
+      "dateOfBirth": "28.08.1989 (36)",
+      "nationality": "Finnish",
+      "firstRace": "2013 Australian Grand Prix",
+      "firstWin": "2017 Russian Grand Prix",
+      "worldChampionships": 0,
+      "roundPoints": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "season": "2026"
+    }
+  },
+  "constructor_details": {
+    "red_bull_2026": {
+      "id": "red_bull",
+      "name": "Red Bull Racing",
+      "chassis": "RB22",
+      "engine": "Honda RBPT",
+      "teamPrincipal": "Christian Horner",
+      "firstRace": "2005 Australian Grand Prix",
+      "constructorsTitles": 6,
+      "driversTitles": 7,
+      "baseLocation": "Milton Keynes, United Kingdom",
+      "position": "3",
+      "points": "355",
+      "wins": 2,
+      "podiums": 10,
+      "poles": 2,
+      "dnfs": 4,
+      "season": "2026",
+      "carAssetPath": "assets/images/red_bull.png",
+      "drivers": [
+        {
+          "id": "max_verstappen",
+          "permanentNumber": "3",
+          "code": "VER",
+          "name": "Max Verstappen"
+        },
+        {
+          "id": "hadjar",
+          "permanentNumber": "6",
+          "code": "HAD",
+          "name": "Isack Hadjar"
+        }
+      ]
+    },
+    "ferrari_2026": {
+      "id": "ferrari",
+      "name": "Ferrari",
+      "chassis": "SF-26",
+      "engine": "Ferrari",
+      "teamPrincipal": "Frederic Vasseur",
+      "firstRace": "1950 Monaco Grand Prix",
+      "constructorsTitles": 16,
+      "driversTitles": 15,
+      "baseLocation": "Maranello, Italy",
+      "position": "2",
+      "points": "474",
+      "wins": 2,
+      "podiums": 12,
+      "poles": 0,
+      "dnfs": 4,
+      "season": "2026",
+      "carAssetPath": "assets/images/ferrari.png",
+      "drivers": [
+        {
+          "id": "hamilton",
+          "permanentNumber": "44",
+          "code": "HAM",
+          "name": "Lewis Hamilton"
+        },
+        {
+          "id": "leclerc",
+          "permanentNumber": "16",
+          "code": "LEC",
+          "name": "Charles Leclerc"
+        }
+      ]
+    },
+    "mercedes_2026": {
+      "id": "mercedes",
+      "name": "Mercedes",
+      "chassis": "F1 W17",
+      "engine": "Mercedes",
+      "teamPrincipal": "Toto Wolff",
+      "firstRace": "1954 French Grand Prix",
+      "constructorsTitles": 8,
+      "driversTitles": 9,
+      "baseLocation": "Brackley, United Kingdom",
+      "position": "1",
+      "points": "607",
+      "wins": 12,
+      "podiums": 23,
+      "poles": 12,
+      "dnfs": 4,
+      "season": "2026",
+      "carAssetPath": "assets/images/mercedes.png",
+      "drivers": [
+        {
+          "id": "antonelli",
+          "permanentNumber": "12",
+          "code": "ANT",
+          "name": "Andrea Kimi Antonelli"
+        },
+        {
+          "id": "russell",
+          "permanentNumber": "63",
+          "code": "RUS",
+          "name": "George Russell"
+        }
+      ]
+    },
+    "mclaren_2026": {
+      "id": "mclaren",
+      "name": "McLaren",
+      "chassis": "MCL40",
+      "engine": "Mercedes",
+      "teamPrincipal": "Andrea Stella",
+      "firstRace": "1966 Monaco Grand Prix",
+      "constructorsTitles": 9,
+      "driversTitles": 12,
+      "baseLocation": "Woking, United Kingdom",
+      "position": "4",
+      "points": "355",
+      "wins": 2,
+      "podiums": 7,
+      "poles": 3,
+      "dnfs": 8,
+      "season": "2026",
+      "carAssetPath": "assets/images/mclaren.png",
+      "drivers": [
+        {
+          "id": "norris",
+          "permanentNumber": "1",
+          "code": "NOR",
+          "name": "Lando Norris"
+        },
+        {
+          "id": "piastri",
+          "permanentNumber": "81",
+          "code": "PIA",
+          "name": "Oscar Piastri"
+        }
+      ]
+    },
+    "aston_martin_2026": {
+      "id": "aston_martin",
+      "name": "Aston Martin",
+      "chassis": "AMR26",
+      "engine": "Mercedes",
+      "teamPrincipal": "Mike Krack",
+      "firstRace": "1959 Dutch Grand Prix",
+      "constructorsTitles": 0,
+      "driversTitles": 0,
+      "baseLocation": "Silverstone, United Kingdom",
+      "position": "5",
+      "points": "50",
+      "wins": 0,
+      "podiums": 1,
+      "poles": 0,
+      "dnfs": 6,
+      "season": "2026",
+      "carAssetPath": "assets/images/aston_martin.png",
+      "drivers": [
+        {
+          "id": "alonso",
+          "permanentNumber": "14",
+          "code": "ALO",
+          "name": "Fernando Alonso"
+        },
+        {
+          "id": "stroll",
+          "permanentNumber": "18",
+          "code": "STR",
+          "name": "Lance Stroll"
+        }
+      ]
+    },
+    "alpine_2026": {
+      "id": "alpine",
+      "name": "Alpine",
+      "chassis": "A526",
+      "engine": "Renault",
+      "teamPrincipal": "Oliver Oakes",
+      "firstRace": "1986 Brazilian Grand Prix",
+      "constructorsTitles": 2,
+      "driversTitles": 2,
+      "baseLocation": "Enstone, United Kingdom",
+      "position": "6",
+      "points": "26",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 4,
+      "season": "2026",
+      "carAssetPath": "assets/images/alpine.png",
+      "drivers": [
+        {
+          "id": "gasly",
+          "permanentNumber": "10",
+          "code": "GAS",
+          "name": "Pierre Gasly"
+        },
+        {
+          "id": "colapinto",
+          "permanentNumber": "43",
+          "code": "COL",
+          "name": "Franco Colapinto"
+        }
+      ]
+    },
+    "williams_2026": {
+      "id": "williams",
+      "name": "Williams",
+      "chassis": "FW48",
+      "engine": "Mercedes",
+      "teamPrincipal": "James Vowles",
+      "firstRace": "1978 Argentine Grand Prix",
+      "constructorsTitles": 9,
+      "driversTitles": 7,
+      "baseLocation": "Grove, United Kingdom",
+      "position": "7",
+      "points": "80",
+      "wins": 0,
+      "podiums": 1,
+      "poles": 0,
+      "dnfs": 3,
+      "season": "2026",
+      "carAssetPath": "assets/images/williams.png",
+      "drivers": [
+        {
+          "id": "sainz",
+          "permanentNumber": "55",
+          "code": "SAI",
+          "name": "Carlos Sainz"
+        },
+        {
+          "id": "albon",
+          "permanentNumber": "23",
+          "code": "ALB",
+          "name": "Alexander Albon"
+        }
+      ]
+    },
+    "racing_bulls_2026": {
+      "id": "racing_bulls",
+      "name": "Racing Bulls",
+      "chassis": "VCARB 03",
+      "engine": "Honda RBPT",
+      "teamPrincipal": "Laurent Mekies",
+      "firstRace": "2006 Bahrain Grand Prix",
+      "constructorsTitles": 0,
+      "driversTitles": 0,
+      "baseLocation": "Faenza, Italy",
+      "position": "8",
+      "points": "18",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 6,
+      "season": "2026",
+      "carAssetPath": "assets/images/racing_bulls.png",
+      "drivers": [
+        {
+          "id": "tsunoda",
+          "permanentNumber": "22",
+          "code": "TSU",
+          "name": "Yuki Tsunoda"
+        },
+        {
+          "id": "lawson",
+          "permanentNumber": "30",
+          "code": "LAW",
+          "name": "Liam Lawson"
+        }
+      ]
+    },
+    "haas_2026": {
+      "id": "haas",
+      "name": "Haas",
+      "chassis": "VF-26",
+      "engine": "Ferrari",
+      "teamPrincipal": "Ayao Komatsu",
+      "firstRace": "2016 Australian Grand Prix",
+      "constructorsTitles": 0,
+      "driversTitles": 0,
+      "baseLocation": "Kannapolis, United States",
+      "position": "9",
+      "points": "14",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 4,
+      "season": "2026",
+      "carAssetPath": "assets/images/haas.png",
+      "drivers": [
+        {
+          "id": "bearman",
+          "permanentNumber": "87",
+          "code": "BEA",
+          "name": "Oliver Bearman"
+        },
+        {
+          "id": "ocon",
+          "permanentNumber": "31",
+          "code": "OCO",
+          "name": "Esteban Ocon"
+        }
+      ]
+    },
+    "sauber_2026": {
+      "id": "sauber",
+      "name": "Sauber",
+      "chassis": "C46",
+      "engine": "Ferrari",
+      "teamPrincipal": "Mattia Binotto",
+      "firstRace": "1993 South African Grand Prix",
+      "constructorsTitles": 0,
+      "driversTitles": 0,
+      "baseLocation": "Hinwil, Switzerland",
+      "position": "10",
+      "points": "10",
+      "wins": 0,
+      "podiums": 0,
+      "poles": 0,
+      "dnfs": 4,
+      "season": "2026",
+      "carAssetPath": "assets/images/sauber.png",
+      "drivers": [
+        {
+          "id": "hulkenberg",
+          "permanentNumber": "27",
+          "code": "HUL",
+          "name": "Nico Hulkenberg"
+        },
+        {
+          "id": "bortoleto",
+          "permanentNumber": "5",
+          "code": "BOR",
+          "name": "Gabriel Bortoleto"
+        }
+      ]
+    }
   }
 }

@@ -21,6 +21,7 @@ dependencies:
   hive_flutter: ^1.1.0
   json_annotation: ^4.12.0
   cached_network_image: ^4.0.5
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -28,12 +29,23 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   build_runner: ^2.17.1
   json_serializable: ^6.15.2
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  image_path: "assets/images/logo_v2.png"
+  windows:
+    generate: true
+    icon_size: 256
+  android: true
+  ios: false
 
 flutter:
   generate: true
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/images/team_logo/
+    - assets/images/cars/
+    - assets/images/tracks/
+    - assets/images/2d_track/
     - assets/data/
 

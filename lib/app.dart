@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'common/navigation/app_router.dart';
 import 'common/theme/app_theme.dart';
 import 'common/theme/theme_cubit.dart';
 import 'common/localization/locale_cubit.dart';
+import 'common/startup/app_startup_cubit.dart';
 import 'features/driver/data/driver_repository.dart';
 import 'features/driver/domain/i_driver_repository.dart';
 import 'features/driver/presentation/bloc/list/driver_list_cubit.dart';
@@ -54,6 +56,12 @@ class F1App extends StatelessWidget {
           BlocProvider(
             create: (ctx) => DriverListCubit(ctx.read<IDriverRepository>())..loadDrivers(),
           ),
+          BlocProvider(
+            create: (ctx) => AppStartupCubit(
+              driverRepo: ctx.read<IDriverRepository>(),
+              constructorRepo: ctx.read<IConstructorRepository>(),
+            )..initialize(),
+          ),
           BlocProvider(create: (_) => ThemeCubit()),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
@@ -64,6 +72,7 @@ class F1App extends StatelessWidget {
                 return MaterialApp.router(
                   debugShowCheckedModeBanner: false,
                   routerConfig: appRouter,
+                  scrollBehavior: const AppScrollBehavior(),
                   theme: AppTheme.lightTheme,
                   darkTheme: AppTheme.darkTheme,
                   themeMode: themeMode,
@@ -78,4 +87,15 @@ class F1App extends StatelessWidget {
       ),
     );
   }
+}
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+      };
 }

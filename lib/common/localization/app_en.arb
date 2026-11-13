@@ -13,6 +13,7 @@
   "homeTab": "Main",
   "constructorsTab": "Constructors",
   "constructorsTable": "Constructors Standings",
+  "driversTable": "Drivers Standings",
   "constructorsComingSoon": "Constructors championship coming soon",
   "scheduleTab": "Schedule",
   "roundPrefix": "Round",
@@ -80,7 +81,46 @@
   "themeSystem": "System",
   "themeDark": "Dark",
   "themeLight": "Light",
-  "metricUnits": "Metric"
+  "metricUnits": "Metric",
+
+  "grandPrixCompleted": "Grand Prix completed",
+  "distanceCovered": "Distance covered",
+  "lapsCompleted": "Laps completed",
+  "breakingNews": "Breaking News",
+  "viewAllNews": "View all >",
+  "mexicoGrandPrixTitle": "R19 Mexico City Grand Prix",
+  "lapsCount": "Number of laps",
+  "maxSpeed": "Top speed",
+  "turnsCount": "Number of turns",
+  "elevationChange": "Elevation change",
+  "mostSuccessfulConstructor": "Most successful constructor",
+  "recordWinsFormat": "{count} WINS",
+  "@recordWinsFormat": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "mostSuccessfulDrivers": "Most successful drivers",
+  "raceLapRecord": "Race lap record",
+  "fastestPitStop": "Fastest pit stop of the season",
+  "fastestLapSeason": "Fastest lap of the season",
+  "mexicoDateRange": "Oct 31 - Nov 02",
+  "mexicoSessionDate": "31 SAT",
+  "mexicoSessionTitle": "Practice 1",
+
+  "noPointsData": "No points data for the current season",
+  "roundFormat": "Round {number}",
+  "@roundFormat": {
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
+  "kmUnit": "KM",
+  "kmhUnit": "km/h",
+  "mUnit": "m",
+  "topSpeed": "Top speed",
+  "turns": "Turns",
+  "elevationChangeLabel": "Elevation change",
+  "lapsCountLabel": "Number of laps",
+  "weekendSessions": "Weekend Sessions"
 }
-
-

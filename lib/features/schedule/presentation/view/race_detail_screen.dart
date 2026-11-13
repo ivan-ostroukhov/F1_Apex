@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
+import '../../../../common/widgets/turns_icon.dart';
 import '../../data/repositories/schedule_repository.dart';
 import '../../domain/models/circuit_stats.dart';
 import '../../domain/models/race_model.dart';
@@ -72,6 +75,7 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.paddingOf(context).top;
     final circuitColor = F1Colors.getCircuitColor(
       widget.race.circuitId.isNotEmpty ? widget.race.circuitId : widget.race.raceName,
@@ -190,9 +194,9 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 4),
-                                    const Text(
-                                      'КМ',
-                                      style: TextStyle(
+                                    Text(
+                                      l10n.kmUnit,
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white54,
@@ -204,45 +208,49 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
                                 _StatRow(
                                   icon: Icons.repeat_rounded,
                                   value: '${stats.laps}',
-                                  label: 'Количество кругов',
+                                  label: l10n.lapsCountLabel,
                                 ),
                                 const SizedBox(height: 14),
                                 _StatRow(
-                                  icon: Icons.alt_route_rounded,
+                                  customIcon: const TurnsIcon(size: 36, color: Colors.white70),
                                   value: '${stats.corners}',
-                                  label: 'Повороты',
+                                  label: l10n.turns,
                                 ),
                                 const SizedBox(height: 14),
                                 _StatRow(
                                   icon: Icons.speed_rounded,
-                                  value: '${stats.maxSpeed} км/ч',
-                                  label: 'Максимальная скорость',
+                                  value: '${stats.maxSpeed} ${l10n.kmhUnit}',
+                                  label: l10n.topSpeed,
                                 ),
                                 const SizedBox(height: 14),
                                 _StatRow(
                                   icon: Icons.height_rounded,
-                                  value: '${stats.elevation} м',
-                                  label: 'Перепад высот',
+                                  value: '${stats.elevation} ${l10n.mUnit}',
+                                  label: l10n.elevationChangeLabel,
                                 ),
                               ],
                             ),
                           ),
                           Expanded(
-                            flex: 5,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  height: 170,
-                                  child: Center(
-                                    child: Icon(
+                            flex: 6,
+                            child: SizedBox(
+                              height: 270,
+                              child: Transform.translate(
+                                offset: const Offset(-10, 0),
+                                child: Transform.scale(
+                                  scale: 1.15,
+                                  child: Image.asset(
+                                    F1Media.getTrackAssetPath(widget.race.circuitId),
+                                    fit: BoxFit.contain,
+                                    alignment: Alignment.centerLeft,
+                                    errorBuilder: (_, __, ___) => Icon(
                                       Icons.polyline_rounded,
-                                      size: 160,
+                                      size: 240,
                                       color: circuitColor.withValues(alpha: 0.9),
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ],
@@ -284,9 +292,9 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Выходные гонки',
-                            style: TextStyle(
+                          Text(
+                            l10n.weekendSessions,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -374,12 +382,14 @@ class _SlantedStripesPainter extends CustomPainter {
 }
 
 class _StatRow extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final String value;
   final String label;
 
   const _StatRow({
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.value,
     required this.label,
   });
@@ -389,7 +399,13 @@ class _StatRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Colors.white70),
+        SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: customIcon ?? Icon(icon, size: 40, color: Colors.white70),
+          ),
+        ),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

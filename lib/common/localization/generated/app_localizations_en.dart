@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constructorsTable => 'Constructors Standings';
 
   @override
+  String get driversTable => 'Drivers Standings';
+
+  @override
   String get constructorsComingSoon => 'Constructors championship coming soon';
 
   @override
@@ -213,4 +216,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricUnits => 'Metric';
+
+  @override
+  String get grandPrixCompleted => 'Grand Prix completed';
+
+  @override
+  String get distanceCovered => 'Distance covered';
+
+  @override
+  String get lapsCompleted => 'Laps completed';
+
+  @override
+  String get breakingNews => 'Breaking News';
+
+  @override
+  String get viewAllNews => 'View all >';
+
+  @override
+  String get mexicoGrandPrixTitle => 'R19 Mexico City Grand Prix';
+
+  @override
+  String get lapsCount => 'Number of laps';
+
+  @override
+  String get maxSpeed => 'Top speed';
+
+  @override
+  String get turnsCount => 'Number of turns';
+
+  @override
+  String get elevationChange => 'Elevation change';
+
+  @override
+  String get mostSuccessfulConstructor => 'Most successful constructor';
+
+  @override
+  String recordWinsFormat(String count) {
+    return '$count WINS';
+  }
+
+  @override
+  String get mostSuccessfulDrivers => 'Most successful drivers';
+
+  @override
+  String get raceLapRecord => 'Race lap record';
+
+  @override
+  String get fastestPitStop => 'Fastest pit stop of the season';
+
+  @override
+  String get fastestLapSeason => 'Fastest lap of the season';
+
+  @override
+  String get mexicoDateRange => 'Oct 31 - Nov 02';
+
+  @override
+  String get mexicoSessionDate => '31 SAT';
+
+  @override
+  String get mexicoSessionTitle => 'Practice 1';
+
+  @override
+  String get noPointsData => 'No points data for the current season';
+
+  @override
+  String roundFormat(String number) {
+    return 'Round $number';
+  }
+
+  @override
+  String get kmUnit => 'KM';
+
+  @override
+  String get kmhUnit => 'km/h';
+
+  @override
+  String get mUnit => 'm';
+
+  @override
+  String get topSpeed => 'Top speed';
+
+  @override
+  String get turns => 'Turns';
+
+  @override
+  String get elevationChangeLabel => 'Elevation change';
+
+  @override
+  String get lapsCountLabel => 'Number of laps';
+
+  @override
+  String get weekendSessions => 'Weekend Sessions';
 }

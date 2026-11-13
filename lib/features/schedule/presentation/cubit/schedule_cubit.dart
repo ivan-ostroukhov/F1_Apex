@@ -33,8 +33,6 @@ class ScheduleCubit extends Cubit<ScheduleState> {
       emit(ScheduleLoading());
       final races = await _repository.getSeasonSchedule();
 
-      final now = DateTime.now();
-
       final past = races.where((r) => r.isCompleted).toList();
       final upcoming = races.where((r) => !r.isCompleted).toList();
 

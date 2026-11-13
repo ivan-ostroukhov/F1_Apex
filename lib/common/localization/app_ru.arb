@@ -13,6 +13,7 @@
   "homeTab": "Главная",
   "constructorsTab": "Команды",
   "constructorsTable": "Таблица команд",
+  "driversTable": "Таблица пилотов",
   "constructorsComingSoon": "Кубок конструкторов скоро появится",
   "scheduleTab": "Календарь",
   "roundPrefix": "Этап",
@@ -80,5 +81,46 @@
   "themeSystem": "Система",
   "themeDark": "Темная",
   "themeLight": "Светлая",
-  "metricUnits": "Метрика"
+  "metricUnits": "Метрика",
+
+  "grandPrixCompleted": "Гран-при завершено",
+  "distanceCovered": "Пройдено",
+  "lapsCompleted": "Пройдено кругов",
+  "breakingNews": "Срочные новости",
+  "viewAllNews": "Посмотреть все >",
+  "mexicoGrandPrixTitle": "R19 Гран-при Мехико",
+  "lapsCount": "Количество кругов",
+  "maxSpeed": "Максимальная скорость",
+  "turnsCount": "Количество поворотов",
+  "elevationChange": "Перепад высот",
+  "mostSuccessfulConstructor": "Самая успешная команда-конструктор",
+  "recordWinsFormat": "{count} ПОБЕДЫ",
+  "@recordWinsFormat": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "mostSuccessfulDrivers": "Самые успешные пилоты",
+  "raceLapRecord": "Рекорд круга гонки",
+  "fastestPitStop": "Самый быстрый пит-стоп сезона",
+  "fastestLapSeason": "Самый быстрый круг сезона",
+  "mexicoDateRange": "31 Окт. - 02 Нояб.",
+  "mexicoSessionDate": "31 СБ",
+  "mexicoSessionTitle": "Practice 1",
+
+  "noPointsData": "Нет данных по очкам текущего сезона",
+  "roundFormat": "Раунд {number}",
+  "@roundFormat": {
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
+  "kmUnit": "КМ",
+  "kmhUnit": "км/ч",
+  "mUnit": "м",
+  "topSpeed": "Максимальная скорость",
+  "turns": "Повороты",
+  "elevationChangeLabel": "Перепад высот",
+  "lapsCountLabel": "Количество кругов",
+  "weekendSessions": "Выходные гонки"
 }

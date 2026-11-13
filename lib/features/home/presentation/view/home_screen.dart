@@ -1,20 +1,34 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
+import '../../../../common/utils/team_utils.dart';
+import '../../../../common/widgets/turns_icon.dart';
+import '../../../../common/widgets/animated_digit_text.dart';
 import '../../../../common/network/local_storage_service.dart';
+import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../driver/domain/i_driver_repository.dart';
 import '../../../driver/domain/driver_detail_model.dart';
 import '../../../constructor/domain/constructor_repository.dart';
 import '../../../constructor/domain/constructor_detail_model.dart';
+import '../../../schedule/data/repositories/schedule_repository.dart';
+import '../../../schedule/domain/models/race_model.dart';
+import '../../../schedule/domain/models/circuit_stats.dart';
 import '../../../driver/presentation/widgets/driver_hero_image.dart';
 import '../../data/home_repository.dart';
 import '../../domain/home_news_model.dart';
+import '../../../../common/startup/app_startup_cubit.dart';
+import '../../../../common/localization/locale_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,10 +38,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Timer? _carouselTimer;
   int _activePage = 0;
-  List<HomeNewsModel> _news = [];
+  Timer? _carouselTimer;
+  StreamSubscription<AppStartupState>? _startupSub;
+  final ScrollController _newsScrollController = ScrollController();
 
+  List<HomeNewsModel> _news = [];
   String _favDriver1 = 'verstappen';
   String _favDriver2 = 'piastri';
   String _favTeam = 'red_bull';
@@ -35,18 +51,109 @@ class _HomeScreenState extends State<HomeScreen> {
   DriverDetailModel? _driver1Detail;
   DriverDetailModel? _driver2Detail;
   ConstructorDetailModel? _teamDetail;
+  RaceModel? _nextRace;
+  List<RaceModel> _seasonSchedule = [];
+  bool? _lastIsEn;
+
+  int get _completedRacesCount {
+    if (_seasonSchedule.isNotEmpty) {
+      final count = _seasonSchedule.where((r) => r.isCompleted).length;
+      return count > 0 ? count : 18;
+    }
+    return 18;
+  }
+
+  int get _totalRacesCount {
+    if (_seasonSchedule.isNotEmpty) {
+      return _seasonSchedule.length;
+    }
+    return 24;
+  }
+
+  double get _seasonProgressPercent => _totalRacesCount > 0
+      ? (_completedRacesCount / _totalRacesCount).clamp(0.0, 1.0)
+      : 0.75;
+
+  int get _percentValue => (_seasonProgressPercent * 100).round();
+
+  String get _completedDistanceKm {
+    final km = _completedRacesCount * 305.4;
+    return km.toStringAsFixed(1);
+  }
+
+  String get _completedLaps {
+    final laps = (_completedRacesCount * 59.5).round();
+    final str = laps.toString();
+    if (str.length > 3) {
+      return '${str.substring(0, str.length - 3)} ${str.substring(str.length - 3)}';
+    }
+    return str;
+  }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _applyStartupData();
+      }
+    });
     _startAutoScroll();
-    _loadNews();
-    _loadFavoritesAndData();
+  }
+
+  void _applyStartupData() {
+    final cubit = context.read<AppStartupCubit>();
+    if (cubit.state.isDone) {
+      _populateFromStartup(cubit.state);
+    }
+    _startupSub?.cancel();
+    _startupSub = cubit.stream.listen((state) {
+      if (mounted && state.isDone) {
+        _populateFromStartup(state);
+      }
+    });
+  }
+
+  void _populateFromStartup(AppStartupState data) {
+    final isEn = context.read<LocaleCubit>().state.languageCode == 'en';
+    setState(() {
+      _favDriver1 = data.favDriver1;
+      _favDriver2 = data.favDriver2;
+      _favTeam = data.favTeam;
+
+      if (data.driver1Detail != null &&
+          (data.driver1Detail!.points != '0' || data.driver1Detail!.roundPoints.isNotEmpty)) {
+        _driver1Detail = data.driver1Detail;
+      }
+      if (data.driver2Detail != null &&
+          (data.driver2Detail!.points != '0' || data.driver2Detail!.roundPoints.isNotEmpty)) {
+        _driver2Detail = data.driver2Detail;
+      }
+      if (data.teamDetail != null &&
+          (data.teamDetail!.points != '0' || data.teamDetail!.position != '0' || data.teamDetail!.wins > 0)) {
+        _teamDetail = data.teamDetail;
+      }
+      if (data.seasonSchedule.isNotEmpty) {
+        _seasonSchedule = data.seasonSchedule;
+        _nextRace = data.nextRace;
+      }
+      _news = isEn ? data.newsEn : data.newsRu;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    if (_lastIsEn != isEn) {
+      _lastIsEn = isEn;
+      _loadNews();
+    }
   }
 
   void _startAutoScroll() {
     _carouselTimer?.cancel();
-    _carouselTimer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
+    _carouselTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (mounted) {
         setState(() {
           _activePage = (_activePage + 1) % 4;
@@ -70,8 +177,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadNews() async {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
     final repo = HomeRepository();
-    final newsList = await repo.getLatestNews();
+    final newsList = await repo.getLatestNews(isEnglish: isEn);
     if (mounted) {
       setState(() {
         _news = newsList;
@@ -93,6 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final driverRepo = context.read<IDriverRepository>();
       final teamRepo = context.read<IConstructorRepository>();
+      final scheduleRepo = ScheduleRepository();
 
       final results = await Future.wait([
         driverRepo.getDriverDetails(d1).catchError((_) => _fallbackDriverDetail(d1)),
@@ -100,43 +209,116 @@ class _HomeScreenState extends State<HomeScreen> {
         teamRepo.getConstructorDetails(tm).catchError((_) => _fallbackTeamDetail(tm)),
       ]);
 
+      List<RaceModel> schedule = [];
+      try {
+        schedule = await scheduleRepo.getSeasonSchedule();
+      } catch (_) {}
+
       if (mounted) {
         setState(() {
-          _driver1Detail = results[0] as DriverDetailModel;
-          _driver2Detail = results[1] as DriverDetailModel;
-          _teamDetail = results[2] as ConstructorDetailModel;
+          final res1 = results[0] as DriverDetailModel;
+          if (res1.points != '0' || res1.roundPoints.isNotEmpty) {
+            _driver1Detail = res1;
+          }
+          final res2 = results[1] as DriverDetailModel;
+          if (res2.points != '0' || res2.roundPoints.isNotEmpty) {
+            _driver2Detail = res2;
+          }
+          final resTeam = results[2] as ConstructorDetailModel;
+          if (resTeam.points != '0' || resTeam.position != '0' || resTeam.wins > 0) {
+            _teamDetail = resTeam;
+          }
+          if (schedule.isNotEmpty) {
+            _seasonSchedule = schedule;
+            _nextRace = schedule.where((r) => !r.isCompleted).firstOrNull ?? schedule.last;
+          }
         });
       }
     } catch (_) {}
   }
 
+  (String, String) _getDefaultDriverName(String driverId) {
+    final lower = driverId.toLowerCase().replaceAll('-', '_').trim();
+    if (lower.contains('verstappen')) return ('Max', 'Verstappen');
+    if (lower.contains('leclerc')) return ('Charles', 'Leclerc');
+    if (lower.contains('hamilton')) return ('Lewis', 'Hamilton');
+    if (lower.contains('norris')) return ('Lando', 'Norris');
+    if (lower.contains('piastri')) return ('Oscar', 'Piastri');
+    if (lower.contains('russell')) return ('George', 'Russell');
+    if (lower.contains('antonelli')) return ('Kimi', 'Antonelli');
+    if (lower.contains('alonso')) return ('Fernando', 'Alonso');
+    if (lower.contains('stroll')) return ('Lance', 'Stroll');
+    if (lower.contains('gasly')) return ('Pierre', 'Gasly');
+    if (lower.contains('colapinto')) return ('Franco', 'Colapinto');
+    if (lower.contains('albon')) return ('Alexander', 'Albon');
+    if (lower.contains('sainz')) return ('Carlos', 'Sainz');
+    if (lower.contains('tsunoda')) return ('Yuki', 'Tsunoda');
+    if (lower.contains('lawson')) return ('Liam', 'Lawson');
+    if (lower.contains('lindblad')) return ('Arvid', 'Lindblad');
+    if (lower.contains('bearman')) return ('Oliver', 'Bearman');
+    if (lower.contains('ocon')) return ('Esteban', 'Ocon');
+    if (lower.contains('hulkenberg')) return ('Nico', 'Hulkenberg');
+    if (lower.contains('bortoleto')) return ('Gabriel', 'Bortoleto');
+    if (lower.contains('hadjar')) return ('Isack', 'Hadjar');
+    if (lower.contains('bottas')) return ('Valtteri', 'Bottas');
+    if (lower.contains('perez')) return ('Sergio', 'Perez');
+    return (driverId.toUpperCase(), '');
+  }
+
   DriverDetailModel _fallbackDriverDetail(String id) {
+    final normId = id == 'verstappen' ? 'max_verstappen' : id;
+    var cached = LocalStorageService.getString('driver_detail_${id}_2026');
+    cached ??= LocalStorageService.getString('driver_detail_${normId}_2026');
+    cached ??= LocalStorageService.getString('driver_detail_$id');
+    cached ??= LocalStorageService.getString('driver_detail_$normId');
+
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        final model = DriverDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+        if (model.points != '0' || model.roundPoints.isNotEmpty) {
+          return model;
+        }
+      } catch (_) {}
+    }
+    final name = _getDefaultDriverName(id);
+    final stats = TeamUtils.getDefaultDriverStats(id);
+
     return DriverDetailModel(
       id: id,
-      firstName: id.toUpperCase(),
-      lastName: '',
+      firstName: name.$1,
+      lastName: name.$2,
       code: id.length >= 3 ? id.substring(0, 3).toUpperCase() : id.toUpperCase(),
-      permanentNumber: '1',
-      teamName: 'F1 Team',
-      position: '01',
-      points: '100',
-      wins: 1,
-      podiums: 3,
-      poles: 1,
+      permanentNumber: stats.permanentNumber,
+      teamName: TeamUtils.getDefaultTeamForDriver(id),
+      position: stats.pos,
+      points: stats.pts,
+      wins: stats.wins,
+      podiums: stats.podiums,
+      poles: stats.poles,
       dnfs: 0,
       dateOfBirth: '—',
       nationality: '—',
       firstRace: '—',
       firstWin: '—',
-      worldChampionships: 0,
-      roundPoints: const [25, 18, 15, 25, 18],
+      worldChampionships: stats.worldChampionships,
+      roundPoints: _getValidChartPoints(null),
     );
   }
 
   ConstructorDetailModel _fallbackTeamDetail(String id) {
+    var cached = LocalStorageService.getString('constructor_detail_${id}_2026');
+    cached ??= LocalStorageService.getString('constructor_detail_$id');
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        final model = ConstructorDetailModel.fromJson(jsonDecode(cached) as Map<String, dynamic>);
+        if (model.points != '0' || model.position != '0' || model.wins > 0) {
+          return model;
+        }
+      } catch (_) {}
+    }
     return ConstructorDetailModel(
       id: id,
-      name: id.toUpperCase().replaceAll('_', ' '),
+      name: TeamUtils.cleanTeamName(id.toUpperCase().replaceAll('_', ' ')),
       chassis: 'F1 2026',
       engine: 'F1 Engine',
       teamPrincipal: 'Principal',
@@ -151,13 +333,15 @@ class _HomeScreenState extends State<HomeScreen> {
       poles: 2,
       dnfs: 0,
       season: '2026',
-      carAssetPath: 'assets/images/$id.png',
+      carAssetPath: F1Media.getCarAssetPath(id),
       drivers: const [],
     );
   }
 
   @override
   void dispose() {
+    _newsScrollController.dispose();
+    _startupSub?.cancel();
     _carouselTimer?.cancel();
     super.dispose();
   }
@@ -171,57 +355,93 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
+  List<int> _getValidChartPoints(DriverDetailModel? detail) {
+    if (detail != null && detail.roundPoints.isNotEmpty) {
+      return detail.roundPoints.map((p) => p ?? 0).toList();
+    }
+    return const [];
+  }
+
   Widget _getSlideWidget(int index) {
+    final l10n = AppLocalizations.of(context)!;
     final d1 = _driver1Detail;
     final d2 = _driver2Detail;
     final tm = _teamDetail;
 
     switch (index) {
       case 0:
+        final defaultTeam1 = TeamUtils.getDefaultTeamForDriver(_favDriver1);
+        final defaultName1 = _getDefaultDriverName(_favDriver1);
         return _buildDriverSlide(
+          l10n: l10n,
           driverId: _favDriver1,
-          bgText: d1?.firstName.isNotEmpty == true ? d1!.firstName.toLowerCase() : _favDriver1,
-          firstName: d1?.firstName ?? 'Max',
-          lastName: d1?.lastName ?? 'Verstappen',
-          teamName: d1?.teamName.isNotEmpty == true ? d1!.teamName : 'Red Bull Racing',
-          pos: d1?.position != null && d1!.position != '0' ? d1.position.padLeft(2, '0') : '04',
-          wins: d1?.wins != null ? d1!.wins.toString().padLeft(2, '0') : '02',
-          pts: d1?.points ?? '236',
-          chartPoints: d1?.roundPoints != null && d1!.roundPoints.isNotEmpty
-              ? d1.roundPoints.map((p) => p ?? 0).toList()
-              : const [12, 18, 25, 15, 25, 18, 25, 12, 18, 25, 15, 25, 18],
+          bgText: d1?.firstName.isNotEmpty == true ? d1!.firstName.toLowerCase() : defaultName1.$1.toLowerCase(),
+          firstName: d1?.firstName.isNotEmpty == true ? d1!.firstName : defaultName1.$1,
+          lastName: d1?.lastName.isNotEmpty == true ? d1!.lastName : defaultName1.$2,
+          teamName: d1?.teamName.isNotEmpty == true ? d1!.teamName : defaultTeam1,
+          pos: d1?.position != null && d1!.position != '0' ? d1.position.padLeft(2, '0') : '—',
+          wins: d1?.wins != null ? d1!.wins.toString().padLeft(2, '0') : '00',
+          pts: d1?.points != null && d1!.points != '0' ? d1.points : '0',
+          chartPoints: _getValidChartPoints(d1),
         );
       case 1:
+        final defaultTeam2 = TeamUtils.getDefaultTeamForDriver(_favDriver2);
+        final defaultName2 = _getDefaultDriverName(_favDriver2);
         return _buildDriverSlide(
+          l10n: l10n,
           driverId: _favDriver2,
-          bgText: d2?.firstName.isNotEmpty == true ? d2!.firstName.toLowerCase() : _favDriver2,
-          firstName: d2?.firstName ?? 'Oscar',
-          lastName: d2?.lastName ?? 'Piastri',
-          teamName: d2?.teamName.isNotEmpty == true ? d2!.teamName : 'McLaren',
-          pos: d2?.position != null && d2!.position != '0' ? d2.position.padLeft(2, '0') : '07',
+          bgText: d2?.firstName.isNotEmpty == true ? d2!.firstName.toLowerCase() : defaultName2.$1.toLowerCase(),
+          firstName: d2?.firstName.isNotEmpty == true ? d2!.firstName : defaultName2.$1,
+          lastName: d2?.lastName.isNotEmpty == true ? d2!.lastName : defaultName2.$2,
+          teamName: d2?.teamName.isNotEmpty == true ? d2!.teamName : defaultTeam2,
+          pos: d2?.position != null && d2!.position != '0' ? d2.position.padLeft(2, '0') : '—',
           wins: d2?.wins != null ? d2!.wins.toString().padLeft(2, '0') : '00',
-          pts: d2?.points ?? '144',
-          chartPoints: d2?.roundPoints != null && d2!.roundPoints.isNotEmpty
-              ? d2.roundPoints.map((p) => p ?? 0).toList()
-              : const [10, 12, 15, 18, 12, 25, 10, 15, 12, 15],
+          pts: d2?.points != null && d2!.points != '0' ? d2.points : '0',
+          chartPoints: _getValidChartPoints(d2),
         );
       case 2:
+        final defaultTeam = TeamUtils.cleanTeamName(_favTeam);
         return _buildTeamSlide(
-          teamName: tm?.name.isNotEmpty == true ? tm!.name : 'Red Bull Racing',
+          l10n: l10n,
+          teamName: tm?.name.isNotEmpty == true ? tm!.name : defaultTeam,
           bgText: tm?.name.isNotEmpty == true ? tm!.name.toLowerCase() : _favTeam,
-          pos: tm?.position != null && tm!.position != '0' ? tm.position.padLeft(2, '0') : '03',
-          wins: tm?.wins != null ? tm!.wins.toString().padLeft(2, '0') : '02',
-          pts: tm?.points ?? '355',
-          carAssetPath: tm?.carAssetPath ?? 'assets/images/$_favTeam.png',
+          pos: tm?.position != null && tm!.position != '0' ? tm.position.padLeft(2, '0') : '01',
+          wins: tm?.wins != null ? tm!.wins.toString().padLeft(2, '0') : '00',
+          pts: tm?.points ?? '0',
+          carAssetPath: tm?.carAssetPath ?? F1Media.getCarAssetPath(_favTeam),
         );
       case 3:
       default:
+        final race = _nextRace;
+        if (race != null) {
+          final now = DateTime.now();
+          final session = race.sessions.where((s) => s.endTime.isAfter(now)).firstOrNull ??
+              race.sessions.firstOrNull;
+
+          final sessionTitle = session != null ? session.title : 'Race';
+          final sessionDate = session != null
+              ? '${session.day} ${session.dayOfWeek}'
+              : (race.date != null ? DateFormat('dd MMM', 'ru').format(race.date!) : '');
+          final sessionTime = session != null ? session.timeRange : '';
+
+          return _buildRaceSlide(
+            circuitId: race.circuitId,
+            bgText: race.circuitId.toLowerCase().replaceAll('-', '_'),
+            locality: race.locality.isNotEmpty ? race.locality : race.raceName,
+            dateRange: race.dateRange,
+            sessionTitle: sessionTitle,
+            sessionDate: sessionDate,
+            sessionTime: sessionTime,
+          );
+        }
+
         return _buildRaceSlide(
+          circuitId: 'rodriguez',
           bgText: 'mexico',
           locality: 'Mexico City',
-          dateRange: '31 Окт. - 02 Нояб.',
-          sessionTitle: 'Practice 1',
-          sessionDate: '31 СБ',
+          dateRange: l10n.mexicoDateRange,
+          sessionTitle: l10n.mexicoSessionTitle,
+          sessionDate: l10n.mexicoSessionDate,
           sessionTime: '00:30 - 01:30',
         );
     }
@@ -229,12 +449,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.wait([
+            _loadNews(),
+            _loadFavoritesAndData(),
+          ]);
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
         slivers: [
           SliverToBoxAdapter(
             child: SizedBox(
@@ -274,25 +505,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 8,
                     right: 16,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await context.push('/settings');
-                        _loadFavoritesAndData();
-                      },
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0x99181920),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                    child: Material(
+                      color: Colors.transparent,
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        onTap: () async {
+                          await context.push('/settings');
+                          _loadFavoritesAndData();
+                        },
+                        customBorder: const CircleBorder(),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: theme.cardColor.withValues(alpha: 0.8),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: theme.dividerColor,
+                            ),
                           ),
-                        ),
-                        child: const Icon(
-                          Icons.tune_outlined,
-                          color: Colors.white,
-                          size: 20,
+                          child: Icon(
+                            Icons.tune_outlined,
+                            color: theme.colorScheme.onSurface,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -317,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: isActive ? 24 : 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: isActive ? Colors.white : Colors.white30,
+                              color: isActive ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
@@ -343,9 +579,40 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(
                         width: 135,
                         height: 135,
-                        child: CustomPaint(
-                          size: const Size(135, 135),
-                          painter: _GaugePainter(percent: 0.78),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CustomPaint(
+                              size: const Size(135, 135),
+                              painter: _GaugePainter(
+                                percent: _seasonProgressPercent,
+                                isLight: theme.brightness == Brightness.light,
+                              ),
+                            ),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '$_percentValue',
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: -1.0,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '%',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -354,11 +621,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildProgressStat('18/23', 'Гран-при завершено'),
-                            const Divider(color: Colors.white12, height: 16),
-                            _buildProgressStat('5483.0 КМ', 'Пройдено'),
-                            const Divider(color: Colors.white12, height: 16),
-                            _buildProgressStat('1 082', 'Пройдено кругов'),
+                            _buildProgressStat(context, '$_completedRacesCount/$_totalRacesCount', l10n.grandPrixCompleted),
+                            Divider(color: theme.dividerColor, height: 16),
+                            _buildProgressStat(context, isEn ? '$_completedDistanceKm KM' : '$_completedDistanceKm КМ', l10n.distanceCovered),
+                            Divider(color: theme.dividerColor, height: 16),
+                            _buildProgressStat(context, _completedLaps, l10n.lapsCompleted),
                           ],
                         ),
                       ),
@@ -373,26 +640,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.bolt, color: Colors.white, size: 22),
-                          SizedBox(width: 6),
+                          Icon(Icons.bolt, color: theme.colorScheme.onSurface, size: 22),
+                          const SizedBox(width: 6),
                           Text(
-                            'Срочные новости',
+                            l10n.breakingNews,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ],
                       ),
                       TextButton(
                         onPressed: () => _openNewsUrl('https://www.formula1.com/en/latest/all.html'),
-                        child: const Text(
-                          'Посмотреть все >',
+                        child: Text(
+                          l10n.viewAllNews,
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
                         ),
@@ -404,12 +671,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 SizedBox(
                   height: 210,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _news.length,
-                    itemBuilder: (context, index) {
+                  child: Listener(
+                    onPointerSignal: (pointerSignal) {
+                      if (pointerSignal is PointerScrollEvent && _newsScrollController.hasClients) {
+                        final delta = pointerSignal.scrollDelta.dy != 0
+                            ? pointerSignal.scrollDelta.dy
+                            : pointerSignal.scrollDelta.dx;
+                        final newOffset = (_newsScrollController.offset + delta).clamp(
+                          0.0,
+                          _newsScrollController.position.maxScrollExtent,
+                        );
+                        _newsScrollController.jumpTo(newOffset);
+                      }
+                    },
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                          PointerDeviceKind.trackpad,
+                        },
+                      ),
+                      child: ListView.builder(
+                        controller: _newsScrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _news.length,
+                        itemBuilder: (context, index) {
                       final news = _news[index];
                       return Padding(
                         padding: const EdgeInsets.only(right: 14),
@@ -418,9 +707,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             width: 280,
                             decoration: BoxDecoration(
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(22),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.12),
+                                color: theme.dividerColor,
                               ),
                             ),
                             child: ClipRRect(
@@ -432,21 +722,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                     imageUrl: news.imageUrl,
                                     fit: BoxFit.cover,
                                     placeholder: (_, __) => Container(
-                                      color: const Color(0xFF1C1C1E),
+                                      color: theme.cardColor,
                                     ),
                                     errorWidget: (_, __, ___) => Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [Color(0xFF2C2D35), Color(0xFF141518)],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
+                                      decoration: BoxDecoration(
+                                        color: theme.cardColor,
                                       ),
-                                      child: const Center(
+                                      child: Center(
                                         child: Icon(
                                           Icons.newspaper_rounded,
                                           size: 48,
-                                          color: Colors.white24,
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                                         ),
                                       ),
                                     ),
@@ -503,7 +789,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ],
                                             ),
                                             Text(
-                                              news.timeAgo,
+                                              isEn && news.timeAgoEn != null ? news.timeAgoEn! : news.timeAgo,
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 color: Colors.white38,
@@ -523,33 +809,70 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
+                ),
+                ),
 
                 const SizedBox(height: 28),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'R19 Гран-при Мехико',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                Builder(
+                  builder: (context) {
+                    final race = _nextRace;
+                    final stats = CircuitStats.getFor(race?.circuitId ?? 'rodriguez');
+                    final stageTitle = race != null
+                        ? 'R${race.round} ${race.raceName}'
+                        : l10n.mexicoGrandPrixTitle;
 
-                      _buildWhiteStagePill('71', 'Количество кругов', const Color(0xFFFFD600), Icons.repeat_rounded),
-                      const SizedBox(height: 10),
-                      _buildWhiteStagePill('356.9 км/ч', 'Максимальная скорость', const Color(0xFF00E676), Icons.speed_rounded),
-                      const SizedBox(height: 10),
-                      _buildWhiteStagePill('17', 'Количество поворотов', const Color(0xFF2979FF), Icons.alt_route_rounded),
-                      const SizedBox(height: 10),
-                      _buildWhiteStagePill('2.67 м', 'Перепад высот', const Color(0xFFFF3D00), Icons.height_rounded),
-                    ],
-                  ),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            stageTitle,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          _buildWhiteStagePill(
+                            context,
+                            '${stats.laps}',
+                            l10n.lapsCount,
+                            const Color(0xFFFFD600),
+                            Icons.repeat_rounded,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildWhiteStagePill(
+                            context,
+                            isEn ? '${stats.maxSpeed} km/h' : '${stats.maxSpeed} км/ч',
+                            l10n.maxSpeed,
+                            const Color(0xFF00E676),
+                            Icons.speed_rounded,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildWhiteStagePill(
+                            context,
+                            '${stats.corners}',
+                            l10n.turnsCount,
+                            const Color(0xFF2979FF),
+                            Icons.alt_route_rounded,
+                            customIcon: const TurnsIcon(size: 22, color: Colors.black),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildWhiteStagePill(
+                            context,
+                            isEn ? '${stats.elevation} m' : '${stats.elevation} м',
+                            l10n.elevationChange,
+                            const Color(0xFFFF3D00),
+                            Icons.height_rounded,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 28),
@@ -560,31 +883,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildRecordTile(
-                        'Самая успешная команда-конструктор',
-                        '04 ПОБЕДЫ',
+                        context,
+                        l10n.mostSuccessfulConstructor,
+                        l10n.recordWinsFormat('04'),
                         'Red Bull',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
-                        'Самые успешные пилоты',
-                        '04 ПОБЕДЫ',
+                        context,
+                        l10n.mostSuccessfulDrivers,
+                        l10n.recordWinsFormat('04'),
                         'Max Verstappen',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
-                        'Рекорд круга гонки',
+                        context,
+                        l10n.raceLapRecord,
                         '1:14.774',
                         'Valtteri Bottas',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
-                        'Самый быстрый пит-стоп сезона',
-                        '1.80 с',
+                        context,
+                        l10n.fastestPitStop,
+                        isEn ? '1.80 s' : '1.80 с',
                         'McLaren (2023 Qatar GP)',
                       ),
-                      Divider(color: Colors.white.withValues(alpha: 0.1), height: 28),
+                      Divider(color: theme.dividerColor, height: 28),
                       _buildRecordTile(
-                        'Самый быстрый круг сезона',
+                        context,
+                        l10n.fastestLapSeason,
                         '1:11.890',
                         'Lando Norris',
                       ),
@@ -592,16 +920,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 105),
               ],
             ),
           ),
         ],
       ),
+    ),
     );
   }
 
   Widget _buildDriverSlide({
+    required AppLocalizations l10n,
     required String driverId,
     required String bgText,
     required String firstName,
@@ -612,7 +942,11 @@ class _HomeScreenState extends State<HomeScreen> {
     required String pts,
     required List<int> chartPoints,
   }) {
-    final teamColor = F1Colors.getTeamColor(teamName);
+    final teamColor = F1Colors.getTeamColor(teamName, driverId);
+    final theme = Theme.of(context);
+
+    final formattedPos = pos.padLeft(2, '0');
+    final formattedWins = (int.tryParse(wins) ?? 0).toString().padLeft(2, '0');
 
     return Stack(
       clipBehavior: Clip.none,
@@ -643,7 +977,7 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 10,
           child: Text(
             bgText,
-            style: TextStyle(
+            style: GoogleFonts.titilliumWeb(
               fontSize: 110,
               fontWeight: FontWeight.w900,
               color: teamColor.withValues(alpha: 0.15),
@@ -677,8 +1011,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   stops: const [0.0, 0.45, 1.0],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
+                    theme.scaffoldBackgroundColor,
                   ],
                 ),
               ),
@@ -703,50 +1037,66 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.bar_chart, size: 15, color: Colors.blueAccent),
+                  Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text(
-                    '$pos поз',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  AnimatedDigitText(
+                    text: formattedPos,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.stars, size: 15, color: Colors.blueAccent),
-                  const SizedBox(width: 4),
                   Text(
-                    '$wins Победы',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    ' ${l10n.driverPositionShort}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Icon(Icons.stars, size: 15, color: teamColor),
+                  const SizedBox(width: 4),
+                  AnimatedDigitText(
+                    text: formattedWins,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    ' ${l10n.winsLabel}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    pts,
-                    style: const TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -1,
+                  AnimatedDigitText(
+                    text: pts,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w300,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: -1.0,
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'блв',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.bold,
+                  Text(
+                    l10n.driverPointsShort,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -759,6 +1109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTeamSlide({
+    required AppLocalizations l10n,
     required String teamName,
     required String bgText,
     required String pos,
@@ -767,6 +1118,9 @@ class _HomeScreenState extends State<HomeScreen> {
     required String carAssetPath,
   }) {
     final teamColor = F1Colors.getTeamColor(teamName);
+    final theme = Theme.of(context);
+    final formattedPos = pos.padLeft(2, '0');
+    final formattedWins = (int.tryParse(wins) ?? 0).toString().padLeft(2, '0');
 
     return Stack(
       clipBehavior: Clip.none,
@@ -797,7 +1151,7 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 10,
           child: Text(
             bgText,
-            style: TextStyle(
+            style: GoogleFonts.titilliumWeb(
               fontSize: 100,
               fontWeight: FontWeight.w900,
               color: teamColor.withValues(alpha: 0.15),
@@ -811,14 +1165,17 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 20,
           bottom: 0,
           width: 230,
-          child: Image.asset(
-            carAssetPath,
-            fit: BoxFit.contain,
-            alignment: Alignment.topRight,
-            errorBuilder: (_, __, ___) => const Icon(
-              Icons.sports_motorsports,
-              size: 130,
-              color: Colors.white12,
+          child: Transform.scale(
+            scale: 0.85,
+            child: Image.asset(
+              carAssetPath,
+              fit: BoxFit.contain,
+              alignment: Alignment.topRight,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.sports_motorsports,
+                size: 130,
+                color: Colors.white12,
+              ),
             ),
           ),
         ),
@@ -827,18 +1184,19 @@ class _HomeScreenState extends State<HomeScreen> {
           left: 0,
           right: 0,
           bottom: 0,
-          height: 100,
+          height: 140,
           child: IgnorePointer(
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.45, 1.0],
+                  stops: const [0.0, 0.30, 0.65, 1.0],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.50),
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.88),
+                    theme.scaffoldBackgroundColor,
                   ],
                 ),
               ),
@@ -854,50 +1212,66 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.bar_chart, size: 15, color: Colors.blueAccent),
+                  Icon(Icons.bar_chart, size: 15, color: teamColor),
                   const SizedBox(width: 4),
-                  Text(
-                    '$pos поз',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  AnimatedDigitText(
+                    text: formattedPos,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.stars, size: 15, color: Colors.blueAccent),
-                  const SizedBox(width: 4),
                   Text(
-                    '$wins Победы',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    ' ${l10n.driverPositionShort}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Icon(Icons.stars, size: 15, color: teamColor),
+                  const SizedBox(width: 4),
+                  AnimatedDigitText(
+                    text: formattedWins,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    ' ${l10n.winsLabel}',
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    pts,
-                    style: const TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -1,
+                  AnimatedDigitText(
+                    text: pts,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w300,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: -1.0,
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'блв',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.bold,
+                  Text(
+                    l10n.driverPointsShort,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -910,6 +1284,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRaceSlide({
+    required String circuitId,
     required String bgText,
     required String locality,
     required String dateRange,
@@ -917,7 +1292,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required String sessionDate,
     required String sessionTime,
   }) {
-    const circuitColor = Color(0xFF0E7A6B);
+    final circuitColor = F1Colors.getCircuitColor(circuitId);
+    final theme = Theme.of(context);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -948,7 +1324,7 @@ class _HomeScreenState extends State<HomeScreen> {
           top: 10,
           child: Text(
             bgText,
-            style: TextStyle(
+            style: GoogleFonts.titilliumWeb(
               fontSize: 100,
               fontWeight: FontWeight.w900,
               color: circuitColor.withValues(alpha: 0.2),
@@ -958,14 +1334,22 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
 
         Positioned(
-          right: -10,
-          top: 20,
-          width: 200,
-          height: 180,
-          child: Icon(
-            Icons.polyline_rounded,
-            size: 160,
-            color: circuitColor.withValues(alpha: 0.9),
+          right: 15,
+          top: 35,
+          width: 240,
+          height: 210,
+          child: Transform.scale(
+            scale: 1.1,
+            child: Image.asset(
+              F1Media.getTrackAssetPath(circuitId),
+              fit: BoxFit.contain,
+              alignment: Alignment.centerRight,
+              errorBuilder: (_, __, ___) => Icon(
+                Icons.polyline_rounded,
+                size: 170,
+                color: circuitColor.withValues(alpha: 0.9),
+              ),
+            ),
           ),
         ),
 
@@ -983,8 +1367,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   stops: const [0.0, 0.45, 1.0],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
+                    theme.scaffoldBackgroundColor,
                   ],
                 ),
               ),
@@ -1000,49 +1384,52 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 locality,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF00E676),
+                style: GoogleFonts.titilliumWeb(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: circuitColor,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 dateRange,
-                style: const TextStyle(
+                style: GoogleFonts.titilliumWeb(
                   fontSize: 13,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
-                sessionTitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white70,
-                ),
-              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
+                    sessionTitle,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
                     sessionDate,
-                    style: const TextStyle(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -1,
+                    style: GoogleFonts.titilliumWeb(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w300,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: -1.0,
                     ),
                   ),
                 ],
               ),
               Text(
                 sessionTime,
-                style: const TextStyle(
+                style: GoogleFonts.titilliumWeb(
                   fontSize: 13,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -1052,25 +1439,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  static Widget _buildProgressStat(String value, String label) {
+  static Widget _buildProgressStat(BuildContext context, String value, String label) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: Colors.white60,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -1079,16 +1467,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   static Widget _buildWhiteStagePill(
+    BuildContext context,
     String value,
     String label,
     Color btnColor,
-    IconData icon,
-  ) {
+    IconData icon, {
+    Widget? customIcon,
+  }) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Row(
         children: [
@@ -1098,18 +1490,18 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: Colors.black,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.black54,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1123,10 +1515,13 @@ class _HomeScreenState extends State<HomeScreen> {
               color: btnColor,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              icon,
-              color: Colors.black,
-              size: 22,
+            child: Center(
+              child: customIcon ??
+                  Icon(
+                    icon,
+                    color: Colors.black,
+                    size: 22,
+                  ),
             ),
           ),
         ],
@@ -1134,25 +1529,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  static Widget _buildRecordTile(String category, String recordValue, String holder) {
+  static Widget _buildRecordTile(BuildContext context, String category, String recordValue, String holder) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           category,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: Colors.white70,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           recordValue,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 34,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             letterSpacing: 1.0,
           ),
         ),
@@ -1161,7 +1557,7 @@ class _HomeScreenState extends State<HomeScreen> {
           holder,
           style: TextStyle(
             fontSize: 15,
-            color: Colors.white.withValues(alpha: 0.8),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -1182,7 +1578,7 @@ class _MiniPointsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const maxScore = 25;
-    const totalRounds = 18;
+    final totalRounds = math.max(24, roundPoints.length);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -1212,8 +1608,9 @@ class _MiniPointsChart extends StatelessWidget {
 
 class _GaugePainter extends CustomPainter {
   final double percent;
+  final bool isLight;
 
-  _GaugePainter({required this.percent});
+  _GaugePainter({required this.percent, this.isLight = false});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1221,7 +1618,7 @@ class _GaugePainter extends CustomPainter {
     final outerRadius = size.width / 2 - 2;
 
     final tickPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.18)
+      ..color = isLight ? Colors.black.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.18)
       ..strokeWidth = 1.0;
 
     const totalTicks = 72;
@@ -1239,12 +1636,34 @@ class _GaugePainter extends CustomPainter {
     }
 
     final arcRadius = outerRadius - 16;
-    const strokeWidth = 16.0;
+    const strokeWidth = 14.0;
     const startAngle = math.pi * 0.72;
     const totalSweep = math.pi * 1.56;
 
+    final innerRadius = arcRadius - (strokeWidth / 2) - 3;
+    final innerRect = Rect.fromCircle(center: center, radius: innerRadius);
+    final innerPaint = Paint()
+      ..shader = const RadialGradient(
+        center: Alignment(0.0, -0.2),
+        radius: 0.85,
+        colors: [
+          Color(0xFF0075FF),
+          Color(0xFF004BD6),
+          Color(0xFF0036A8),
+        ],
+        stops: [0.0, 0.7, 1.0],
+      ).createShader(innerRect);
+
+    canvas.drawCircle(center, innerRadius, innerPaint);
+
+    final innerBorderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..color = Colors.white.withValues(alpha: 0.25);
+    canvas.drawCircle(center, innerRadius, innerBorderPaint);
+
     final slatPaint = Paint()
-      ..color = const Color(0xFF262830)
+      ..color = isLight ? const Color(0xFFE0E0E5) : const Color(0xFF262830)
       ..strokeWidth = 1.8;
 
     const slatCount = 48;
@@ -1266,82 +1685,76 @@ class _GaugePainter extends CustomPainter {
       }
     }
 
-    final activeSweep = totalSweep * percent;
-    final progressPaint = Paint()
-      ..shader = SweepGradient(
-        startAngle: startAngle,
-        endAngle: startAngle + activeSweep,
-        colors: const [
-          Color(0xFF2C4AE2),
-          Color(0xFF00C2FF),
-          Color(0xFF8CE055),
-          Color(0xFFFFD600),
-        ],
-        stops: const [0.0, 0.35, 0.7, 1.0],
-      ).createShader(Rect.fromCircle(center: center, radius: arcRadius))
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+    if (percent > 0) {
+      final arcRect = Rect.fromCircle(center: center, radius: arcRadius);
+      final progressSweep = totalSweep * percent;
+      final capRadius = strokeWidth / 2;
 
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: arcRadius),
-      startAngle,
-      activeSweep,
-      false,
-      progressPaint,
-    );
+      final startCapCenter = Offset(
+        center.dx + arcRadius * math.cos(startAngle),
+        center.dy + arcRadius * math.sin(startAngle),
+      );
+      canvas.drawCircle(
+        startCapCenter,
+        capRadius,
+        Paint()
+          ..color = _getArcColor(0.0)
+          ..style = PaintingStyle.fill,
+      );
 
-    final blackGapRadius = arcRadius - (strokeWidth / 2);
-    final blackGapPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0;
+      const steps = 120;
+      final segmentPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.butt;
 
-    canvas.drawCircle(center, blackGapRadius, blackGapPaint);
+      for (int i = 0; i < steps; i++) {
+        final t1 = (i / steps) * percent;
+        final t2 = ((i + 1) / steps) * percent;
+        final a1 = startAngle + (totalSweep * t1);
+        final a2 = startAngle + (totalSweep * t2);
 
-    final innerCircleRadius = blackGapRadius - 2;
-    final centerCirclePaint = Paint()
-      ..color = const Color(0xFF3253E8)
-      ..style = PaintingStyle.fill;
+        segmentPaint.color = _getArcColor((t1 + t2) / 2);
+        canvas.drawArc(
+          arcRect,
+          a1,
+          a2 - a1 + 0.005,
+          false,
+          segmentPaint,
+        );
+      }
 
-    canvas.drawCircle(center, innerCircleRadius, centerCirclePaint);
+      final endAngle = startAngle + progressSweep;
+      final endCapCenter = Offset(
+        center.dx + arcRadius * math.cos(endAngle),
+        center.dy + arcRadius * math.sin(endAngle),
+      );
+      canvas.drawCircle(
+        endCapCenter,
+        capRadius,
+        Paint()
+          ..color = _getArcColor(percent)
+          ..style = PaintingStyle.fill,
+      );
+    }
+  }
 
-    final textPainter = TextPainter(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '${(percent * 100).round()}',
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: -1,
-            ),
-          ),
-          const TextSpan(
-            text: '%',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        center.dx - textPainter.width / 2,
-        center.dy - textPainter.height / 2,
-      ),
-    );
+  Color _getArcColor(double t) {
+    final clampedT = t.clamp(0.0, 1.0);
+    if (clampedT <= 0.20) {
+      return Color.lerp(const Color(0xFF0038FF), const Color(0xFF0075FF), clampedT / 0.20)!;
+    } else if (clampedT <= 0.42) {
+      return Color.lerp(const Color(0xFF0075FF), const Color(0xFF00E676), (clampedT - 0.20) / 0.22)!;
+    } else if (clampedT <= 0.60) {
+      return Color.lerp(const Color(0xFF00E676), const Color(0xFFAEEA00), (clampedT - 0.42) / 0.18)!;
+    } else if (clampedT <= 0.76) {
+      return Color.lerp(const Color(0xFFAEEA00), const Color(0xFFFFD600), (clampedT - 0.60) / 0.16)!;
+    } else {
+      return Color.lerp(const Color(0xFFFFD600), const Color(0xFFFFEA00), ((clampedT - 0.76) / 0.24).clamp(0.0, 1.0))!;
+    }
   }
 
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) =>
-      oldDelegate.percent != percent;
+      oldDelegate.percent != percent || oldDelegate.isLight != isLight;
 }

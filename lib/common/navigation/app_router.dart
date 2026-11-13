@@ -6,11 +6,20 @@ import 'package:f1_app/features/constructor/presentation/view/constructor_list_s
 import 'package:f1_app/features/driver/presentation/view/driver_detail_screen.dart';
 import 'package:f1_app/features/driver/presentation/view/driver_list_screen.dart';
 import 'package:f1_app/features/schedule/presentation/view/schedule_screen.dart';
+import 'package:f1_app/features/schedule/presentation/view/race_detail_screen.dart';
+import 'package:f1_app/features/schedule/domain/models/race_model.dart';
+import 'package:f1_app/features/splash/presentation/view/splash_screen.dart';
 import 'scaffold_with_nav_bar.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => SplashScreen(
+        onFinished: () => context.go('/home'),
+      ),
+    ),
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
@@ -67,6 +76,15 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/schedule',
               builder: (context, state) => const ScheduleScreen(),
+              routes: [
+                GoRoute(
+                  path: 'detail',
+                  builder: (context, state) {
+                    final race = state.extra as RaceModel;
+                    return RaceDetailScreen(race: race);
+                  },
+                ),
+              ],
             ),
           ],
         ),

@@ -49,7 +49,10 @@ class RoundPointsChart extends StatelessWidget {
                     children: List.generate(totalRounds, (index) {
                       final score = index < roundPoints.length ? roundPoints[index] : null;
                       final hasScore = score != null;
-                      final barHeight = hasScore ? ((score / maxScore) * 78).clamp(4.0, 78.0) : 3.0;
+                      final isPointScoring = hasScore && score > 0;
+                      final barHeight = isPointScoring
+                          ? ((score / maxScore) * 78).clamp(6.0, 78.0)
+                          : 3.0;
 
                       return Expanded(
                         child: Padding(
@@ -60,15 +63,19 @@ class RoundPointsChart extends StatelessWidget {
                               Container(
                                 height: barHeight,
                                 decoration: BoxDecoration(
-                                  color: hasScore ? accentColor : Colors.white.withValues(alpha: 0.12),
+                                  color: isPointScoring
+                                      ? accentColor
+                                      : (hasScore
+                                          ? accentColor.withValues(alpha: 0.35)
+                                          : Colors.white.withValues(alpha: 0.12)),
                                   borderRadius: BorderRadius.circular(3),
-                                  boxShadow: hasScore
+                                  boxShadow: isPointScoring
                                       ? [
-                                    BoxShadow(
-                                      color: accentColor.withValues(alpha: 0.4),
-                                      blurRadius: 4,
-                                    )
-                                  ]
+                                          BoxShadow(
+                                            color: accentColor.withValues(alpha: 0.4),
+                                            blurRadius: 4,
+                                          )
+                                        ]
                                       : null,
                                 ),
                               ),

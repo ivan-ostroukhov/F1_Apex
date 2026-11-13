@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
+import '../../../../common/widgets/animated_digit_text.dart';
 import '../../domain/constructor_detail_model.dart';
 import '../../domain/constructor_repository.dart';
 
@@ -224,7 +226,9 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
               ? '..'
               : (detail?.dnfs ?? 0).toString().padLeft(2, '0');
 
-          final carAssetPath = detail?.carAssetPath ?? 'assets/images/${widget.constructorId}.png';
+          final carAssetPath = detail?.carAssetPath.isNotEmpty == true
+              ? detail!.carAssetPath
+              : F1Media.getCarAssetPath(widget.constructorId);
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -258,14 +262,17 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                       top: 40,
                       bottom: 0,
                       width: 250,
-                      child: Image.asset(
-                        carAssetPath,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.topRight,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.sports_motorsports,
-                          size: 140,
-                          color: Colors.white12,
+                      child: Transform.scale(
+                        scale: 0.85,
+                        child: Image.asset(
+                          carAssetPath,
+                          fit: BoxFit.contain,
+                          alignment: Alignment.topRight,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.sports_motorsports,
+                            size: 140,
+                            color: Colors.white12,
+                          ),
                         ),
                       ),
                     ),
@@ -274,14 +281,20 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      height: 60,
+                      height: 240,
                       child: IgnorePointer(
                         child: Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Colors.black],
+                              stops: const [0.0, 0.25, 0.60, 1.0],
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.60),
+                                Colors.black.withValues(alpha: 0.95),
+                                Colors.black,
+                              ],
                             ),
                           ),
                         ),
@@ -395,7 +408,6 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                   height: 1,
                 ),
 
-                // Drivers of this constructor
                 if (detail != null && detail.drivers.isNotEmpty) ...[
                   for (final d in detail.drivers) ...[
                     InkWell(
@@ -449,7 +461,6 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
                   ],
                 ],
 
-                // Technical & Meta details
                 _buildDetailTile(
                   leading: Text(
                     chassis.length > 2 ? chassis.substring(0, 2) : chassis,
@@ -539,8 +550,8 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(
-          value,
+        AnimatedDigitText(
+          text: value,
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
@@ -569,8 +580,8 @@ class _ConstructorDetailScreenState extends State<ConstructorDetailScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              value,
+            AnimatedDigitText(
+              text: value,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,

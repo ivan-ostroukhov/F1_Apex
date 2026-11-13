@@ -28,8 +28,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   int workWidth = workArea.right - workArea.left;
   int workHeight = workArea.bottom - workArea.top;
 
-  int windowWidth = 460;
-  int windowHeight = 760;
+  int windowWidth = 440;
+  int windowHeight = 780;
 
   int originX = workArea.left + (workWidth - windowWidth) / 2;
   int originY = workArea.top + (workHeight - windowHeight) / 2 - 30;

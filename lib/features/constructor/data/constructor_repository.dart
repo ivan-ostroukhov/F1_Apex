@@ -1,9 +1,12 @@
+import 'dart:convert';
 import '../domain/constructor_model.dart';
 import '../domain/constructor_detail_model.dart';
 import '../domain/constructor_repository.dart';
 import 'data_sources/constructor_data_source.dart';
 import 'dto/constructor_dto.dart';
 import 'mappers/constructor_mapper.dart';
+import '../../../../common/network/local_storage_service.dart';
+import '../../../../common/utils/team_utils.dart';
 
 class TeamMetaData {
   final String chassis;
@@ -35,7 +38,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Maranello, Italy',
       constructorsTitles: 16,
       driversTitles: 15,
-      carAssetPath: 'assets/images/ferrari.png',
+      carAssetPath: 'assets/images/cars/ferrari.png',
     );
   }
   if (lower.contains('mercedes')) {
@@ -46,7 +49,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Brackley, United Kingdom',
       constructorsTitles: 8,
       driversTitles: 9,
-      carAssetPath: 'assets/images/mercedes.png',
+      carAssetPath: 'assets/images/cars/mercedes.png',
     );
   }
   if (lower.contains('red_bull') || lower.contains('red bull')) {
@@ -57,7 +60,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Milton Keynes, United Kingdom',
       constructorsTitles: 6,
       driversTitles: 7,
-      carAssetPath: 'assets/images/red_bull.png',
+      carAssetPath: 'assets/images/cars/red_bull.png',
     );
   }
   if (lower.contains('mclaren')) {
@@ -68,7 +71,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Woking, United Kingdom',
       constructorsTitles: 9,
       driversTitles: 12,
-      carAssetPath: 'assets/images/mclaren.png',
+      carAssetPath: 'assets/images/cars/mclaren.png',
     );
   }
   if (lower.contains('aston')) {
@@ -79,7 +82,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Silverstone, United Kingdom',
       constructorsTitles: 0,
       driversTitles: 0,
-      carAssetPath: 'assets/images/aston_martin.png',
+      carAssetPath: 'assets/images/cars/aston_martin.png',
     );
   }
   if (lower.contains('alpine')) {
@@ -90,7 +93,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Enstone, United Kingdom',
       constructorsTitles: 2,
       driversTitles: 2,
-      carAssetPath: 'assets/images/alpine.png',
+      carAssetPath: 'assets/images/cars/alpine.png',
     );
   }
   if (lower.contains('rb') || lower.contains('racing_bulls') || lower.contains('racing bulls')) {
@@ -101,7 +104,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Faenza, Italy',
       constructorsTitles: 0,
       driversTitles: 0,
-      carAssetPath: 'assets/images/racing_bulls.png',
+      carAssetPath: 'assets/images/cars/racing_bulls.png',
     );
   }
   if (lower.contains('haas')) {
@@ -112,7 +115,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Kannapolis, United States',
       constructorsTitles: 0,
       driversTitles: 0,
-      carAssetPath: 'assets/images/haas.png',
+      carAssetPath: 'assets/images/cars/haas.png',
     );
   }
   if (lower.contains('williams')) {
@@ -123,7 +126,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Grove, United Kingdom',
       constructorsTitles: 9,
       driversTitles: 7,
-      carAssetPath: 'assets/images/williams.png',
+      carAssetPath: 'assets/images/cars/williams.png',
     );
   }
   if (lower.contains('sauber') || lower.contains('kick')) {
@@ -134,7 +137,7 @@ TeamMetaData _getMeta(String id, String name) {
       baseLocation: 'Hinwil, Switzerland',
       constructorsTitles: 0,
       driversTitles: 0,
-      carAssetPath: 'assets/images/sauber.png',
+      carAssetPath: 'assets/images/cars/sauber.png',
     );
   }
   return TeamMetaData(
@@ -144,7 +147,7 @@ TeamMetaData _getMeta(String id, String name) {
     baseLocation: 'United Kingdom',
     constructorsTitles: 0,
     driversTitles: 0,
-    carAssetPath: 'assets/images/${id}_car.png',
+    carAssetPath: 'assets/images/cars/$id.png',
   );
 }
 
@@ -176,6 +179,41 @@ class ConstructorRepository implements IConstructorRepository {
     String? season,
   }) async {
     final querySeason = season ?? '2026';
+    final isPastSeason = querySeason != '2026' && querySeason != 'current';
+    final cacheKey = 'constructor_detail_${constructorId}_$querySeason';
+    final tsKey = 'constructor_detail_ts_${constructorId}_$querySeason';
+
+    ConstructorDetailModel? cachedModel;
+    var cachedStr = LocalStorageService.getString(cacheKey);
+    if (querySeason == '2026' || querySeason == 'current') {
+      cachedStr ??= LocalStorageService.getString('constructor_detail_${constructorId}_2026');
+    }
+    if (cachedStr != null && cachedStr.isNotEmpty) {
+      try {
+        final candidate = ConstructorDetailModel.fromJson(
+          jsonDecode(cachedStr) as Map<String, dynamic>,
+        );
+        final candidateSeason = candidate.season;
+        final matchesSeason = candidateSeason.isEmpty || candidateSeason == querySeason;
+        if (matchesSeason && candidate.points != '0' && candidate.position != '0') {
+          cachedModel = candidate;
+        }
+      } catch (_) {}
+    }
+
+    if (isPastSeason && cachedModel != null) {
+      return cachedModel;
+    }
+
+    if (cachedModel != null && cachedModel.points != '0' && cachedModel.position != '0') {
+      final tsStr = LocalStorageService.getString(tsKey);
+      final ts = int.tryParse(tsStr ?? '') ?? 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now - ts < const Duration(hours: 2).inMilliseconds) {
+        return cachedModel;
+      }
+    }
+
     try {
       final seasonResultsFuture = _dataSource.getConstructorSeasonResults(
         constructorId,
@@ -260,9 +298,29 @@ class ConstructorRepository implements IConstructorRepository {
 
       final meta = _getMeta(constructorId, name);
 
-      return ConstructorDetailModel(
+      String position = standing?.position ?? '0';
+      String pointsStr = standing?.points ?? '0';
+      int winsCount = wins > 0 ? wins : (int.tryParse(standing?.wins ?? '0') ?? 0);
+
+      if (querySeason == '2026' || querySeason == 'current') {
+        try {
+          final allTeams = await getConstructors();
+          final matched = allTeams.where((c) =>
+              c.id.toLowerCase() == constructorId.toLowerCase() ||
+              c.name.toLowerCase().contains(constructorId.toLowerCase())).firstOrNull;
+          if (matched != null) {
+            final idx = allTeams.indexOf(matched);
+            position = (idx + 1).toString();
+            pointsStr = matched.points.toString();
+            if (winsCount == 0) winsCount = matched.wins;
+            if (name.isEmpty) name = matched.name;
+          }
+        } catch (_) {}
+      }
+
+      final model = ConstructorDetailModel(
         id: constructorId,
-        name: name.isNotEmpty ? name : constructorId.toUpperCase(),
+        name: TeamUtils.cleanTeamName(name.isNotEmpty ? name : constructorId),
         chassis: meta.chassis,
         engine: meta.engine,
         teamPrincipal: meta.teamPrincipal,
@@ -270,9 +328,9 @@ class ConstructorRepository implements IConstructorRepository {
         constructorsTitles: apiTitles > 0 ? apiTitles : meta.constructorsTitles,
         driversTitles: meta.driversTitles,
         baseLocation: meta.baseLocation,
-        position: standing?.position ?? '0',
-        points: standing?.points ?? '0',
-        wins: wins > 0 ? wins : (int.tryParse(standing?.wins ?? '0') ?? 0),
+        position: position,
+        points: pointsStr,
+        wins: winsCount,
         podiums: podiums,
         poles: poles,
         dnfs: dnfs,
@@ -280,11 +338,36 @@ class ConstructorRepository implements IConstructorRepository {
         carAssetPath: meta.carAssetPath,
         drivers: driversMap.values.toList(),
       );
+
+      if (model.points != '0' && model.position != '0') {
+        LocalStorageService.setString(cacheKey, jsonEncode(model.toJson()));
+        LocalStorageService.setString(tsKey, DateTime.now().millisecondsSinceEpoch.toString());
+      }
+
+      return model;
     } catch (e) {
+      if (cachedModel != null && cachedModel.points != '0') {
+        return cachedModel;
+      }
       final meta = _getMeta(constructorId, constructorId);
+      String position = '0';
+      String pointsStr = '0';
+      int winsCount = 0;
+      try {
+        final currentStandings = await getConstructors(season: 'current');
+        final matched = currentStandings.where((c) =>
+            c.id.toLowerCase() == constructorId.toLowerCase() ||
+            c.name.toLowerCase().contains(constructorId.toLowerCase())).firstOrNull;
+        if (matched != null) {
+          position = (currentStandings.indexOf(matched) + 1).toString();
+          pointsStr = matched.points.toString();
+          winsCount = matched.wins;
+        }
+      } catch (_) {}
+
       return ConstructorDetailModel(
         id: constructorId,
-        name: constructorId.toUpperCase(),
+        name: TeamUtils.cleanTeamName(constructorId),
         chassis: meta.chassis,
         engine: meta.engine,
         teamPrincipal: meta.teamPrincipal,
@@ -292,9 +375,9 @@ class ConstructorRepository implements IConstructorRepository {
         constructorsTitles: meta.constructorsTitles,
         driversTitles: meta.driversTitles,
         baseLocation: meta.baseLocation,
-        position: '0',
-        points: '0',
-        wins: 0,
+        position: position,
+        points: pointsStr,
+        wins: winsCount,
         podiums: 0,
         poles: 0,
         dnfs: 0,
@@ -307,10 +390,23 @@ class ConstructorRepository implements IConstructorRepository {
 
   @override
   Future<List<String>> getConstructorSeasons(String constructorId) async {
-    final seasons = await _dataSource.getConstructorSeasons(constructorId);
-    if (seasons.isEmpty) {
-      return ['2026', '2025', '2024', '2023'];
+    final cacheKey = 'constructor_seasons_$constructorId';
+    final cached = LocalStorageService.getString(cacheKey);
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        final list = (jsonDecode(cached) as List<dynamic>).map((e) => e.toString()).toList();
+        if (list.isNotEmpty) return list;
+      } catch (_) {}
     }
-    return seasons;
+
+    try {
+      final seasons = await _dataSource.getConstructorSeasons(constructorId);
+      if (seasons.isNotEmpty) {
+        LocalStorageService.setString(cacheKey, jsonEncode(seasons));
+        return seasons;
+      }
+    } catch (_) {}
+
+    return ['2026', '2025', '2024', '2023'];
   }
 }

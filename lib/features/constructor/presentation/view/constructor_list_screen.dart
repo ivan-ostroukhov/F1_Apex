@@ -2,10 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:f1_app/common/localization/generated/app_localizations.dart';
 import '../../../../common/utils/f1_colors.dart';
+import '../../../../common/utils/f1_media.dart';
 import '../../domain/constructor_model.dart';
 import '../../domain/constructor_repository.dart';
 import '../bloc/constructor_list_cubit.dart';
@@ -183,12 +183,14 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocProvider(
       create: (context) =>
           ConstructorListCubit(context.read<IConstructorRepository>())
             ..loadConstructors(),
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           bottom: false,
           child: BlocBuilder<ConstructorListCubit, ConstructorListState>(
@@ -196,8 +198,8 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
               final l10n = AppLocalizations.of(context)!;
 
               return switch (state) {
-                ConstructorListLoading() => const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                ConstructorListLoading() => Center(
+                    child: CircularProgressIndicator(color: theme.colorScheme.onSurface),
                   ),
                 ConstructorListError() => Center(
                     child: Column(
@@ -211,8 +213,8 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
                         const SizedBox(height: 12),
                         Text(
                           l10n.errorLoading,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
                             fontSize: 16,
                           ),
                         ),
@@ -230,7 +232,7 @@ class _ConstructorListScreenState extends State<ConstructorListScreen> {
                 ConstructorListNotFound(:final query) => Center(
                     child: Text(
                       '"$query": ${l10n.notFoundSubtitle}',
-                      style: const TextStyle(color: Colors.white70),
+                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                     ),
                   ),
                 ConstructorListLoaded(:final constructors) =>
@@ -272,10 +274,10 @@ class _ConstructorsContent extends StatelessWidget {
     }
 
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final leader = constructors.first;
     final leaderColor = F1Colors.getTeamColor(leader.name);
-    final leaderCarImage =
-        'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2025/${getTeamImageId(leader.name)}.png';
+    final leaderCarAsset = F1Media.getCarAssetPath(leader.id.isNotEmpty ? leader.id : leader.name);
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -298,7 +300,7 @@ class _ConstructorsContent extends StatelessWidget {
                           leaderColor.withValues(alpha: 0.55),
                           leaderColor.withValues(alpha: 0.28),
                           leaderColor.withValues(alpha: 0.08),
-                          Colors.black,
+                          theme.scaffoldBackgroundColor,
                         ],
                       ),
                     ),
@@ -306,18 +308,21 @@ class _ConstructorsContent extends StatelessWidget {
                 ),
 
                 Positioned(
-                  right: -10,
+                  right: 35,
                   top: 20,
                   width: 280,
                   height: 240,
-                  child: CachedNetworkImage(
-                    imageUrl: leaderCarImage,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.topRight,
-                    errorWidget: (_, __, ___) => const Icon(
-                      Icons.sports_motorsports,
-                      size: 120,
-                      color: Colors.white12,
+                  child: Transform.scale(
+                    scale: 1.1,
+                    child: Image.asset(
+                      leaderCarAsset,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.topRight,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.sports_motorsports,
+                        size: 120,
+                        color: Colors.white12,
+                      ),
                     ),
                   ),
                 ),
@@ -326,14 +331,20 @@ class _ConstructorsContent extends StatelessWidget {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  height: 60,
+                  height: 120,
                   child: IgnorePointer(
                     child: Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.black],
+                          stops: const [0.0, 0.35, 0.70, 1.0],
+                          colors: [
+                            Colors.transparent,
+                            theme.scaffoldBackgroundColor.withValues(alpha: 0.50),
+                            theme.scaffoldBackgroundColor.withValues(alpha: 0.88),
+                            theme.scaffoldBackgroundColor,
+                          ],
                         ),
                       ),
                     ),
@@ -354,25 +365,22 @@ class _ConstructorsContent extends StatelessWidget {
                           children: [
                             Text(
                               l10n.constructorsTable,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 height: 1.1,
                               ),
                             ),
                             const SizedBox(width: 6),
-                            const Icon(
+                            Icon(
                               Icons.unfold_more,
                               size: 22,
-                              color: Colors.white70,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-
-
                     ],
                   ),
                 ),
@@ -404,10 +412,10 @@ class _ConstructorsContent extends StatelessWidget {
                             width: 38,
                             child: Text(
                               posStr,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -420,10 +428,10 @@ class _ConstructorsContent extends StatelessWidget {
                               children: [
                                 Text(
                                   item.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -444,18 +452,18 @@ class _ConstructorsContent extends StatelessWidget {
                             children: [
                               Text(
                                 '${item.points}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                   letterSpacing: -0.5,
                                 ),
                               ),
                               Text(
                                 l10n.driverPointsShort,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.white70,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -463,16 +471,16 @@ class _ConstructorsContent extends StatelessWidget {
                           ),
 
                           const SizedBox(width: 10),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
-                            color: Colors.white38,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                             size: 20,
                           ),
                         ],
                       ),
                     ),
                     Divider(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: theme.dividerColor,
                       height: 1,
                     ),
                   ],
@@ -484,7 +492,7 @@ class _ConstructorsContent extends StatelessWidget {
         ),
 
         const SliverToBoxAdapter(
-          child: SizedBox(height: 40),
+          child: SizedBox(height: 105),
         ),
       ],
     );

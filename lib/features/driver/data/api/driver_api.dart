@@ -7,11 +7,13 @@ class DriverApi {
   const DriverApi(this._dio);
 
   Future<ErgastStandingsResponseDto> getStandings({
+    String? season,
     int limit = 30,
     int offset = 0,
   }) async {
+    final querySeason = (season == '2026' || season == null || season == 'current') ? 'current' : season;
     final response = await _dio.get<Map<String, dynamic>>(
-      '/current/driverStandings.json',
+      '/$querySeason/driverStandings.json',
       queryParameters: {'limit': limit, 'offset': offset},
     );
     return ErgastStandingsResponseDto.fromJson(response.data!);
@@ -32,21 +34,17 @@ class DriverApi {
     String season = 'current',
   }) async {
     try {
+      final effectiveSeason = (season == '2026' || season == 'current') ? 'current' : season;
+      final path = effectiveSeason == 'career'
+          ? '/drivers/$driverId/results.json'
+          : '/$effectiveSeason/drivers/$driverId/results.json';
       final response = await _dio.get<Map<String, dynamic>>(
-        '/$season/drivers/$driverId/results.json',
+        path,
         queryParameters: {'limit': 30},
       );
       return response.data ?? <String, dynamic>{};
     } catch (_) {
-      try {
-        final fallback = await _dio.get<Map<String, dynamic>>(
-          '/drivers/$driverId/results.json',
-          queryParameters: {'limit': 30},
-        );
-        return fallback.data ?? <String, dynamic>{};
-      } catch (_) {
-        return <String, dynamic>{};
-      }
+      return <String, dynamic>{};
     }
   }
 

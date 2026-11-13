@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Constructors Standings'**
   String get constructorsTable;
 
+  /// No description provided for @driversTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers Standings'**
+  String get driversTable;
+
   /// No description provided for @constructorsComingSoon.
   ///
   /// In en, this message translates to:
@@ -499,6 +505,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Metric'**
   String get metricUnits;
+
+  /// No description provided for @grandPrixCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Grand Prix completed'**
+  String get grandPrixCompleted;
+
+  /// No description provided for @distanceCovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance covered'**
+  String get distanceCovered;
+
+  /// No description provided for @lapsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Laps completed'**
+  String get lapsCompleted;
+
+  /// No description provided for @breakingNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking News'**
+  String get breakingNews;
+
+  /// No description provided for @viewAllNews.
+  ///
+  /// In en, this message translates to:
+  /// **'View all >'**
+  String get viewAllNews;
+
+  /// No description provided for @mexicoGrandPrixTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'R19 Mexico City Grand Prix'**
+  String get mexicoGrandPrixTitle;
+
+  /// No description provided for @lapsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of laps'**
+  String get lapsCount;
+
+  /// No description provided for @maxSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top speed'**
+  String get maxSpeed;
+
+  /// No description provided for @turnsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of turns'**
+  String get turnsCount;
+
+  /// No description provided for @elevationChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation change'**
+  String get elevationChange;
+
+  /// No description provided for @mostSuccessfulConstructor.
+  ///
+  /// In en, this message translates to:
+  /// **'Most successful constructor'**
+  String get mostSuccessfulConstructor;
+
+  /// No description provided for @recordWinsFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} WINS'**
+  String recordWinsFormat(String count);
+
+  /// No description provided for @mostSuccessfulDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Most successful drivers'**
+  String get mostSuccessfulDrivers;
+
+  /// No description provided for @raceLapRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Race lap record'**
+  String get raceLapRecord;
+
+  /// No description provided for @fastestPitStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest pit stop of the season'**
+  String get fastestPitStop;
+
+  /// No description provided for @fastestLapSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest lap of the season'**
+  String get fastestLapSeason;
+
+  /// No description provided for @mexicoDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct 31 - Nov 02'**
+  String get mexicoDateRange;
+
+  /// No description provided for @mexicoSessionDate.
+  ///
+  /// In en, this message translates to:
+  /// **'31 SAT'**
+  String get mexicoSessionDate;
+
+  /// No description provided for @mexicoSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice 1'**
+  String get mexicoSessionTitle;
+
+  /// No description provided for @noPointsData.
+  ///
+  /// In en, this message translates to:
+  /// **'No points data for the current season'**
+  String get noPointsData;
+
+  /// No description provided for @roundFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {number}'**
+  String roundFormat(String number);
+
+  /// No description provided for @kmUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'KM'**
+  String get kmUnit;
+
+  /// No description provided for @kmhUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'km/h'**
+  String get kmhUnit;
+
+  /// No description provided for @mUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get mUnit;
+
+  /// No description provided for @topSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top speed'**
+  String get topSpeed;
+
+  /// No description provided for @turns.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns'**
+  String get turns;
+
+  /// No description provided for @elevationChangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation change'**
+  String get elevationChangeLabel;
+
+  /// No description provided for @lapsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of laps'**
+  String get lapsCountLabel;
+
+  /// No description provided for @weekendSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend Sessions'**
+  String get weekendSessions;
 }
 
 class _AppLocalizationsDelegate

@@ -11,11 +11,12 @@ class NetworkDriverDataSource implements IDriverDataSource {
 
   @override
   Future<List<DriverStandingDto>> getDriverStandings({
+    String? season,
     int limit = 30,
     int offset = 0,
   }) async {
     try {
-      final response = await _api.getStandings(limit: limit, offset: offset);
+      final response = await _api.getStandings(season: season, limit: limit, offset: offset);
       final lists = response.mrData.standingsTable.standingsLists;
       if (lists.isEmpty) return [];
       return lists.first.driverStandings;
