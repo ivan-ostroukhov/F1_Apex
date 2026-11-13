@@ -29,7 +29,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Fade-in animation: 500ms
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -41,13 +40,11 @@ class _SplashScreenState extends State<SplashScreen>
 
     _fadeController.forward();
 
-    // Minimum display time for logo (1000ms), so it acts as a smooth screen, not a glitch
     _minTimeTimer = Timer(const Duration(milliseconds: 1000), () {
       _minTimeElapsed = true;
       _checkAndFinish();
     });
 
-    // Check current state or subscribe to AppStartupCubit
     final cubit = context.read<AppStartupCubit>();
     if (cubit.state.isDone) {
       _dataReady = true;
@@ -62,7 +59,6 @@ class _SplashScreenState extends State<SplashScreen>
       });
     }
 
-    // Safety timeout (12s): in case of total network offline / severe hang
     _safetyTimeoutTimer = Timer(const Duration(seconds: 12), () {
       if (mounted && !_finishing) {
         _dataReady = true;
@@ -75,7 +71,6 @@ class _SplashScreenState extends State<SplashScreen>
     if (!_minTimeElapsed || !_dataReady || _finishing || !mounted) return;
     _finishing = true;
 
-    // Smooth fade out: 350ms
     _fadeController.reverse().then((_) {
       if (mounted) widget.onFinished();
     });

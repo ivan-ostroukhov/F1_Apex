@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -40,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _activePage = 0;
   Timer? _carouselTimer;
   StreamSubscription<AppStartupState>? _startupSub;
+  final ScrollController _newsScrollController = ScrollController();
 
   List<HomeNewsModel> _news = [];
   String _favDriver1 = 'verstappen';
@@ -338,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _newsScrollController.dispose();
     _startupSub?.cancel();
     _carouselTimer?.cancel();
     super.dispose();
@@ -663,12 +666,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 SizedBox(
                   height: 210,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _news.length,
-                    itemBuilder: (context, index) {
+                  child: Listener(
+                    onPointerSignal: (pointerSignal) {
+                      if (pointerSignal is PointerScrollEvent && _newsScrollController.hasClients) {
+                        final delta = pointerSignal.scrollDelta.dy != 0
+                            ? pointerSignal.scrollDelta.dy
+                            : pointerSignal.scrollDelta.dx;
+                        final newOffset = (_newsScrollController.offset + delta).clamp(
+                          0.0,
+                          _newsScrollController.position.maxScrollExtent,
+                        );
+                        _newsScrollController.jumpTo(newOffset);
+                      }
+                    },
+                    child: ListView.builder(
+                      controller: _newsScrollController,
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _news.length,
+                      itemBuilder: (context, index) {
                       final news = _news[index];
                       return Padding(
                         padding: const EdgeInsets.only(right: 14),
@@ -778,6 +795,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
+                ),
                 ),
 
                 const SizedBox(height: 28),

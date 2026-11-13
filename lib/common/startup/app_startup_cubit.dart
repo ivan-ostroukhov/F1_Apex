@@ -93,17 +93,14 @@ class AppStartupCubit extends Cubit<AppStartupState> {
     final homeRepo = HomeRepository();
     final scheduleRepo = schedule_impl.ScheduleRepository();
 
-    // 1. Новости запускаем в фоне (не блокируют splash screen)
     _loadNewsInBackground(homeRepo);
 
-    // 2. Критичные данные экрана (пилоты, команда, расписание) ждём параллельно
     await Future.wait<void>([
       _loadDriversAndTeam(d1, d2, tm),
       _loadSchedule(scheduleRepo),
     ]);
 
     if (isClosed) return;
-    // Как только критичные данные получены — экран загрузки может безопасно уходить
     emit(state.copyWith(isLoading: false));
   }
 
@@ -152,7 +149,6 @@ class AppStartupCubit extends Cubit<AppStartupState> {
     } catch (_) {}
   }
 
-  /// Called when user changes favorites in settings
   Future<void> refreshFavorites() async {
     final d1 = LocalStorageService.getString('fav_driver_1') ?? 'verstappen';
     final d2 = LocalStorageService.getString('fav_driver_2') ?? 'piastri';

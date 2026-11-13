@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'common/navigation/app_router.dart';
@@ -71,6 +72,7 @@ class F1App extends StatelessWidget {
                 return MaterialApp.router(
                   debugShowCheckedModeBanner: false,
                   routerConfig: appRouter,
+                  scrollBehavior: const AppScrollBehavior(),
                   theme: AppTheme.lightTheme,
                   darkTheme: AppTheme.darkTheme,
                   themeMode: themeMode,
@@ -85,4 +87,16 @@ class F1App extends StatelessWidget {
       ),
     );
   }
+}
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+      };
 }
