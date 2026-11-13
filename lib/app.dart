@@ -4,6 +4,7 @@ import 'common/navigation/app_router.dart';
 import 'common/theme/app_theme.dart';
 import 'common/theme/theme_cubit.dart';
 import 'common/localization/locale_cubit.dart';
+import 'common/startup/app_startup_cubit.dart';
 import 'features/driver/data/driver_repository.dart';
 import 'features/driver/domain/i_driver_repository.dart';
 import 'features/driver/presentation/bloc/list/driver_list_cubit.dart';
@@ -53,6 +54,12 @@ class F1App extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (ctx) => DriverListCubit(ctx.read<IDriverRepository>())..loadDrivers(),
+          ),
+          BlocProvider(
+            create: (ctx) => AppStartupCubit(
+              driverRepo: ctx.read<IDriverRepository>(),
+              constructorRepo: ctx.read<IConstructorRepository>(),
+            )..initialize(),
           ),
           BlocProvider(create: (_) => ThemeCubit()),
           BlocProvider(create: (_) => LocaleCubit()),

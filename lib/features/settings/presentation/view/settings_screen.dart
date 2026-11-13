@@ -6,6 +6,7 @@ import '../../../../common/localization/generated/app_localizations.dart';
 import '../../../../common/localization/locale_cubit.dart';
 import '../../../../common/network/local_storage_service.dart';
 import '../../../../common/theme/theme_cubit.dart';
+import '../../../../common/startup/app_startup_cubit.dart';
 import '../../../../common/utils/f1_colors.dart';
 import '../../../driver/domain/i_driver_repository.dart';
 import '../../../driver/domain/driver_model.dart';
@@ -129,6 +130,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           LocalStorageService.setString('fav_driver_2', selectedId);
         }
       });
+      if (mounted) {
+        context.read<AppStartupCubit>().refreshFavorites();
+      }
     }
   }
 
@@ -148,6 +152,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _favTeam = selectedId;
         LocalStorageService.setString('fav_team', selectedId);
       });
+      if (mounted) {
+        context.read<AppStartupCubit>().refreshFavorites();
+      }
     }
   }
 

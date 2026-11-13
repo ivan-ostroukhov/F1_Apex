@@ -26,6 +26,8 @@ import '../../../schedule/domain/models/circuit_stats.dart';
 import '../../../driver/presentation/widgets/driver_hero_image.dart';
 import '../../data/home_repository.dart';
 import '../../domain/home_news_model.dart';
+import '../../../../common/startup/app_startup_cubit.dart';
+import '../../../../common/localization/locale_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,6 +39,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _activePage = 0;
   Timer? _carouselTimer;
+  StreamSubscription<AppStartupState>? _startupSub;
 
   List<HomeNewsModel> _news = [];
   String _favDriver1 = 'verstappen';
@@ -90,11 +93,50 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _loadNews();
-        _loadFavoritesAndData();
+        _applyStartupData();
       }
     });
     _startAutoScroll();
+  }
+
+  void _applyStartupData() {
+    final cubit = context.read<AppStartupCubit>();
+    if (cubit.state.isDone) {
+      _populateFromStartup(cubit.state);
+    }
+    _startupSub?.cancel();
+    _startupSub = cubit.stream.listen((state) {
+      if (mounted && state.isDone) {
+        _populateFromStartup(state);
+      }
+    });
+  }
+
+  void _populateFromStartup(AppStartupState data) {
+    final isEn = context.read<LocaleCubit>().state.languageCode == 'en';
+    setState(() {
+      _favDriver1 = data.favDriver1;
+      _favDriver2 = data.favDriver2;
+      _favTeam = data.favTeam;
+
+      if (data.driver1Detail != null &&
+          (data.driver1Detail!.points != '0' || data.driver1Detail!.roundPoints.isNotEmpty)) {
+        _driver1Detail = data.driver1Detail;
+      }
+      if (data.driver2Detail != null &&
+          (data.driver2Detail!.points != '0' || data.driver2Detail!.roundPoints.isNotEmpty)) {
+        _driver2Detail = data.driver2Detail;
+      }
+      if (data.teamDetail != null &&
+          (data.teamDetail!.points != '0' || data.teamDetail!.position != '0' || data.teamDetail!.wins > 0)) {
+        _teamDetail = data.teamDetail;
+      }
+      if (data.seasonSchedule.isNotEmpty) {
+        _seasonSchedule = data.seasonSchedule;
+        _nextRace = data.nextRace;
+      }
+      _news = isEn ? data.newsEn : data.newsRu;
+    });
   }
 
   @override
@@ -296,6 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _startupSub?.cancel();
     _carouselTimer?.cancel();
     super.dispose();
   }
