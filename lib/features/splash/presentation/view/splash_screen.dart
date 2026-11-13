@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/startup/app_startup_cubit.dart';
+import '../../../../common/theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   final VoidCallback onFinished;
@@ -16,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _fadeController;
   late final Animation<double> _opacity;
+  late final Animation<double> _scale;
 
   bool _dataReady = false;
   bool _minTimeElapsed = false;
@@ -31,16 +33,24 @@ class _SplashScreenState extends State<SplashScreen>
 
     _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 650),
     );
+
     _opacity = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeIn,
     );
 
+    _scale = Tween<double>(begin: 0.94, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
     _fadeController.forward();
 
-    _minTimeTimer = Timer(const Duration(milliseconds: 1000), () {
+    _minTimeTimer = Timer(const Duration(milliseconds: 1100), () {
       _minTimeElapsed = true;
       _checkAndFinish();
     });
@@ -87,16 +97,75 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    const red = AppColors.racingBlue;
+    const bg = Color(0xFF0F0F14);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF15151E),
-      body: Center(
-        child: FadeTransition(
-          opacity: _opacity,
-          child: Image.asset(
-            'assets/images/logo_v2.png',
-            width: 180,
-            height: 180,
-          ),
+      backgroundColor: bg,
+      body: FadeTransition(
+        opacity: _opacity,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: -450,
+              right: -430,
+              width: 800,
+              height: 800,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 0.5,
+                      colors: [
+                        red.withValues(alpha: 0.32),
+                        red.withValues(alpha: 0.15),
+                        red.withValues(alpha: 0.04),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.45, 0.8, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -420,
+              left: -350,
+              width: 800,
+              height: 800,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 0.5,
+                      colors: [
+                        red.withValues(alpha: 0.22),
+                        red.withValues(alpha: 0.08),
+                        red.withValues(alpha: 0.02),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.45, 0.8, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Center(
+              child: ScaleTransition(
+                scale: _scale,
+                child: Image.asset(
+                  'assets/images/logo_v2.png',
+                  width: 170,
+                  height: 170,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
