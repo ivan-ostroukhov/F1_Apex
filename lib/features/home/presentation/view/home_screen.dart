@@ -505,25 +505,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 8,
                     right: 16,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await context.push('/settings');
-                        _loadFavoritesAndData();
-                      },
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: theme.cardColor.withValues(alpha: 0.8),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.dividerColor,
+                    child: Material(
+                      color: Colors.transparent,
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        onTap: () async {
+                          await context.push('/settings');
+                          _loadFavoritesAndData();
+                        },
+                        customBorder: const CircleBorder(),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: theme.cardColor.withValues(alpha: 0.8),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: theme.dividerColor,
+                            ),
                           ),
-                        ),
-                        child: Icon(
-                          Icons.tune_outlined,
-                          color: theme.colorScheme.onSurface,
-                          size: 20,
+                          child: Icon(
+                            Icons.tune_outlined,
+                            color: theme.colorScheme.onSurface,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -679,13 +684,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         _newsScrollController.jumpTo(newOffset);
                       }
                     },
-                    child: ListView.builder(
-                      controller: _newsScrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _news.length,
-                      itemBuilder: (context, index) {
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                          PointerDeviceKind.trackpad,
+                        },
+                      ),
+                      child: ListView.builder(
+                        controller: _newsScrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _news.length,
+                        itemBuilder: (context, index) {
                       final news = _news[index];
                       return Padding(
                         padding: const EdgeInsets.only(right: 14),
@@ -795,6 +808,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
+                ),
                 ),
                 ),
 
