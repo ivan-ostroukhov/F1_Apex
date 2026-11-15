@@ -60,8 +60,8 @@ void RegisterDesktopWidgetChannel(flutter::FlutterEngine* engine) {
           if (!g_widget_windows.empty()) {
             HWND existingHwnd = g_widget_windows.front()->GetHandle();
             if (existingHwnd && IsWindow(existingHwnd)) {
-              SetWindowPos(existingHwnd, HWND_TOP, 0, 0, 0, 0,
-                           SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+              SetWindowPos(existingHwnd, HWND_BOTTOM, 0, 0, 0, 0,
+                           SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
               result->Success(flutter::EncodableValue(true));
               return;
             }

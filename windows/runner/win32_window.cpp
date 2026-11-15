@@ -138,7 +138,7 @@ bool Win32Window::Create(const std::wstring& title,
 
   HWND window = nullptr;
   if (is_widget) {
-    DWORD ex_style = WS_EX_TOOLWINDOW;
+    DWORD ex_style = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
     DWORD style = WS_POPUP | WS_VISIBLE;
     window = CreateWindowEx(
         ex_style, window_class, title.c_str(), style,

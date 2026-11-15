@@ -9,6 +9,8 @@ class RaceScheduleGlassWidget extends StatelessWidget {
   final bool is24Hour;
   final double width;
   final double? height;
+  final bool showShadow;
+  final double borderRadius;
 
   const RaceScheduleGlassWidget({
     super.key,
@@ -16,6 +18,8 @@ class RaceScheduleGlassWidget extends StatelessWidget {
     this.is24Hour = true,
     this.width = 540,
     this.height,
+    this.showShadow = true,
+    this.borderRadius = 24,
   });
 
   @override
@@ -30,24 +34,26 @@ class RaceScheduleGlassWidget extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 28,
-            spreadRadius: -4,
-            offset: const Offset(0, 16),
-          ),
-          BoxShadow(
-            color: const Color(0xFFE10600).withValues(alpha: 0.08),
-            blurRadius: 40,
-            spreadRadius: 2,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: showShadow
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  blurRadius: 28,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 16),
+                ),
+                BoxShadow(
+                  color: const Color(0xFFE10600).withValues(alpha: 0.08),
+                  blurRadius: 40,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 10),
+                ),
+              ]
+            : null,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: CustomPaint(

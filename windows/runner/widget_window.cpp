@@ -18,6 +18,33 @@ WidgetWindow::WidgetWindow(const flutter::DartProject& project, const std::strin
 
 WidgetWindow::~WidgetWindow() {}
 
+void WidgetWindow::ApplyRoundedCorners() {
+  HWND hwnd = GetHandle();
+  if (!hwnd) return;
+
+  RECT rect;
+  GetClientRect(hwnd, &rect);
+  int width = rect.right - rect.left;
+  int height = rect.bottom - rect.top;
+  if (width <= 0 || height <= 0) return;
+
+  UINT dpi = GetDpiForWindow(hwnd);
+  if (dpi == 0) dpi = 96;
+  float scale = static_cast<float>(dpi) / 96.0f;
+  int diameter = static_cast<int>(48 * scale);
+
+  HRGN rgn = CreateRoundRectRgn(0, 0, width + 1, height + 1, diameter, diameter);
+  SetWindowRgn(hwnd, rgn, TRUE);
+
+  HWND childHwnd = (flutter_controller_ && flutter_controller_->view())
+                       ? flutter_controller_->view()->GetNativeWindow()
+                       : nullptr;
+  if (childHwnd) {
+    HRGN childRgn = CreateRoundRectRgn(0, 0, width + 1, height + 1, diameter, diameter);
+    SetWindowRgn(childHwnd, childRgn, TRUE);
+  }
+}
+
 bool WidgetWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
     return false;
@@ -32,7 +59,7 @@ bool WidgetWindow::OnCreate() {
 
   LONG_PTR exStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
   exStyle &= ~WS_EX_APPWINDOW;
-  exStyle |= WS_EX_TOOLWINDOW;
+  exStyle |= WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
   SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle);
 
   MARGINS margins = {-1, -1, -1, -1};
@@ -62,11 +89,11 @@ bool WidgetWindow::OnCreate() {
       SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
       result->Success(flutter::EncodableValue(true));
     } else if (call.method_name() == "setAlwaysOnTop") {
-      bool top = true;
+      bool top = false;
       if (call.arguments() && std::holds_alternative<bool>(*call.arguments())) {
         top = std::get<bool>(*call.arguments());
       }
-      SetWindowPos(hwnd, top ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0,
+      SetWindowPos(hwnd, top ? HWND_TOPMOST : HWND_BOTTOM, 0, 0, 0, 0,
                    SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
       result->Success(flutter::EncodableValue(true));
     } else {
@@ -86,8 +113,11 @@ bool WidgetWindow::OnCreate() {
       &flutter::StandardMethodCodec::GetInstance());
   legacy_channel_->SetMethodCallHandler(setupHandler);
 
-  flutter_controller_->engine()->SetNextFrameCallback([this]() {
+  flutter_controller_->engine()->SetNextFrameCallback([this, hwnd]() {
     this->Show();
+    this->ApplyRoundedCorners();
+    SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
   });
 
   flutter_controller_->ForceRedraw();
@@ -107,6 +137,24 @@ WidgetWindow::MessageHandler(HWND hwnd, UINT const message,
                              LPARAM const lparam) noexcept {
   if (message == WM_GETMINMAXINFO) {
     return 0;
+  }
+
+  if (message == WM_MOUSEACTIVATE) {
+    return MA_NOACTIVATE;
+  }
+
+  if (message == WM_WINDOWPOSCHANGING) {
+    auto pos = reinterpret_cast<WINDOWPOS*>(lparam);
+    pos->hwndInsertAfter = HWND_BOTTOM;
+  }
+
+  if (message == WM_SIZE) {
+    ApplyRoundedCorners();
+  }
+
+  if (message == WM_ACTIVATE && LOWORD(wparam) == WA_INACTIVE) {
+    SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
   }
 
   if (message == WM_DESTROY) {

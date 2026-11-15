@@ -40,7 +40,7 @@ class _DesktopWidgetHome extends StatefulWidget {
 class _DesktopWidgetHomeState extends State<_DesktopWidgetHome> {
   RaceModel? _race;
   bool _is24Hour = true;
-  bool _isAlwaysOnTop = true;
+  bool _isPinned = false;
   bool _isHovered = false;
   Timer? _refreshTimer;
 
@@ -48,6 +48,7 @@ class _DesktopWidgetHomeState extends State<_DesktopWidgetHome> {
   void initState() {
     super.initState();
     _is24Hour = LocalStorageService.getString('is_24_hour') != 'false';
+    _isPinned = LocalStorageService.getString('desktop_widget_pinned') == 'true';
     _fetchSchedule();
     _refreshTimer = Timer.periodic(const Duration(minutes: 5), (_) => _fetchSchedule());
   }
@@ -88,17 +89,16 @@ class _DesktopWidgetHomeState extends State<_DesktopWidgetHome> {
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
         child: GestureDetector(
-          onPanStart: (_) => DesktopWidgetChannel.startDragging(),
+          onPanStart: _isPinned ? null : (_) => DesktopWidgetChannel.startDragging(),
           child: Stack(
             children: [
               Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: RaceScheduleGlassWidget(
-                    race: _race,
-                    is24Hour: _is24Hour,
-                    width: double.infinity,
-                  ),
+                child: RaceScheduleGlassWidget(
+                  race: _race,
+                  is24Hour: _is24Hour,
+                  width: double.infinity,
+                  showShadow: false,
+                  borderRadius: 24,
                 ),
               ),
               if (_isHovered)
@@ -109,12 +109,12 @@ class _DesktopWidgetHomeState extends State<_DesktopWidgetHome> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildControlButton(
-                        icon: _isAlwaysOnTop ? Icons.push_pin : Icons.push_pin_outlined,
-                        color: _isAlwaysOnTop ? const Color(0xFF00D2BE) : Colors.white70,
+                        icon: _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        color: _isPinned ? const Color(0xFF00D2BE) : Colors.white70,
                         onTap: () {
-                          final newVal = !_isAlwaysOnTop;
-                          setState(() => _isAlwaysOnTop = newVal);
-                          DesktopWidgetChannel.setAlwaysOnTop(newVal);
+                          final newVal = !_isPinned;
+                          setState(() => _isPinned = newVal);
+                          LocalStorageService.setString('desktop_widget_pinned', newVal.toString());
                         },
                       ),
                       const SizedBox(width: 6),
