@@ -9,6 +9,7 @@ import 'package:f1_app/features/schedule/presentation/view/schedule_screen.dart'
 import 'package:f1_app/features/schedule/presentation/view/race_detail_screen.dart';
 import 'package:f1_app/features/schedule/domain/models/race_model.dart';
 import 'package:f1_app/features/splash/presentation/view/splash_screen.dart';
+import 'package:f1_app/features/widgets/presentation/view/widgets_gallery_screen.dart';
 import 'scaffold_with_nav_bar.dart';
 
 final appRouter = GoRouter(
@@ -23,6 +24,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/widgets',
+      builder: (context, state) => const WidgetsGalleryScreen(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

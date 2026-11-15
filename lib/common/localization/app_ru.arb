@@ -122,5 +122,10 @@
   "turns": "Повороты",
   "elevationChangeLabel": "Перепад высот",
   "lapsCountLabel": "Количество кругов",
-  "weekendSessions": "Выходные гонки"
+  "weekendSessions": "Выходные гонки",
+  "widgetsTitle": "Виджеты",
+  "desktopWidgets": "Виджеты на рабочий стол",
+  "previewWidget": "Предпросмотр виджета",
+  "pinToDesktop": "Закрепить на рабочем столе",
+  "currentGrandPrixWidget": "Расписание Гран-при"
 }

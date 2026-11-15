@@ -336,6 +336,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _buildDivider(theme),
 
                   _buildSettingRow(
+                    icon: Icons.widgets_outlined,
+                    title: l10n.widgetsTitle,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l10n.desktopWidgets,
+                          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 14),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withValues(alpha: 0.5), size: 18),
+                      ],
+                    ),
+                    onTap: () => context.push('/widgets'),
+                  ),
+                  _buildDivider(theme),
+
+                  _buildSettingRow(
                     icon: Icons.contrast,
                     title: l10n.appTheme,
                     trailing: Row(

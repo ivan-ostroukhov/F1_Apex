@@ -679,6 +679,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Weekend Sessions'**
   String get weekendSessions;
+
+  /// No description provided for @widgetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets'**
+  String get widgetsTitle;
+
+  /// No description provided for @desktopWidgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop Widgets'**
+  String get desktopWidgets;
+
+  /// No description provided for @previewWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'Widget Preview'**
+  String get previewWidget;
+
+  /// No description provided for @pinToDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to Desktop'**
+  String get pinToDesktop;
+
+  /// No description provided for @currentGrandPrixWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'Grand Prix Schedule'**
+  String get currentGrandPrixWidget;
 }
 
 class _AppLocalizationsDelegate

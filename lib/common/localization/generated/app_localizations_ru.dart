@@ -307,4 +307,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get weekendSessions => 'Выходные гонки';
+
+  @override
+  String get widgetsTitle => 'Виджеты';
+
+  @override
+  String get desktopWidgets => 'Виджеты на рабочий стол';
+
+  @override
+  String get previewWidget => 'Предпросмотр виджета';
+
+  @override
+  String get pinToDesktop => 'Закрепить на рабочем столе';
+
+  @override
+  String get currentGrandPrixWidget => 'Расписание Гран-при';
 }

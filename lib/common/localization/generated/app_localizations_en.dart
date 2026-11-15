@@ -307,4 +307,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekendSessions => 'Weekend Sessions';
+
+  @override
+  String get widgetsTitle => 'Widgets';
+
+  @override
+  String get desktopWidgets => 'Desktop Widgets';
+
+  @override
+  String get previewWidget => 'Widget Preview';
+
+  @override
+  String get pinToDesktop => 'Pin to Desktop';
+
+  @override
+  String get currentGrandPrixWidget => 'Grand Prix Schedule';
 }

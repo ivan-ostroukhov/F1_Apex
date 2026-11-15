@@ -122,8 +122,10 @@ Win32Window::~Win32Window() {
 
 bool Win32Window::Create(const std::wstring& title,
                          const Point& origin,
-                         const Size& size) {
+                         const Size& size,
+                         bool is_widget) {
   Destroy();
+  is_widget_ = is_widget;
 
   const wchar_t* window_class =
       WindowClassRegistrar::GetInstance()->GetWindowClass();
@@ -134,11 +136,22 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
-  HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
-      Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
-      Scale(size.width, scale_factor), Scale(size.height, scale_factor),
-      nullptr, nullptr, GetModuleHandle(nullptr), this);
+  HWND window = nullptr;
+  if (is_widget) {
+    DWORD ex_style = WS_EX_TOOLWINDOW;
+    DWORD style = WS_POPUP | WS_VISIBLE;
+    window = CreateWindowEx(
+        ex_style, window_class, title.c_str(), style,
+        origin.x, origin.y,
+        Scale(size.width, scale_factor), Scale(size.height, scale_factor),
+        nullptr, nullptr, GetModuleHandle(nullptr), this);
+  } else {
+    window = CreateWindow(
+        window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
+        Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
+        Scale(size.width, scale_factor), Scale(size.height, scale_factor),
+        nullptr, nullptr, GetModuleHandle(nullptr), this);
+  }
 
   if (!window) {
     return false;
@@ -159,6 +172,10 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
                                       WPARAM const wparam,
                                       LPARAM const lparam) noexcept {
   if (message == WM_GETMINMAXINFO) {
+    auto that = GetThisFromHandle(window);
+    if (that != nullptr && that->is_widget_) {
+      return 0;
+    }
     auto info = reinterpret_cast<MINMAXINFO*>(lparam);
     UINT dpi = GetDpiForWindow(window);
     if (dpi == 0) dpi = 96;
@@ -191,6 +208,9 @@ Win32Window::MessageHandler(HWND hwnd,
                             LPARAM const lparam) noexcept {
   switch (message) {
     case WM_SIZING: {
+      if (is_widget_) {
+        return TRUE;
+      }
       auto rect = reinterpret_cast<RECT*>(lparam);
       UINT dpi = GetDpiForWindow(hwnd);
       if (dpi == 0) dpi = 96;

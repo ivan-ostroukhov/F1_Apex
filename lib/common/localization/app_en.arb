@@ -122,5 +122,10 @@
   "turns": "Turns",
   "elevationChangeLabel": "Elevation change",
   "lapsCountLabel": "Number of laps",
-  "weekendSessions": "Weekend Sessions"
+  "weekendSessions": "Weekend Sessions",
+  "widgetsTitle": "Widgets",
+  "desktopWidgets": "Desktop Widgets",
+  "previewWidget": "Widget Preview",
+  "pinToDesktop": "Pin to Desktop",
+  "currentGrandPrixWidget": "Grand Prix Schedule"
 }
